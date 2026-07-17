@@ -1,0 +1,459 @@
+{
+  "bank_id": "academic-reading-v1",
+  "version": "1.0.0",
+  "source": {
+    "source_type": "project_original",
+    "source_name": "IELTS AI Coach",
+    "copyright_notice": "Original educational content created for the IELTS AI Coach project.",
+    "is_official_ielts_content": false
+  },
+  "passages": [
+    {
+      "passage_id": "AR-V1-001",
+      "title": "Cooling Cities from the Rooftop",
+      "sections": [
+        {
+          "label": "A",
+          "text": "On a summer afternoon, the temperature above a conventional dark roof can rise far beyond the temperature of the surrounding air. The roof absorbs solar energy and releases part of it slowly after sunset, adding to the urban heat that has accumulated in roads and walls. For decades, engineers treated this surface mainly as weather protection. More recently, city planners have begun to see roofs as unused environmental infrastructure. A living roof, sometimes called a green roof, places a designed layer of vegetation above a waterproof membrane. It cannot replace a public park: people may never enter it, and its soil is usually shallow. Nevertheless, thousands of small planted surfaces can alter how a district handles heat and rain. Their value therefore lies less in creating miniature gardens than in changing the physical behaviour of buildings and the spaces around them."
+        },
+        {
+          "label": "B",
+          "text": "The cooling effect comes from two related processes. First, leaves shade the roof membrane, so less solar energy reaches the building material below. Second, plants release water vapour through evapotranspiration. Turning liquid water into vapour consumes heat, which means some incoming energy is used for this change of state rather than stored in the roof. The size of the benefit varies. A roof with dry, unhealthy plants may perform little better than bare concrete, while a well-watered roof with dense foliage can remain noticeably cooler. Climate also matters. In a humid region, the air may accept less additional moisture; in a dry region, evapotranspiration can be powerful but irrigation may be difficult to justify. For this reason, researchers increasingly report ranges of performance instead of advertising a single universal temperature reduction."
+        },
+        {
+          "label": "C",
+          "text": "Rainwater management is an equally important function. During a storm, soil and drainage layers temporarily hold water that would otherwise enter street pipes immediately. Some water later evaporates, while the remainder is released more slowly. This delay can reduce the peak flow reaching an overloaded drainage network. It does not mean that a living roof absorbs every storm. Once its storage layers are saturated, additional rain will run off, and a long wet period may leave little capacity for the next downpour. Designers must therefore use local rainfall records, roof slope and drainage calculations rather than a simple rule about soil depth. The greatest benefit often appears when many roofs work together across a catchment. One roof may delay only a modest volume, but a connected programme can buy valuable time for pipes, pumps and rivers downstream."
+        },
+        {
+          "label": "D",
+          "text": "The choice of plants is not merely decorative. Shallow systems need species that tolerate wind, intense sun and irregular access to water. Sedums became common because they survive these conditions and add little weight, but dependence on a few similar species limits habitat value. Trials in several cities now combine low-growing flowers, grasses and small areas of deeper substrate. The aim is to create different temperatures and moisture levels where insects can feed or shelter. Yet biodiversity claims require caution. A roof visited by bees is not automatically a substitute for habitat at ground level, and poorly selected non-native plants may offer little useful food. Ecologists recommend treating roofs as stepping stones between larger habitats. In that role, even a compact site can help certain insects move through a district without being expected to support an entire ecosystem on its own."
+        },
+        {
+          "label": "E",
+          "text": "Cost comparisons are complicated by the long lives of buildings. A living roof costs more to install than a basic exposed membrane because it needs structural checks, drainage components, growing material and plants. It also requires inspection, especially while vegetation becomes established. Against those expenses, the planted layers protect waterproofing from ultraviolet light and rapid temperature changes, potentially extending its useful life. They may also reduce cooling demand on upper floors, although the saving depends on insulation and building use. A highly insulated new office may show only a small energy change, whereas an older single-storey building can respond more strongly. Owners who consider only the first construction invoice therefore miss part of the calculation. Equally, supporters who promise that every roof will repay its extra cost through energy savings ignore maintenance, local electricity prices and the condition of the original structure."
+        },
+        {
+          "label": "F",
+          "text": "Municipal programmes are now moving from demonstration projects to targeted networks. Rather than offering the same subsidy everywhere, some authorities map neighbourhoods with high heat exposure, limited tree cover or frequent surface flooding. They then give greater support to roofs in those areas. Hamburg, for example, has used grants that can apply to both new construction and suitable retrofits, while other programmes offer technical advice or faster planning review. This geographic approach may produce more public value per unit of spending, but it raises questions about measurement. Cities need baseline temperatures, drainage data and regular checks if they are to show that a network is working. The strongest policies therefore combine financial support with shared standards and long-term monitoring. A roof is still a building component maintained by an owner, yet its heat and water effects cross property boundaries. Public policy enters precisely because those wider benefits are difficult for one owner to capture alone."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V1-001-Q01",
+          "question_type": "multiple_choice",
+          "question": "What is the main point made about living roofs in Section A?",
+          "options": [
+            "A. They should be opened to the public whenever possible.",
+            "B. Their main value is changing how buildings manage heat and water.",
+            "C. They are intended to replace parks in crowded districts.",
+            "D. Their shallow soil makes them unsuitable for cities."
+          ],
+          "correct_answer": "B. Their main value is changing how buildings manage heat and water.",
+          "explanation": "Section A contrasts public gardens with the physical environmental functions of planted roofs.",
+          "evidence": "Their value therefore lies less in creating miniature gardens than in changing the physical behaviour of buildings and the spaces around them."
+        },
+        {
+          "question_id": "AR-V1-001-Q02",
+          "question_type": "multiple_choice",
+          "question": "Why do researchers avoid giving one fixed cooling figure?",
+          "options": [
+            "A. Roof temperatures cannot be measured accurately.",
+            "B. Building owners rarely provide enough information.",
+            "C. Performance changes with plant condition and climate.",
+            "D. Evapotranspiration occurs only in dry regions."
+          ],
+          "correct_answer": "C. Performance changes with plant condition and climate.",
+          "explanation": "The passage explains that plant health, water and regional humidity all alter the cooling effect.",
+          "evidence": "The size of the benefit varies... Climate also matters... researchers increasingly report ranges of performance."
+        },
+        {
+          "question_id": "AR-V1-001-Q03",
+          "question_type": "multiple_choice",
+          "question": "According to Section E, which building may obtain a larger cooling-energy benefit?",
+          "options": [
+            "A. A highly insulated new office.",
+            "B. An older single-storey building.",
+            "C. A building with no roof access.",
+            "D. A new building in every climate."
+          ],
+          "correct_answer": "B. An older single-storey building.",
+          "explanation": "The text directly contrasts a highly insulated office with an older single-storey building.",
+          "evidence": "A highly insulated new office may show only a small energy change, whereas an older single-storey building can respond more strongly."
+        },
+        {
+          "question_id": "AR-V1-001-Q04",
+          "question_type": "true_false_not_given",
+          "question": "A living roof can prevent all rainwater from leaving a roof during a storm.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "False",
+          "explanation": "The roof has limited storage; water runs off after the layers become saturated.",
+          "evidence": "It does not mean that a living roof absorbs every storm. Once its storage layers are saturated, additional rain will run off."
+        },
+        {
+          "question_id": "AR-V1-001-Q05",
+          "question_type": "true_false_not_given",
+          "question": "Sedums are widely used partly because they can survive difficult rooftop conditions.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "True",
+          "explanation": "Section D says sedums tolerate the demanding conditions and add little structural weight.",
+          "evidence": "Sedums became common because they survive these conditions and add little weight."
+        },
+        {
+          "question_id": "AR-V1-001-Q06",
+          "question_type": "true_false_not_given",
+          "question": "Hamburg requires every new commercial building to install a living roof.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "Not Given",
+          "explanation": "The passage mentions grants in Hamburg but gives no rule requiring every new commercial building to install one.",
+          "evidence": "Hamburg, for example, has used grants that can apply to both new construction and suitable retrofits."
+        },
+        {
+          "question_id": "AR-V1-001-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section B.",
+          "options": [
+            "i. Why cooling results are not identical",
+            "ii. A complete replacement for urban wildlife",
+            "iii. The financial case is always simple",
+            "iv. Direct control of private construction",
+            "v. The disappearance of storm drains",
+            "vi. Public access to rooftop parks"
+          ],
+          "correct_answer": "i. Why cooling results are not identical",
+          "explanation": "Section B explains the cooling mechanisms and then focuses on why climate and plant condition produce variable results.",
+          "evidence": "The size of the benefit varies... Climate also matters."
+        },
+        {
+          "question_id": "AR-V1-001-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section D.",
+          "options": [
+            "i. Measuring household electricity use",
+            "ii. Selecting vegetation for a supporting ecological role",
+            "iii. Replacing every habitat at street level",
+            "iv. Increasing the depth of every roof",
+            "v. Removing all non-native plants",
+            "vi. Designing public footpaths"
+          ],
+          "correct_answer": "ii. Selecting vegetation for a supporting ecological role",
+          "explanation": "The section discusses resilient plant choices and presents roofs as stepping stones rather than complete ecosystems.",
+          "evidence": "Ecologists recommend treating roofs as stepping stones between larger habitats."
+        },
+        {
+          "question_id": "AR-V1-001-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section F.",
+          "options": [
+            "i. The end of municipal monitoring",
+            "ii. Identical subsidies for every district",
+            "iii. Targeting public support where benefits are greatest",
+            "iv. A ban on retrofitting old roofs",
+            "v. Private benefits with no wider effects",
+            "vi. Why maps cannot guide policy"
+          ],
+          "correct_answer": "iii. Targeting public support where benefits are greatest",
+          "explanation": "Section F describes mapping public needs and directing stronger support to priority neighbourhoods.",
+          "evidence": "Some authorities map neighbourhoods with high heat exposure, limited tree cover or frequent surface flooding. They then give greater support to roofs in those areas."
+        }
+      ]
+    },
+    {
+      "passage_id": "AR-V1-002",
+      "title": "When Museums Invite Visitors to Touch",
+      "sections": [
+        {
+          "label": "A",
+          "text": "The instruction “do not touch” is so closely associated with museums that many visitors treat it as part of the definition of a museum. The rule protects fragile objects from oil, dirt, pressure and accidental damage, and in most collections it remains essential. Yet it also assumes that sight is the normal route to knowledge. For visitors who are blind or have low vision, a room organised entirely around distant viewing can turn cultural objects into descriptions supplied by somebody else. In response, a growing number of museums have introduced carefully controlled touch programmes. These do not simply remove barriers from display cases. They select robust objects, create replicas, train staff and establish handling methods. The objective is not unrestricted contact but a second route to evidence: shape, weight, temperature and texture can communicate features that words alone may describe poorly."
+        },
+        {
+          "label": "B",
+          "text": "Early programmes often relied on occasional guided sessions arranged for disability groups. Participants might handle a small number of objects in a classroom while a curator spoke. Such events were valuable, but their special scheduling had an unintended consequence. Access depended on joining a particular group at a particular time, and the main galleries remained unchanged. More recent practice aims for what designers call integrated access. Touchable replicas, raised diagrams and audio instructions are placed within the same route used by all visitors. A family can explore them together, and a visitor does not need to announce a disability before using them. Integration also benefits children and adults who learn by comparing physical and visual information. However, it requires more planning because labels, floor space, cleaning routines and staff responsibilities must work during ordinary opening hours rather than at a single supervised event."
+        },
+        {
+          "label": "C",
+          "text": "Replicas raise a difficult question about authenticity. A copy clearly lacks the history of an original Roman lamp or carved tool. Touching it cannot provide direct contact with the person who made the ancient object. Nevertheless, a well-produced replica can preserve measurable properties such as scale, surface pattern and the relationship between parts. Museums increasingly label replicas openly instead of presenting them as replacements. The distinction allows visitors to ask two separate questions: what happened to this particular historical object, and what can its form tell us about how objects of this type were used? In some cases, conservators also approve original items for handling, especially common materials that have been fully recorded and are stable enough to withstand controlled contact. The decision is made object by object; age alone does not determine whether something is too vulnerable."
+        },
+        {
+          "label": "D",
+          "text": "Digital manufacturing has expanded the range of possible replicas. Three-dimensional scanning can record an object without a mould touching its surface, and a printer can then produce copies at several scales. Enlarging a tiny coin, for example, may make worn symbols easier to feel. Digital files can also be shared with schools far from the collection. But technical accuracy is not automatic. A scan may miss deep recesses, reflective materials can confuse sensors, and printing layers may introduce textures that the original never had. Curators therefore compare the copy with photographs, measurements and specialist observations before approving it. Material choice matters too. A lightweight plastic print can communicate geometry but not the mass or thermal quality of metal. Some museums add separate material samples rather than pretending that one replica communicates every property."
+        },
+        {
+          "label": "E",
+          "text": "Touch experiences need a language of guidance. Without a strategy, a visitor may move both hands quickly across an object and miss its structure. Facilitators often begin with orientation: locate the base, establish the overall size, and then trace major edges before examining details. This sequence is not a test with one correct hand movement, but it reduces cognitive load by giving each new feature a position within the whole. Verbal descriptions are most useful when they direct attention without dictating interpretation. Saying that a line curves towards the upper left is different from declaring that the object feels elegant. The first statement helps a visitor investigate; the second supplies somebody else’s judgement. Good programmes also allow silence, because touch takes time and constant speech can compete with the information arriving through the hands."
+        },
+        {
+          "label": "F",
+          "text": "Evaluation remains less developed than production. Museums can count how many people use a tactile station, but a hand on a replica does not prove that learning occurred. Interviews provide richer evidence, although visitors may report enjoyment more readily than specific understanding. Some institutions now combine observation, short recall tasks and later interviews. They ask whether visitors can describe spatial relationships, connect the object to its historical use, or remember information after leaving. Results so far suggest that tactile resources are strongest when they are connected to the surrounding story rather than installed as isolated novelties. The next challenge is organisational: successful stations require budgets for replacement, staff time for cleaning, and a process for responding when users identify confusing features. Access, in other words, is not a finished object placed in a gallery. It is a continuing relationship between design, maintenance and visitor feedback."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V1-002-Q01",
+          "question_type": "multiple_choice",
+          "question": "What distinguishes controlled touch programmes from simply allowing general contact?",
+          "options": [
+            "A. They are available only to museum employees.",
+            "B. They use selected objects, replicas and planned handling methods.",
+            "C. They replace all visual displays with physical objects.",
+            "D. They remove the need for trained staff."
+          ],
+          "correct_answer": "B. They use selected objects, replicas and planned handling methods.",
+          "explanation": "The first section describes touch access as a designed and controlled process.",
+          "evidence": "They select robust objects, create replicas, train staff and establish handling methods."
+        },
+        {
+          "question_id": "AR-V1-002-Q02",
+          "question_type": "multiple_choice",
+          "question": "What was a limitation of many early touch sessions?",
+          "options": [
+            "A. They were integrated into every gallery route.",
+            "B. They contained too many original objects.",
+            "C. Access depended on attending a specially scheduled event.",
+            "D. Visitors received no information from curators."
+          ],
+          "correct_answer": "C. Access depended on attending a specially scheduled event.",
+          "explanation": "Early access was useful but restricted by group membership and timing.",
+          "evidence": "Access depended on joining a particular group at a particular time, and the main galleries remained unchanged."
+        },
+        {
+          "question_id": "AR-V1-002-Q03",
+          "question_type": "multiple_choice",
+          "question": "Why might a museum provide an enlarged copy of a coin?",
+          "options": [
+            "A. To make damaged symbols easier to examine by touch.",
+            "B. To reproduce the exact weight of the original.",
+            "C. To avoid recording the original object.",
+            "D. To make reflective surfaces more accurate."
+          ],
+          "correct_answer": "A. To make damaged symbols easier to examine by touch.",
+          "explanation": "Enlargement can make small or worn details more perceptible.",
+          "evidence": "Enlarging a tiny coin, for example, may make worn symbols easier to feel."
+        },
+        {
+          "question_id": "AR-V1-002-Q04",
+          "question_type": "true_false_not_given",
+          "question": "Integrated tactile resources can be useful to visitors without visual impairments.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "True",
+          "explanation": "The passage explicitly says children and adults may benefit from combining physical and visual information.",
+          "evidence": "Integration also benefits children and adults who learn by comparing physical and visual information."
+        },
+        {
+          "question_id": "AR-V1-002-Q05",
+          "question_type": "true_false_not_given",
+          "question": "Museums decide whether an original object can be handled solely according to its age.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "False",
+          "explanation": "Handling decisions consider the individual object, its stability and documentation; age alone is insufficient.",
+          "evidence": "The decision is made object by object; age alone does not determine whether something is too vulnerable."
+        },
+        {
+          "question_id": "AR-V1-002-Q06",
+          "question_type": "true_false_not_given",
+          "question": "Most museums manufacture their tactile replicas inside the museum building.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "Not Given",
+          "explanation": "The passage discusses scanning and printing but does not state where most replicas are manufactured.",
+          "evidence": "No location for the manufacture of most replicas is provided."
+        },
+        {
+          "question_id": "AR-V1-002-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section C.",
+          "options": [
+            "i. Separating historical identity from information about form",
+            "ii. Why every ancient object should remain behind glass",
+            "iii. Replacing collections with modern copies",
+            "iv. The declining value of accurate labels",
+            "v. A single age limit for handling",
+            "vi. Removing the work of conservators"
+          ],
+          "correct_answer": "i. Separating historical identity from information about form",
+          "explanation": "Section C distinguishes an original object's unique history from what a replica can teach about shape and use.",
+          "evidence": "The distinction allows visitors to ask two separate questions: what happened to this particular historical object, and what can its form tell us..."
+        },
+        {
+          "question_id": "AR-V1-002-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section E.",
+          "options": [
+            "i. A ban on verbal information",
+            "ii. Guiding exploration without supplying judgement",
+            "iii. The fastest possible way to touch an object",
+            "iv. Testing visitors on hand movements",
+            "v. Why silence prevents learning",
+            "vi. Replacing touch with spoken description"
+          ],
+          "correct_answer": "ii. Guiding exploration without supplying judgement",
+          "explanation": "The section recommends structured orientation and factual direction while avoiding imposed interpretations.",
+          "evidence": "Verbal descriptions are most useful when they direct attention without dictating interpretation."
+        },
+        {
+          "question_id": "AR-V1-002-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section F.",
+          "options": [
+            "i. Counting contact as proof of learning",
+            "ii. Ending tactile programmes after installation",
+            "iii. Evaluating learning and maintaining access over time",
+            "iv. Replacing interviews with ticket sales",
+            "v. Isolating touch stations from historical stories",
+            "vi. Reducing feedback from visitors"
+          ],
+          "correct_answer": "iii. Evaluating learning and maintaining access over time",
+          "explanation": "Section F examines stronger evaluation methods and the ongoing resources needed after installation.",
+          "evidence": "Access... is not a finished object placed in a gallery. It is a continuing relationship between design, maintenance and visitor feedback."
+        }
+      ]
+    },
+    {
+      "passage_id": "AR-V1-003",
+      "title": "The Last Kilometre of Urban Freight",
+      "sections": [
+        {
+          "label": "A",
+          "text": "A parcel delivered to a city apartment completes only the visible end of a much longer journey. It may have crossed an ocean in a container and travelled hundreds of kilometres in a full-sized lorry, yet the final few streets can be the most expensive part of the route. Vehicles carry fewer items, drivers spend time searching for addresses, and legal loading spaces may already be occupied. If nobody answers the door, the carrier may repeat the trip. This stage is commonly called the last kilometre, although the actual distance varies. Its difficulty has increased as online shopping has created more small deliveries to separate destinations. The problem is not simply the number of vans. Urban freight competes with buses, cyclists, pedestrians, construction work and residents for limited street space, especially at the hours when many businesses want goods to arrive."
+        },
+        {
+          "label": "B",
+          "text": "For years, efficiency programmes concentrated on individual vehicles. Companies improved route-planning software, trained drivers to avoid unnecessary idling and replaced older engines. These measures reduced fuel use per parcel, but they could not solve a basic spatial problem: several carriers might visit the same street within minutes, each with a partly filled van. Commercial competition made them reluctant to share vehicles or customer information. City authorities also lacked detailed evidence because freight movements were less visible than scheduled public transport. Traffic counts could identify a van but not whether it carried one parcel or a hundred. As a result, policies sometimes restricted delivery hours without understanding how displaced trips would affect another neighbourhood or time of day. Researchers began to argue that the street, rather than the vehicle alone, should be treated as the scarce resource."
+        },
+        {
+          "label": "C",
+          "text": "One response is the neighbourhood microhub. A conventional lorry leaves a large group of parcels at a small local facility, and the final journeys are completed by walking couriers, electric cargo cycles or compact vehicles. Consolidation reduces the need for heavy vans to stop repeatedly on narrow streets. Cargo cycles can often park close to a destination and move through filters that block through-traffic, so a slower maximum speed does not always produce a slower delivery. However, the hub needs accessible land, and urban land is costly. It also creates an extra transfer: parcels must be unloaded, sorted and loaded again. If volumes are low or poorly timed, the extra handling can cancel out the transport saving. Successful hubs therefore depend on reliable flows and careful site selection, not merely the purchase of a fleet of cycles."
+        },
+        {
+          "label": "D",
+          "text": "Trials reveal that parcel type matters. Cargo cycles are well suited to small, predictable packages but not to every delivery. A restaurant may need chilled ingredients, a builder may order long materials, and a hospital cannot accept uncertainty in urgent supplies. Weight and volume limits can force a courier to return to the hub several times. Weather, safe cycle routes and secure parking also shape performance. For this reason, planners use segmentation rather than asking whether one vehicle is universally best. They examine product size, delivery density, time sensitivity and handling requirements. A mixed system may assign standard parcels to cycles, bulky goods to scheduled low-emission vans and urgent medical items to dedicated services. The environmental gain comes from matching vehicles to tasks, not from attaching a fashionable technology to every movement."
+        },
+        {
+          "label": "E",
+          "text": "Receiving arrangements can be redesigned as well. Failed home deliveries waste driver time and add traffic, so lockers and staffed collection points allow many parcels to be left at one location. Their success depends on convenience. A locker beside a station may replace several van stops if customers already pass it, whereas a remote locker could generate new car journeys. Apartment buildings can provide shared delivery rooms, but managers must decide who handles damaged packages and how long uncollected items remain. Some cities are also testing booking systems for loading bays. A driver reserves a short time window rather than circling in search of space. Early results show more reliable access, although strict bookings can be difficult when traffic delays are unpredictable. Each measure shifts part of the work from the carrier to property managers, customers or street authorities."
+        },
+        {
+          "label": "F",
+          "text": "Measuring success requires more than counting electric vehicles. An electric van removes exhaust emissions at the street but still occupies road and loading space. A cargo cycle reduces that footprint, yet a poorly located hub may increase upstream distance. Researchers therefore compare total vehicle kilometres, failed-delivery rates, kerb time, energy use and the number of parcels delivered, while also checking noise and safety. Data sharing is essential but sensitive: carriers do not want competitors to see customer lists or commercial volumes. Several projects solve this by sending standardised, aggregated indicators to a neutral platform. Authorities can then identify pressure points without receiving individual addresses. The broader lesson is that last-kilometre freight is a system of transfers, spaces and responsibilities. Cleaner vehicles are valuable, but lasting improvement comes from coordinating the journey, the street and the person receiving the goods."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V1-003-Q01",
+          "question_type": "multiple_choice",
+          "question": "Why can the final part of a parcel journey be especially costly?",
+          "options": [
+            "A. Parcels must always travel more than one kilometre.",
+            "B. Drivers use only full-sized lorries in city centres.",
+            "C. Vehicles carry fewer items and stops require additional time.",
+            "D. Online orders are normally collected from ports."
+          ],
+          "correct_answer": "C. Vehicles carry fewer items and stops require additional time.",
+          "explanation": "The passage identifies small loads, address searches, occupied loading spaces and repeat visits as sources of cost.",
+          "evidence": "Vehicles carry fewer items, drivers spend time searching for addresses, and legal loading spaces may already be occupied."
+        },
+        {
+          "question_id": "AR-V1-003-Q02",
+          "question_type": "multiple_choice",
+          "question": "What limitation affected earlier vehicle-focused efficiency programmes?",
+          "options": [
+            "A. They did not address several partly filled vans visiting the same street.",
+            "B. They prevented companies from improving route software.",
+            "C. They required all carriers to share customer details.",
+            "D. They measured the exact contents of every van."
+          ],
+          "correct_answer": "A. They did not address several partly filled vans visiting the same street.",
+          "explanation": "Vehicle improvements reduced fuel per parcel but left duplicated street visits unresolved.",
+          "evidence": "Several carriers might visit the same street within minutes, each with a partly filled van."
+        },
+        {
+          "question_id": "AR-V1-003-Q03",
+          "question_type": "multiple_choice",
+          "question": "According to Section C, when might a microhub fail to save transport effort?",
+          "options": [
+            "A. When cycles can park near destinations.",
+            "B. When parcel volumes are low or badly timed.",
+            "C. When a lorry carries parcels to the hub.",
+            "D. When streets restrict through-traffic."
+          ],
+          "correct_answer": "B. When parcel volumes are low or badly timed.",
+          "explanation": "Low or poorly timed flows may make the extra unloading and sorting greater than the transport benefit.",
+          "evidence": "If volumes are low or poorly timed, the extra handling can cancel out the transport saving."
+        },
+        {
+          "question_id": "AR-V1-003-Q04",
+          "question_type": "true_false_not_given",
+          "question": "A cargo cycle with a lower maximum speed may still complete a delivery faster than a van.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "True",
+          "explanation": "Cargo cycles can park closer and use filtered routes, offsetting their lower top speed.",
+          "evidence": "A slower maximum speed does not always produce a slower delivery."
+        },
+        {
+          "question_id": "AR-V1-003-Q05",
+          "question_type": "true_false_not_given",
+          "question": "The passage recommends using cargo cycles for every type of urban delivery.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "False",
+          "explanation": "The text explicitly supports segmentation and a mixed vehicle system.",
+          "evidence": "Cargo cycles are well suited to small, predictable packages but not to every delivery."
+        },
+        {
+          "question_id": "AR-V1-003-Q06",
+          "question_type": "true_false_not_given",
+          "question": "Customers are charged a lower delivery fee when they use a parcel locker.",
+          "options": ["True", "False", "Not Given"],
+          "correct_answer": "Not Given",
+          "explanation": "Locker convenience and traffic effects are discussed, but customer fees are not mentioned.",
+          "evidence": "The passage provides no information about delivery charges for locker users."
+        },
+        {
+          "question_id": "AR-V1-003-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section B.",
+          "options": [
+            "i. Why improving single vehicles was not enough",
+            "ii. The complete visibility of freight data",
+            "iii. Removing competition between carriers",
+            "iv. Increasing unrestricted delivery hours",
+            "v. The end of route-planning software",
+            "vi. Giving all streets to commercial traffic"
+          ],
+          "correct_answer": "i. Why improving single vehicles was not enough",
+          "explanation": "The section describes useful vehicle efficiencies but shows that duplicated use of scarce street space remained.",
+          "evidence": "Researchers began to argue that the street, rather than the vehicle alone, should be treated as the scarce resource."
+        },
+        {
+          "question_id": "AR-V1-003-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section D.",
+          "options": [
+            "i. One fashionable vehicle for all goods",
+            "ii. Matching delivery methods to different requirements",
+            "iii. Eliminating urgent medical deliveries",
+            "iv. Ignoring weight and weather",
+            "v. Returning every parcel to a central warehouse",
+            "vi. Replacing planning with speed"
+          ],
+          "correct_answer": "ii. Matching delivery methods to different requirements",
+          "explanation": "Section D argues for segmenting freight by size, urgency and handling needs.",
+          "evidence": "The environmental gain comes from matching vehicles to tasks, not from attaching a fashionable technology to every movement."
+        },
+        {
+          "question_id": "AR-V1-003-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section F.",
+          "options": [
+            "i. Measuring a coordinated system without exposing private details",
+            "ii. Counting electric vehicles as the only indicator",
+            "iii. Publishing every customer address",
+            "iv. Excluding street space from evaluation",
+            "v. Ending cooperation with authorities",
+            "vi. Measuring speed but not failed deliveries"
+          ],
+          "correct_answer": "i. Measuring a coordinated system without exposing private details",
+          "explanation": "The section proposes multiple system indicators and aggregated data sharing that protects commercial information.",
+          "evidence": "Several projects solve this by sending standardised, aggregated indicators to a neutral platform."
+        }
+      ]
+    }
+  ]
+}

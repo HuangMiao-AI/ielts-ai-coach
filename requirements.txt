@@ -1,0 +1,6 @@
+streamlit>=1.59.2,<1.60
+SQLAlchemy>=2.0.51,<2.1
+argon2-cffi>=25.1.0,<26
+pydantic>=2.12,<3
+requests>=2.34.2,<3
+pytest>=8.4.2,<9
