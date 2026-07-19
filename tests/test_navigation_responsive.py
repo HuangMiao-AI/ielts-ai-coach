@@ -184,6 +184,11 @@ def test_mobile_css_uses_safe_responsive_navigation_and_overflow() -> None:
     assert ".st-key-mobile_bottom_navigation" in APP_CSS
     assert 'data-testid="stHorizontalBlock"' in APP_CSS
     assert "env(safe-area-inset-bottom)" in APP_CSS
+    assert (
+        '.st-key-mobile_bottom_navigation [data-testid="stColumn"]'
+        in APP_CSS
+    )
+    assert "flex: 1 1 0 !important" in APP_CSS
     assert "overflow-x: hidden" in APP_CSS
     assert "overflow-x: clip" not in APP_CSS
     assert "userAgent" not in APP_CSS

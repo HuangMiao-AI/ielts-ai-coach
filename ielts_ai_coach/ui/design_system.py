@@ -236,7 +236,7 @@ def build_app_css() -> str:
             .st-key-mobile_bottom_navigation [data-testid="stHorizontalBlock"] {{
                 gap: .25rem !important;
             }}
-
+            .st-key-mobile_bottom_navigation [data-testid="stColumn"] {{ min-width: 0 !important; flex: 1 1 0 !important; }}
             .st-key-mobile_bottom_navigation [data-testid="stPageLink"] a,
             .st-key-mobile_bottom_navigation .stPopover > button {{
                 min-height: 48px;

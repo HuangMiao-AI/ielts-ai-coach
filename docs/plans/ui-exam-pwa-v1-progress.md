@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 9 — Streamlit runtime and visual acceptance.
+Stage 9 — completed; final documentation and handover are in progress.
 
 ## Completed
 
@@ -57,6 +57,17 @@ Stage 9 — Streamlit runtime and visual acceptance.
   validation, and tracked-file privacy scans.
 - Sanitized absolute machine and Vault paths in the historical Exporter plan;
   no Exporter runtime code or external Vault file was touched.
+- Completed Stage 9 with a temporary isolated database, live Streamlit HTTP
+  checks, and authenticated browser acceptance across Home, Reading,
+  Listening, Writing, Speaking, Plan, History, Profile, and the Reading exam.
+- Verified 375, 430, 768, 1024, and 1366-pixel widths plus 768-by-430
+  landscape without horizontal overflow.
+- Fixed mobile bottom-navigation columns so the bar remains 56 pixels high
+  instead of wrapping at narrow widths; primary exam controls remain at least
+  44 pixels high.
+- Browser error history only contained expected transient health failures
+  during deliberate local server restarts; the restarted runtime and page
+  interactions completed normally.
 
 ## Test Results
 
@@ -98,12 +109,12 @@ Stage 9 — Streamlit runtime and visual acceptance.
 
 ## Current Commit
 
-`7d08eff` (before the pending Stage 8 commit)
+`b3ae806` (before the pending Stage 9 commit)
 
 ## Next Step
 
-Commit Stage 8, then start Streamlit with a temporary database for HTTP health
-and five-viewport visual acceptance.
+Commit Stage 9, then complete README, handover, project memory, and final
+verification.
 
 ## Known Issues
 
