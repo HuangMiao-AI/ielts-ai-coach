@@ -7,7 +7,7 @@ from dataclasses import replace
 import pytest
 
 from ielts_ai_coach.services.recommendations import StudyRecommendation
-from ielts_ai_coach.services.weakness_analyzer import Weakness
+from ielts_ai_coach.services.weakness_analyzer import Weakness, analyze_weaknesses
 from tests.analytics.test_ai_analysis import (
     NonMockProvider,
     RecordingMockProvider,
@@ -64,7 +64,7 @@ def test_free_text_weakness_and_activity_values_fail_closed() -> None:
         "PRIVATE_RECOMMENDATION_EVIDENCE",
     ):
         assert private_value not in prompt
-    assert "No validated weakness is available." in prompt
+    assert "Reading Matching Heading accuracy needs improvement" in prompt
     assert "No validated recommended activity is available." in prompt
 
 
@@ -89,6 +89,46 @@ def test_validated_weakness_evidence_is_reconstructed_from_analytics() -> None:
 
     assert "PRIVATE_SUPPLIED_WEAKNESS_EVIDENCE" not in prompt
     assert "Submitted Reading: 12/20 correct (60%)" in prompt
+
+
+def test_analyzer_reading_text_with_unknown_type_never_reaches_prompt() -> None:
+    """Reading evidence must exclude unknown types from a real analyzer result."""
+
+    from ielts_ai_coach.services.ai_analysis import explain_analytics
+
+    analytics = replace(
+        _analytics(),
+        reading=replace(
+            _analytics().reading,
+            correct=4,
+            total=10,
+            accuracy=0.4,
+            error_counts=(
+                ("matching_heading", 4),
+                ("PRIVATE_READING_ANSWER", 6),
+            ),
+            frequent_error_types=("matching_heading", "PRIVATE_READING_ANSWER"),
+        ),
+    )
+    weaknesses = analyze_weaknesses(analytics)
+    provider = RecordingMockProvider()
+
+    explain_analytics(
+        analytics,
+        weaknesses,
+        _recommendations(analytics, weaknesses),
+        provider=provider,
+    )
+
+    assert weaknesses[0].skill == "reading"
+    assert all(
+        "PRIVATE_READING_ANSWER" not in message["content"]
+        for message in provider.messages
+    )
+    assert "Matching Heading" in provider.messages[1]["content"]
+    assert "Reading Matching Heading accuracy needs improvement" in provider.messages[1][
+        "content"
+    ]
 
 
 def test_malformed_mock_flag_is_rejected_before_generate() -> None:

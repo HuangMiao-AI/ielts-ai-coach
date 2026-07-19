@@ -108,6 +108,41 @@ def _writing_summary(analytics: AnalyticsResult) -> str:
     )
 
 
+def _reading_weakness(analytics: AnalyticsResult) -> tuple[str, str] | None:
+    """Rebuild one safe Reading weakness from allowlisted aggregate fields."""
+
+    reading = analytics.reading
+    if (
+        reading.total <= 0
+        or reading.accuracy is None
+        or reading.accuracy >= 0.7
+    ):
+        return None
+    labels = tuple(
+        _READING_TYPE_LABELS[question_type]
+        for question_type in reading.frequent_error_types
+        if question_type in _READING_TYPE_LABELS
+    )
+    weakness = (
+        f"Reading {' and '.join(labels)} accuracy needs improvement"
+        if labels
+        else "Reading accuracy needs improvement"
+    )
+    error_counts = ", ".join(
+        f"{question_type}={count}"
+        for question_type, count in reading.error_counts
+        if question_type in _READING_TYPE_LABELS and type(count) is int
+    ) or "none"
+    accuracy = f"{reading.accuracy * 100:.1f}".rstrip("0").rstrip(".")
+    return (
+        weakness,
+        (
+            f"Submitted Reading: {reading.correct}/{reading.total} correct "
+            f"({accuracy}%); errors: {error_counts}."
+        ),
+    )
+
+
 def _weakness_summary(
     analytics: AnalyticsResult, weaknesses: tuple[Weakness, ...]
 ) -> str:
@@ -116,6 +151,12 @@ def _weakness_summary(
     if not weaknesses:
         return "No measured weakness is available."
     supplied = weaknesses[0]
+    if supplied.skill == "reading":
+        reading_weakness = _reading_weakness(analytics)
+        if reading_weakness is None:
+            return "No validated weakness is available."
+        weakness, evidence = reading_weakness
+        return f"Highest-priority weakness: {weakness}. Evidence: {evidence}"
     weakness = next(
         (
             candidate
