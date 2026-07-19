@@ -1,0 +1,647 @@
+{
+  "bank_id": "ielts-ai-coach-original-academic-reading-v2",
+  "version": "2.0.0",
+  "source": {
+    "source_type": "project_original",
+    "source_name": "IELTS AI Coach Original Reading Studio",
+    "copyright_notice": "原创 IELTS 风格练习，非官方 IELTS 或 Cambridge 试题。",
+    "is_official_ielts_content": false
+  },
+  "passages": [
+    {
+      "passage_id": "AR-V2-001",
+      "topic": "Cities and Environment",
+      "title": "Mapping Shade as Urban Infrastructure",
+      "sections": [
+        {
+          "label": "A",
+          "text": "City maps usually present streets, buildings and transport routes as fixed objects. Yet for a pedestrian on a hot afternoon, the most valuable feature may be temporary: a band of shade that moves as the sun crosses the sky. Urban researchers have begun to map this changing resource with the same seriousness once reserved for drains or bus stops. Their work starts from a simple observation. Two routes of equal length can produce very different heat exposure. A tree-lined detour may feel safer than a direct walk beside reflective walls, especially for older residents, young children and outdoor workers. Treating shade as infrastructure therefore changes the planning question. Instead of asking only where trees exist, planners ask when protection is available, who can reach it and whether it forms a continuous path."
+        },
+        {
+          "label": "B",
+          "text": "Producing a useful shade map requires more than photographing dark patches. Teams combine three-dimensional building models, tree-canopy surveys and calculations of the sun's angle at different hours and seasons. Some projects add temperature sensors carried by volunteers, while others use satellite images to estimate surface heat. Each source has limitations. A satellite may pass overhead only once during the day, and a building model may not show a newly removed tree. Researchers therefore compare predicted shade with repeated observations at street level. The resulting map is not a single picture but a sequence, rather like a weather forecast. A square that is comfortable at nine in the morning may be fully exposed at lunchtime, while the opposite side of the same street becomes protected later in the afternoon."
+        },
+        {
+          "label": "C",
+          "text": "Early experiments show why timing matters. In one district, a route recommended by a standard navigation app crossed an open plaza at the hottest hour. A shade-aware version suggested a path that was four minutes longer but reduced direct-sun exposure by more than half. Users did not always choose the coolest option; people carrying heavy bags still valued distance, and cyclists cared about road safety. This led designers to avoid presenting one supposedly perfect route. Instead, the app offered choices such as fastest, coolest and balanced. The distinction is important because thermal comfort is personal. Humidity, clothing, walking speed and health all influence how heat is experienced. A map can describe environmental conditions, but it cannot decide every user's priorities."
+        },
+        {
+          "label": "D",
+          "text": "Shade data can also reveal unequal access. Wealthier neighbourhoods often have mature trees and private covered spaces, whereas recently built or industrial districts may contain wide roads with little protection. However, counting trees alone can disguise the problem. A large canopy behind a fence does not help someone waiting at a public bus stop. Researchers therefore examine the connection between shaded segments and everyday destinations such as schools, clinics and markets. They also record gaps where a person must cross an exposed junction. These network measures allow councils to target small interventions. A fabric canopy, a redesigned shelter or several well-placed trees may complete a protected walking chain sooner than an expensive park project whose benefits take decades to develop."
+        },
+        {
+          "label": "E",
+          "text": "The approach brings practical difficulties. Tree shade changes as branches grow, storms cause damage and maintenance crews prune canopies. Digital models must be updated, but constant surveying is costly. There are also questions about accuracy and responsibility. If an app recommends a shaded route that has become unsafe because of construction, users may lose trust in the whole system. Some cities address this by publishing the date of the latest observation and inviting residents to report changes. Others combine official data with photographs from municipal vehicles. Researchers warn that crowdsourced reports should be checked rather than accepted automatically, since a temporary delivery truck or an incorrectly positioned phone can create misleading evidence."
+        },
+        {
+          "label": "F",
+          "text": "Mapping does not replace physical investment. A beautifully designed interface offers little comfort on a street with no trees, shelters or arcades. Its strongest role may be diagnostic: showing where protection disappears and allowing planners to test proposals before construction. A model can estimate how a row of trees planted today might shade a pavement in fifteen years, while also showing the need for temporary structures during growth. This longer view encourages departments to cooperate. Transport officers may adjust a crossing, parks teams select resilient species and public-health staff identify routes used by vulnerable groups. Shade then becomes a shared service rather than a decorative extra owned by a single department."
+        },
+        {
+          "label": "G",
+          "text": "The idea is spreading beyond heat emergencies. Schools can use time-based maps to schedule outdoor movement, businesses can locate rest areas for delivery staff, and event organisers can position queues more safely. Nevertheless, researchers resist turning shade into a numerical score that appears more certain than the evidence allows. The most responsible systems show confidence levels and explain when information was collected. They also let residents describe needs that sensors cannot see, such as a bench required halfway along a protected route. In this form, the map becomes a conversation between measurement and lived experience. It does not merely display where shadows fall; it helps cities recognise cooling access as part of ordinary mobility."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V2-001-Q01",
+          "question_type": "multiple_choice",
+          "question": "Why do researchers compare predicted shade with street-level observations?",
+          "options": ["To correct limitations and changes in source data", "To measure how quickly pedestrians walk", "To replace all satellite images with photographs", "To identify the cheapest public transport route"],
+          "correct_answer": "To correct limitations and changes in source data",
+          "explanation": "Models and remote images can be incomplete or out of date, so repeated observations provide a reality check.",
+          "evidence": "Each source has limitations... Researchers therefore compare predicted shade with repeated observations at street level."
+        },
+        {
+          "question_id": "AR-V2-001-Q02",
+          "question_type": "multiple_choice",
+          "question": "What did designers learn from the early route experiment?",
+          "options": ["Users need choices that reflect different priorities", "The shortest route is normally the coolest", "Cyclists prefer shaded pavements to safe roads", "Personal thermal comfort can be predicted exactly"],
+          "correct_answer": "Users need choices that reflect different priorities",
+          "explanation": "Different users valued distance, safety and cooling differently, so the app offered several route types.",
+          "evidence": "This led designers to avoid presenting one supposedly perfect route. Instead, the app offered choices such as fastest, coolest and balanced."
+        },
+        {
+          "question_id": "AR-V2-001-Q03",
+          "question_type": "multiple_choice",
+          "question": "According to Section F, what is the strongest role of shade mapping?",
+          "options": ["Diagnosing gaps and testing future interventions", "Replacing the need to plant trees", "Giving one department control of street design", "Predicting the exact weather fifteen years ahead"],
+          "correct_answer": "Diagnosing gaps and testing future interventions",
+          "explanation": "The passage says maps are most useful for locating missing protection and modelling proposals.",
+          "evidence": "Its strongest role may be diagnostic: showing where protection disappears and allowing planners to test proposals before construction."
+        },
+        {
+          "question_id": "AR-V2-001-Q04",
+          "question_type": "true_false_not_given",
+          "question": "A route with lower sun exposure was slightly longer than the standard route.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "TRUE",
+          "explanation": "The shade-aware route took four extra minutes while cutting direct-sun exposure.",
+          "evidence": "A shade-aware version suggested a path that was four minutes longer but reduced direct-sun exposure by more than half."
+        },
+        {
+          "question_id": "AR-V2-001-Q05",
+          "question_type": "true_false_not_given",
+          "question": "Counting all trees in a district always gives an accurate measure of public shade access.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "FALSE",
+          "explanation": "Private or disconnected canopy can inflate tree counts without helping pedestrians.",
+          "evidence": "However, counting trees alone can disguise the problem. A large canopy behind a fence does not help someone waiting at a public bus stop."
+        },
+        {
+          "question_id": "AR-V2-001-Q06",
+          "question_type": "true_false_not_given",
+          "question": "The first shade-aware navigation application was developed by a university in Europe.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "NOT GIVEN",
+          "explanation": "The text describes experiments but gives no institution or continent for the first application.",
+          "evidence": "Early experiments show why timing matters."
+        },
+        {
+          "question_id": "AR-V2-001-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section A.",
+          "options": ["A moving resource becomes a planning concern", "The cost of maintaining digital maps", "Commercial uses of route data", "Why parks should replace streets"],
+          "correct_answer": "A moving resource becomes a planning concern",
+          "explanation": "Section A introduces time-varying shade as infrastructure that planners should map and connect.",
+          "evidence": "Urban researchers have begun to map this changing resource with the same seriousness once reserved for drains or bus stops."
+        },
+        {
+          "question_id": "AR-V2-001-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section B.",
+          "options": ["Combining imperfect sources into a time-based map", "One universal route for every traveller", "Private gardens as public infrastructure", "Removing uncertainty from heat forecasts"],
+          "correct_answer": "Combining imperfect sources into a time-based map",
+          "explanation": "Section B explains the data sources, their weaknesses and the sequence of hourly shade conditions.",
+          "evidence": "The resulting map is not a single picture but a sequence, rather like a weather forecast."
+        },
+        {
+          "question_id": "AR-V2-001-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section D.",
+          "options": ["Measuring connected access rather than tree totals", "Using humidity to choose tree species", "Selling maps to private drivers", "Making every journey the same length"],
+          "correct_answer": "Measuring connected access rather than tree totals",
+          "explanation": "The section focuses on whether shade forms useful chains to public destinations.",
+          "evidence": "Researchers therefore examine the connection between shaded segments and everyday destinations such as schools, clinics and markets."
+        },
+        {
+          "question_id": "AR-V2-001-Q10",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section G.",
+          "options": ["Wider applications with honest uncertainty", "A ban on numerical environmental data", "The end of physical street improvements", "A single sensor for all urban needs"],
+          "correct_answer": "Wider applications with honest uncertainty",
+          "explanation": "Section G broadens the uses while warning against false precision and supporting resident input.",
+          "evidence": "The idea is spreading beyond heat emergencies... researchers resist turning shade into a numerical score that appears more certain than the evidence allows."
+        }
+      ]
+    },
+    {
+      "passage_id": "AR-V2-002",
+      "topic": "Technology and Business",
+      "title": "Designing Electronics for a Second Life",
+      "sections": [
+        {
+          "label": "A",
+          "text": "For decades, consumer electronics have been sold as sealed achievements: thin, polished objects that invite use but discourage investigation. When a battery weakens or a connector breaks, owners often discover that replacing the whole device is easier than repairing one part. A different design philosophy is now gaining attention. Modular electronics divide a product into components that can be removed with ordinary tools, while repairable design provides instructions, spare parts and software support. Advocates argue that the two ideas can extend product life and reduce waste. Yet a device does not become sustainable merely because its pieces separate. The environmental result depends on how long modules remain available, whether people actually replace them, and how much extra material the modular structure requires."
+        },
+        {
+          "label": "B",
+          "text": "The engineering challenge begins with connections. Glue and solder create compact, rigid assemblies, but they can make a failed part difficult to reach. Screws, clips and standard sockets allow disassembly, although they occupy space and may loosen after repeated use. Designers must also protect products from water, dust and vibration. A removable battery door, for example, introduces an opening that a sealed case avoids. Some teams solve this with replaceable gaskets and carefully shaped frames. Others accept a slightly thicker device in exchange for access. These decisions reveal that repairability is not a single feature added at the end. It is a system of trade-offs involving size, durability, manufacturing time and the skills expected of the person performing the repair."
+        },
+        {
+          "label": "C",
+          "text": "Hardware access is only half of the problem. A replacement camera or display may be physically compatible but rejected by the operating system if the software expects a serial number from the original component. Security checks can prevent counterfeit parts or theft, yet they can also block legitimate repair. Manufacturers experimenting with modular products therefore publish calibration tools or allow the system to register a new component. Long-term software support matters as well. A phone with an easily replaced battery still has little value if essential applications stop working after three years. For this reason, repair organisations increasingly assess both mechanical access and the promised period of updates rather than celebrating visible screws alone."
+        },
+        {
+          "label": "D",
+          "text": "Business models determine whether the design survives beyond its launch. Maintaining spare modules in many colours and specifications ties up money in inventory. Demand is uncertain: most customers may need batteries, while very few request a replacement speaker after six years. Some firms centralise parts in regional warehouses; others publish specifications so independent suppliers can produce compatible replacements. A subscription can fund continuing support, but it may weaken the sense that the buyer owns the product. Another option is a return deposit. Customers receive credit for sending old modules back, allowing valuable metals and functional chips to be recovered. No model removes cost; it merely decides who pays and when."
+        },
+        {
+          "label": "E",
+          "text": "Consumer behaviour complicates forecasts of environmental benefit. In laboratory calculations, replacing one component usually requires less material than manufacturing a new device. In real life, however, an upgradeable product may encourage frequent purchases of improved modules. A user who would have kept a fixed camera for four years might buy a new camera module every year. Researchers call this the rebound problem: efficiency lowers the cost or effort of consumption and can therefore increase it. Surveys also show a gap between intention and action. Many buyers say repairability matters, but choose a cheaper or slimmer product at the point of sale. Clear prices and repair scores can help, although scores must reflect actual parts availability rather than design promises."
+        },
+        {
+          "label": "F",
+          "text": "Community repair workshops demonstrate another value of accessible products. Participants learn fault diagnosis, safe handling and the limits of what they can fix. The workshop does not guarantee that every device returns to use; sometimes a damaged circuit is beyond economical repair. Instead, it changes the relationship between owner and object. A product becomes understandable rather than mysterious, and a failed repair can still produce knowledge or reusable parts. Manufacturers have begun to collaborate with some workshops by supplying manuals and training. Critics worry that unpaid volunteers may be used as a substitute for proper service centres, so successful partnerships define responsibilities and provide routes for hazardous or complex repairs."
+        },
+        {
+          "label": "G",
+          "text": "The strongest evidence supports a measured conclusion. Repairable modular design can extend useful life when common failures are easy to reach, parts remain affordable and software continues to recognise them. It is less convincing when modularity exists mainly as a marketing label or when constant upgrades become the product's attraction. Regulators can require access to parts and information, but standards should leave room for genuine safety constraints. Buyers also need realistic expectations: not every component should be handled at home. The goal is not a device that lasts forever. It is an ecosystem in which maintenance, professional repair, reuse and responsible recycling are planned before the first unit leaves the factory."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V2-002-Q01",
+          "question_type": "multiple_choice",
+          "question": "Why does the passage say separable parts do not automatically make a device sustainable?",
+          "options": ["Outcomes also depend on support, behaviour and added material", "Separate parts always use more electricity", "Customers refuse to use ordinary tools", "Modular products cannot be recycled"],
+          "correct_answer": "Outcomes also depend on support, behaviour and added material",
+          "explanation": "The introduction lists availability, actual replacement behaviour and structural material as determining factors.",
+          "evidence": "The environmental result depends on how long modules remain available, whether people actually replace them, and how much extra material the modular structure requires."
+        },
+        {
+          "question_id": "AR-V2-002-Q02",
+          "question_type": "multiple_choice",
+          "question": "What software issue can prevent a legitimate repair?",
+          "options": ["The system may reject a new component's serial identity", "Repair manuals may use too many diagrams", "Applications always require a thinner case", "Regional warehouses may close temporarily"],
+          "correct_answer": "The system may reject a new component's serial identity",
+          "explanation": "Software pairing can refuse a physically compatible replacement.",
+          "evidence": "A replacement camera or display may be physically compatible but rejected by the operating system if the software expects a serial number from the original component."
+        },
+        {
+          "question_id": "AR-V2-002-Q03",
+          "question_type": "multiple_choice",
+          "question": "What is the rebound problem described in Section E?",
+          "options": ["Easier upgrades can increase total consumption", "Repaired products become physically heavier", "Returned modules lose all valuable metals", "Customers stop buying replacement batteries"],
+          "correct_answer": "Easier upgrades can increase total consumption",
+          "explanation": "Efficiency may encourage people to buy modules more frequently than they would replace a fixed product.",
+          "evidence": "Efficiency lowers the cost or effort of consumption and can therefore increase it."
+        },
+        {
+          "question_id": "AR-V2-002-Q04",
+          "question_type": "true_false_not_given",
+          "question": "Using screws and standard sockets can require more internal space than glue.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "TRUE",
+          "explanation": "The passage directly contrasts compact glue with space-consuming removable connections.",
+          "evidence": "Screws, clips and standard sockets allow disassembly, although they occupy space."
+        },
+        {
+          "question_id": "AR-V2-002-Q05",
+          "question_type": "true_false_not_given",
+          "question": "Most customers request replacement speakers after six years.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "FALSE",
+          "explanation": "The example says very few customers make that request.",
+          "evidence": "Most customers may need batteries, while very few request a replacement speaker after six years."
+        },
+        {
+          "question_id": "AR-V2-002-Q06",
+          "question_type": "true_false_not_given",
+          "question": "Community repair workshops first appeared in the 1990s.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "NOT GIVEN",
+          "explanation": "No date for the origin of repair workshops is provided.",
+          "evidence": "Community repair workshops demonstrate another value of accessible products."
+        },
+        {
+          "question_id": "AR-V2-002-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section B.",
+          "options": ["Physical access creates engineering compromises", "Software updates solve every failure", "The disappearance of sealed products", "A universal international repair price"],
+          "correct_answer": "Physical access creates engineering compromises",
+          "explanation": "Section B balances removable connections against size, sealing and durability.",
+          "evidence": "It is a system of trade-offs involving size, durability, manufacturing time and the skills expected of the person performing the repair."
+        },
+        {
+          "question_id": "AR-V2-002-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section D.",
+          "options": ["Finding a viable way to fund long-term parts", "Teaching owners to repair circuit boards", "Why batteries never need replacement", "Measuring the thickness of device cases"],
+          "correct_answer": "Finding a viable way to fund long-term parts",
+          "explanation": "The section compares inventory, independent supply, subscriptions and deposits.",
+          "evidence": "Business models determine whether the design survives beyond its launch."
+        },
+        {
+          "question_id": "AR-V2-002-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section F.",
+          "options": ["Learning and limits in community repair", "Replacing all professional service centres", "Guaranteeing success for every damaged product", "Marketing thinner electronic devices"],
+          "correct_answer": "Learning and limits in community repair",
+          "explanation": "Workshops build understanding while recognising that some repairs require professional routes.",
+          "evidence": "Participants learn fault diagnosis, safe handling and the limits of what they can fix."
+        },
+        {
+          "question_id": "AR-V2-002-Q10",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section G.",
+          "options": ["Conditions for a credible repair ecosystem", "A promise that devices will last forever", "Removing every product safety rule", "Making home repair compulsory"],
+          "correct_answer": "Conditions for a credible repair ecosystem",
+          "explanation": "The conclusion identifies the support, safety and lifecycle planning needed for meaningful repairability.",
+          "evidence": "It is an ecosystem in which maintenance, professional repair, reuse and responsible recycling are planned before the first unit leaves the factory."
+        }
+      ]
+    },
+    {
+      "passage_id": "AR-V2-003",
+      "topic": "Education and Psychology",
+      "title": "The Productive Use of Uncertainty in Classrooms",
+      "sections": [
+        {
+          "label": "A",
+          "text": "Classrooms often reward certainty. A student raises a hand, supplies the expected answer and receives immediate confirmation. This pattern can make lessons efficient, but it may also teach that knowledge arrives complete and that hesitation signals weakness. Educational researchers are examining a different possibility: uncertainty can support learning when it is carefully designed. The aim is not to confuse students without purpose. Instead, teachers create moments in which several explanations seem plausible, evidence is incomplete or an initial prediction fails. Students must then identify what they know, what remains doubtful and what information would help. Such episodes resemble the work of historians, scientists and engineers more closely than exercises with an obvious path from question to answer."
+        },
+        {
+          "label": "B",
+          "text": "Psychologists distinguish productive uncertainty from simple overload. When a task contains too many unfamiliar elements, working memory is consumed and little reasoning occurs. Productive uncertainty sits within reach: learners have enough background to form a view but encounter a gap that matters. A biology class might compare two plants growing differently under apparently similar conditions. Students can use prior knowledge about light and water, yet the available observations do not identify one cause. The teacher's role is to keep the gap visible without turning it into panic. Clear time limits, familiar discussion routines and permission to revise an answer create a secure frame. Within that frame, not knowing becomes a temporary state to investigate rather than a permanent judgement about ability."
+        },
+        {
+          "label": "C",
+          "text": "Timing is crucial. If a teacher explains the solution immediately after asking a difficult question, students may never examine their assumptions. If explanation is delayed for too long, frustration can replace curiosity. Studies of contrasting cases suggest an effective sequence. Learners first commit to a prediction, compare it with another case, discuss differences and only then receive formal terminology or a worked explanation. The initial prediction gives later information somewhere to attach. It also makes change visible: students can compare their revised idea with what they believed earlier. However, public commitment can embarrass learners. Some teachers collect anonymous digital responses or ask groups to record several possibilities, preserving intellectual investment without attaching a mistake to one student's identity."
+        },
+        {
+          "label": "D",
+          "text": "Language shapes whether uncertainty feels safe. A teacher who says 'Who knows the answer?' implies that one person should already possess it. Asking 'What are our current explanations?' presents ideas as shared objects that can be tested. Teachers can model revision by changing their own interpretation when new evidence appears. They can also separate confidence from correctness. A student may be highly confident and wrong, or hesitant and correct; both combinations provide information for discussion. Sentence starters such as 'My evidence is...' and 'I would change my view if...' move talk away from guessing. Over time, these routines help students treat uncertainty as a feature of a claim rather than a flaw in the person making it."
+        },
+        {
+          "label": "E",
+          "text": "Assessment presents a harder problem. Standard tests usually require a final response, so teachers may value exploratory thinking during lessons but grade only accuracy at the end. Some schools add short reflection prompts asking which evidence changed a student's mind or where doubt remains. These responses can reveal reasoning, yet scoring them reliably takes time. Researchers caution against awarding points merely for expressing uncertainty. A vague 'I am not sure' is different from a precise statement that two explanations fit the current data and a particular measurement would distinguish them. Rubrics therefore focus on the quality of evidence, the logic of revision and the ability to define what is unknown, not on hesitation itself."
+        },
+        {
+          "label": "F",
+          "text": "The approach does not suit every moment. Beginners sometimes need direct instruction in vocabulary or procedures before they can benefit from an open problem. Safety-critical routines in a laboratory should not be discovered through trial and error. Cultural and individual differences also matter. Students accustomed to rapid correction may initially interpret a teacher's refusal to confirm an answer as neglect. Explaining the purpose of the activity and beginning with short, low-stakes examples can build trust. Teachers must watch for unequal participation as well. Confident speakers can dominate an unresolved discussion, so private thinking time and structured turn-taking are not optional additions; they are part of the design."
+        },
+        {
+          "label": "G",
+          "text": "Used selectively, uncertainty can make knowledge more durable and more honest. Students learn not only a conclusion but why competing ideas were rejected and what limits still surround the accepted account. This does not weaken expertise. Experts are often distinguished by their ability to judge which uncertainties matter, choose a method for reducing them and act responsibly when complete information is impossible. A classroom that practises these skills prepares learners for decisions beyond school, from evaluating a medical headline to interpreting an economic forecast. The final goal is therefore not permanent doubt. It is calibrated confidence: commitment that is strong enough to guide action and flexible enough to respond to better evidence."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V2-003-Q01",
+          "question_type": "multiple_choice",
+          "question": "What makes uncertainty productive according to Section B?",
+          "options": ["Learners can use prior knowledge to investigate a meaningful gap", "The task contains as many unfamiliar elements as possible", "Teachers avoid giving any structure or time limit", "Students are prevented from revising their first answer"],
+          "correct_answer": "Learners can use prior knowledge to investigate a meaningful gap",
+          "explanation": "Productive uncertainty remains within reach and connects existing knowledge to an unresolved issue.",
+          "evidence": "Learners have enough background to form a view but encounter a gap that matters."
+        },
+        {
+          "question_id": "AR-V2-003-Q02",
+          "question_type": "multiple_choice",
+          "question": "Why can anonymous responses be useful?",
+          "options": ["They preserve commitment without publicly identifying a mistake", "They guarantee that every prediction is correct", "They allow teachers to remove difficult cases", "They delay explanations for an unlimited time"],
+          "correct_answer": "They preserve commitment without publicly identifying a mistake",
+          "explanation": "Anonymity lets students invest in a prediction while reducing embarrassment.",
+          "evidence": "Some teachers collect anonymous digital responses... preserving intellectual investment without attaching a mistake to one student's identity."
+        },
+        {
+          "question_id": "AR-V2-003-Q03",
+          "question_type": "multiple_choice",
+          "question": "What should a rubric for uncertainty-focused reflection reward?",
+          "options": ["Evidence, logical revision and a precise account of what is unknown", "Any statement that a student feels unsure", "The length of the student's final answer", "Confidence regardless of correctness"],
+          "correct_answer": "Evidence, logical revision and a precise account of what is unknown",
+          "explanation": "The passage rejects rewarding hesitation itself and identifies three reasoning qualities.",
+          "evidence": "Rubrics therefore focus on the quality of evidence, the logic of revision and the ability to define what is unknown."
+        },
+        {
+          "question_id": "AR-V2-003-Q04",
+          "question_type": "true_false_not_given",
+          "question": "An immediate explanation can prevent students from examining their assumptions.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "TRUE",
+          "explanation": "The text directly warns that immediate explanation may cut off examination.",
+          "evidence": "If a teacher explains the solution immediately... students may never examine their assumptions."
+        },
+        {
+          "question_id": "AR-V2-003-Q05",
+          "question_type": "true_false_not_given",
+          "question": "The passage recommends discovering laboratory safety procedures through trial and error.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "FALSE",
+          "explanation": "Safety-critical routines are explicitly excluded from discovery by trial and error.",
+          "evidence": "Safety-critical routines in a laboratory should not be discovered through trial and error."
+        },
+        {
+          "question_id": "AR-V2-003-Q06",
+          "question_type": "true_false_not_given",
+          "question": "Students in smaller classes benefit more from productive uncertainty than students in larger classes.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "NOT GIVEN",
+          "explanation": "The passage does not compare outcomes by class size.",
+          "evidence": "Teachers must watch for unequal participation as well."
+        },
+        {
+          "question_id": "AR-V2-003-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section A.",
+          "options": ["Uncertainty as a designed learning opportunity", "Why all answers should remain unknown", "A method for shortening every lesson", "The history of classroom examinations"],
+          "correct_answer": "Uncertainty as a designed learning opportunity",
+          "explanation": "The section introduces purposeful gaps as a way to develop authentic inquiry.",
+          "evidence": "Educational researchers are examining a different possibility: uncertainty can support learning when it is carefully designed."
+        },
+        {
+          "question_id": "AR-V2-003-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section C.",
+          "options": ["Sequencing prediction, comparison and explanation", "Removing all public discussion", "Teaching terminology before observation", "Why frustration always improves memory"],
+          "correct_answer": "Sequencing prediction, comparison and explanation",
+          "explanation": "Section C describes an ordered cycle and the timing of formal explanation.",
+          "evidence": "Learners first commit to a prediction, compare it with another case, discuss differences and only then receive formal terminology."
+        },
+        {
+          "question_id": "AR-V2-003-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section D.",
+          "options": ["Language that makes revision intellectually safe", "Separating teachers from classroom talk", "Proving that confidence equals accuracy", "Replacing evidence with sentence starters"],
+          "correct_answer": "Language that makes revision intellectually safe",
+          "explanation": "The section shows how phrasing and discussion routines detach uncertainty from personal weakness.",
+          "evidence": "Over time, these routines help students treat uncertainty as a feature of a claim rather than a flaw in the person making it."
+        },
+        {
+          "question_id": "AR-V2-003-Q10",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section G.",
+          "options": ["From classroom doubt to calibrated confidence", "Permanent hesitation as the final goal", "Why experts avoid uncertain situations", "One correct method for every decision"],
+          "correct_answer": "From classroom doubt to calibrated confidence",
+          "explanation": "The conclusion connects uncertainty skills to responsible action and flexible confidence.",
+          "evidence": "The final goal is therefore not permanent doubt. It is calibrated confidence."
+        }
+      ]
+    },
+    {
+      "passage_id": "AR-V2-004",
+      "topic": "Engineering and Materials Science",
+      "title": "Growing Quieter Rooms with Mycelium",
+      "sections": [
+        {
+          "label": "A",
+          "text": "Offices, schools and restaurants often control sound with panels made from mineral fibres or petroleum-based foams. These products can perform well, but their manufacture may require high temperatures and their mixed materials are difficult to recover after use. Materials researchers are testing an unusual alternative: acoustic panels grown with mycelium, the branching network through which fungi obtain nutrients. The fungus is not used alone. It binds agricultural residues such as chopped straw, seed husks or sawdust into a light composite. Once the material reaches the required shape, heat stops further growth. The finished panel contains countless small passages and irregular surfaces that can scatter and absorb sound. Interest in the idea comes from both its acoustic potential and its use of low-value biological leftovers."
+        },
+        {
+          "label": "B",
+          "text": "Production begins with selecting a clean feedstock. Residues are dried, cut to a controlled size and treated to reduce competing organisms. They are then mixed with fungal culture and packed loosely into a mould. Over several days, white threads spread through the particles and connect them. Temperature, moisture and air must be balanced: too little water slows growth, while too much can create dense zones or contamination. The mould determines the broad shape, but the internal structure depends on the species, feedstock and growth conditions. Finally, drying or heating makes the composite inactive and dimensionally stable. Unlike a foam poured in seconds, the panel develops gradually, so manufacturing schedules must include biological time."
+        },
+        {
+          "label": "C",
+          "text": "Acoustic performance is not described by one number. Low-frequency sounds, such as ventilation rumble, have long wavelengths and are difficult for thin panels to absorb. Speech and clattering dishes occupy higher ranges that porous materials can reduce more easily. Tests place a sample in a controlled tube or reverberant room and compare the sound energy before and after installation. Mycelium composites often perform best in middle and high frequencies, although density and thickness change the result. Adding an air gap behind a panel can improve absorption without adding much material. Designers may also vary the surface, using ridges or cavities to scatter reflections. A panel suited to a podcast studio may therefore differ from one intended for a large dining hall."
+        },
+        {
+          "label": "D",
+          "text": "Consistency remains a central obstacle. Two batches made from the same recipe can differ because the feedstock arrived with different fibres or moisture. Industrial customers expect predictable colour, strength and acoustic ratings. Producers respond by measuring incoming residues, controlling particle size and recording growth conditions. Some variation can be accepted or even celebrated as a natural appearance, but hidden performance cannot rely on appearance. Fire behaviour is another concern. The composite can char rather than melt, yet that does not automatically satisfy building codes. Treatments may improve resistance, though an added chemical can weaken claims of compostability. Certification therefore evaluates the final product, not the attractive biological story behind it."
+        },
+        {
+          "label": "E",
+          "text": "The environmental case also requires careful accounting. Agricultural waste is not truly free: collecting, cleaning and transporting it consume energy, and some residues already have uses as animal bedding, fuel or soil amendment. Growing at moderate temperatures may demand less energy than melting mineral fibres, but drying a wet panel can be intensive. A fair comparison measures the complete life cycle and uses the same acoustic function and service period. Durability matters because a panel replaced twice may have a larger footprint than a conventional panel that lasts for decades. Researchers are studying moisture resistance, insect damage and dimensional change to understand where the material can perform reliably."
+        },
+        {
+          "label": "F",
+          "text": "Design for the end of use is one potential advantage. A panel made only from fungal binder and untreated plant matter may be composted under suitable industrial conditions. If it is glued to a synthetic backing, painted with an impermeable coating or combined permanently with metal, that route becomes harder. Some companies use mechanical clips so panels can be removed and sorted. Others offer take-back schemes, although transport to a distant processing site can cancel part of the benefit. The best strategy depends on local systems. In a city with no industrial composting, reuse as a panel or protective packaging may be more realistic than promising biological decomposition that will never occur."
+        },
+        {
+          "label": "G",
+          "text": "Mycelium panels are unlikely to replace every acoustic material. They currently suit interior locations where moderate strength, texture and sound absorption matter more than exposure to rain or heavy impact. Their larger contribution may be to change how designers think about manufacturing. Growth allows local residues and mould shapes to influence a product, while also demanding patience and quality control unfamiliar to conventional factories. Successful adoption will depend on honest specifications, repeatable production and buildings designed for removal. If these conditions are met, the material can occupy a useful niche: not a miraculous object grown from waste, but one carefully engineered layer in a quieter and more circular room."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V2-004-Q01",
+          "question_type": "multiple_choice",
+          "question": "What role does mycelium play in the composite?",
+          "options": ["It binds particles of agricultural residue together", "It melts mineral fibres at a lower temperature", "It forms a waterproof synthetic coating", "It measures sound inside a reverberant room"],
+          "correct_answer": "It binds particles of agricultural residue together",
+          "explanation": "The fungal network acts as a biological binder for plant particles.",
+          "evidence": "It binds agricultural residues such as chopped straw, seed husks or sawdust into a light composite."
+        },
+        {
+          "question_id": "AR-V2-004-Q02",
+          "question_type": "multiple_choice",
+          "question": "How can absorption improve without greatly increasing material use?",
+          "options": ["By leaving an air gap behind the panel", "By removing every surface cavity", "By making the panel impermeable", "By growing it with no moisture"],
+          "correct_answer": "By leaving an air gap behind the panel",
+          "explanation": "The air space changes acoustic behaviour without requiring a much heavier panel.",
+          "evidence": "Adding an air gap behind a panel can improve absorption without adding much material."
+        },
+        {
+          "question_id": "AR-V2-004-Q03",
+          "question_type": "multiple_choice",
+          "question": "Why must environmental comparisons include service life?",
+          "options": ["Frequent replacement can outweigh lower manufacturing impacts", "Long-lasting panels always absorb low frequencies", "Service life determines the colour of feedstock", "Building codes ignore short-lived materials"],
+          "correct_answer": "Frequent replacement can outweigh lower manufacturing impacts",
+          "explanation": "A lower-impact panel may perform worse overall if it needs repeated replacement.",
+          "evidence": "A panel replaced twice may have a larger footprint than a conventional panel that lasts for decades."
+        },
+        {
+          "question_id": "AR-V2-004-Q04",
+          "question_type": "true_false_not_given",
+          "question": "The production process must allow several days for fungal growth.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "TRUE",
+          "explanation": "The fungal threads spread and bind the particles over several days.",
+          "evidence": "Over several days, white threads spread through the particles and connect them."
+        },
+        {
+          "question_id": "AR-V2-004-Q05",
+          "question_type": "true_false_not_given",
+          "question": "Mycelium composites always absorb low-frequency sound better than high-frequency sound.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "FALSE",
+          "explanation": "The passage says they often perform best at middle and high frequencies.",
+          "evidence": "Mycelium composites often perform best in middle and high frequencies."
+        },
+        {
+          "question_id": "AR-V2-004-Q06",
+          "question_type": "true_false_not_given",
+          "question": "The largest mycelium-panel factory is located near a wheat-growing region.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "NOT GIVEN",
+          "explanation": "No factory location or size comparison is given.",
+          "evidence": "Production begins with selecting a clean feedstock."
+        },
+        {
+          "question_id": "AR-V2-004-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section B.",
+          "options": ["A manufacturing process governed by biological growth", "Immediate production through melted foam", "Testing sound in occupied restaurants", "Removing all moisture from raw plants"],
+          "correct_answer": "A manufacturing process governed by biological growth",
+          "explanation": "The section follows preparation, growth control and final inactivation.",
+          "evidence": "The panel develops gradually, so manufacturing schedules must include biological time."
+        },
+        {
+          "question_id": "AR-V2-004-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section D.",
+          "options": ["From natural variation to certified performance", "Why every batch should look different", "Replacing building codes with appearance", "Using moisture to prevent fungal growth"],
+          "correct_answer": "From natural variation to certified performance",
+          "explanation": "Section D covers batch variation, fire behaviour and final-product certification.",
+          "evidence": "Certification therefore evaluates the final product, not the attractive biological story behind it."
+        },
+        {
+          "question_id": "AR-V2-004-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section F.",
+          "options": ["End-of-use options depend on product and place", "Composting is available in every city", "Permanent adhesives guarantee circularity", "Transport has no environmental cost"],
+          "correct_answer": "End-of-use options depend on product and place",
+          "explanation": "Material combinations and local processing systems determine realistic recovery.",
+          "evidence": "The best strategy depends on local systems."
+        },
+        {
+          "question_id": "AR-V2-004-Q10",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section G.",
+          "options": ["A promising niche without miraculous claims", "Complete replacement of all acoustic products", "Outdoor use under every weather condition", "Growth without the need for quality control"],
+          "correct_answer": "A promising niche without miraculous claims",
+          "explanation": "The conclusion defines suitable uses and conditions while rejecting exaggerated claims.",
+          "evidence": "Not a miraculous object grown from waste, but one carefully engineered layer in a quieter and more circular room."
+        }
+      ]
+    },
+    {
+      "passage_id": "AR-V2-005",
+      "topic": "Psychology and Engineering",
+      "title": "Lighting the Human Night Shift",
+      "sections": [
+        {
+          "label": "A",
+          "text": "Hospitals, transport systems and factories depend on people working while most of the population sleeps. Lighting these workplaces seems straightforward: provide enough illumination to see tasks safely. Yet night-shift light also reaches the biological system that helps regulate sleep and alertness. Specialised cells in the eye respond to the spectrum, intensity, timing and duration of light, sending signals to the body's internal clock. A bright environment can support alert performance at three in the morning, but the same exposure near the end of a shift may delay sleep after workers return home. Designers therefore face a moving target. The best light is not simply the brightest available; it must support the task, the time and the worker's need to recover."
+        },
+        {
+          "label": "B",
+          "text": "Visual requirements remain the first safety layer. A nurse reading a medicine label needs fine detail and accurate colour, while a warehouse driver must detect movement and obstacles across a larger area. Glare can erase the benefit of high illumination by reducing contrast or causing discomfort. Older workers generally need more light for the same visual task because the ageing eye transmits less light. Local task lamps can provide detail without flooding an entire room, and controls allow workers to adjust conditions. However, personal choice has limits in shared spaces. One employee's preferred brightness may disturb a colleague resting nearby, so zoning and shielding are often more useful than a single control for the whole room."
+        },
+        {
+          "label": "C",
+          "text": "Research on biological timing has encouraged systems that change through the shift. Stronger, carefully directed light during the first half of the night may increase alertness. Later, lower intensity and a spectrum with less short-wavelength energy may reduce the signal that pushes the internal clock later. The transition should be gradual; a sudden dimming can feel like equipment failure and may briefly reduce visibility. Dynamic schedules are not universal prescriptions. A worker on a permanent night schedule has different goals from someone rotating between days and nights. Chronotype, age, previous sleep and medication can also alter response. Designers use population evidence as a starting point, then provide safe ranges rather than claiming an exact biological setting for every person."
+        },
+        {
+          "label": "D",
+          "text": "Light exposure continues outside the workplace. A worker leaving at sunrise may receive a powerful morning signal during the journey home, undoing part of the carefully designed night schedule. Dark glasses can reduce exposure, but very dark lenses may make driving unsafe. At home, daylight entering a bedroom, phone use and family routines influence sleep. Employers cannot control all these conditions, nor should they monitor private behaviour. Some programmes therefore offer voluntary education about curtains, device settings and consistent sleep windows. The ethical boundary is important. Information can help workers make choices, while surveillance or pressure may transfer responsibility for a poorly designed schedule onto the individual."
+        },
+        {
+          "label": "E",
+          "text": "Evaluating a lighting intervention requires several kinds of evidence. Laboratory tests can measure reaction time and hormone patterns under controlled exposure, but a real ward includes emergencies, noise, teamwork and emotional strain. Field studies track errors, near misses, reported sleep and sometimes wearable light measurements. Each indicator has weaknesses. Self-reported alertness can be influenced by expectations, while an error rate may change because staffing improved at the same time as lighting. Strong evaluations record the original conditions, introduce changes in stages and compare multiple outcomes. They also look for unintended effects, such as headaches, reflections on screens or increased disturbance for patients."
+        },
+        {
+          "label": "F",
+          "text": "Maintenance is easy to overlook in an advanced system. Sensors drift, luminaires collect dust and replacement lamps may have a different spectrum from the specified product. A schedule that performed well during commissioning can gradually become inaccurate. Facilities teams need simple ways to verify light levels and timing, along with records of software changes. Manual override is essential for unusual tasks and emergencies, but permanent overrides may silently defeat the programme. Interfaces should show whether the system is following its schedule and when normal operation will resume. Training must include cleaners and maintenance staff as well as managers, because they often notice faults first."
+        },
+        {
+          "label": "G",
+          "text": "Good night-shift lighting is therefore a service rather than a one-time installation. It combines visual safety, biological timing, worker control, privacy, evaluation and maintenance. Light cannot repair every problem caused by night work; long shifts, insufficient staffing and unpredictable rotation may dominate its effects. Nor can a colour-changing lamp guarantee healthy sleep. Still, thoughtful design can remove avoidable strain and support safer decisions. The most credible projects state their limits, involve workers in testing and adjust the system when evidence changes. By treating darkness and brightness as resources to be scheduled, not opposites to be maximised or eliminated, workplaces can better support both wakeful work and later rest."
+        }
+      ],
+      "questions": [
+        {
+          "question_id": "AR-V2-005-Q01",
+          "question_type": "multiple_choice",
+          "question": "Why is the brightest possible light not always best for night workers?",
+          "options": ["Its timing may support work but delay later sleep", "Bright light makes medicine labels impossible to read", "All workers prefer dim shared spaces", "Brightness has no effect on alertness"],
+          "correct_answer": "Its timing may support work but delay later sleep",
+          "explanation": "Light can improve alertness during work while shifting biological timing near the end of a shift.",
+          "evidence": "A bright environment can support alert performance... but the same exposure near the end of a shift may delay sleep."
+        },
+        {
+          "question_id": "AR-V2-005-Q02",
+          "question_type": "multiple_choice",
+          "question": "Why are zoning and shielding useful in shared workplaces?",
+          "options": ["They accommodate different needs without changing the whole room", "They ensure every worker receives identical light", "They eliminate the need for task lighting", "They make glare beneficial for older workers"],
+          "correct_answer": "They accommodate different needs without changing the whole room",
+          "explanation": "Local zones reduce conflict between workers or patients who need different conditions.",
+          "evidence": "One employee's preferred brightness may disturb a colleague resting nearby, so zoning and shielding are often more useful than a single control for the whole room."
+        },
+        {
+          "question_id": "AR-V2-005-Q03",
+          "question_type": "multiple_choice",
+          "question": "What characterises a strong field evaluation of new lighting?",
+          "options": ["It records baselines, stages changes and compares several outcomes", "It relies only on workers' expectations", "It changes staffing and lighting without recording either", "It excludes unintended effects from the analysis"],
+          "correct_answer": "It records baselines, stages changes and compares several outcomes",
+          "explanation": "The passage identifies baseline recording, staged introduction and multiple measures as safeguards.",
+          "evidence": "Strong evaluations record the original conditions, introduce changes in stages and compare multiple outcomes."
+        },
+        {
+          "question_id": "AR-V2-005-Q04",
+          "question_type": "true_false_not_given",
+          "question": "Older workers may require more illumination for the same visual task.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "TRUE",
+          "explanation": "Age-related changes reduce how much light reaches the eye.",
+          "evidence": "Older workers generally need more light for the same visual task because the ageing eye transmits less light."
+        },
+        {
+          "question_id": "AR-V2-005-Q05",
+          "question_type": "true_false_not_given",
+          "question": "A dynamic lighting schedule should change suddenly at the midpoint of every shift.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "FALSE",
+          "explanation": "The passage recommends gradual transitions and rejects a universal schedule.",
+          "evidence": "The transition should be gradual; a sudden dimming can feel like equipment failure."
+        },
+        {
+          "question_id": "AR-V2-005-Q06",
+          "question_type": "true_false_not_given",
+          "question": "Workers in transport systems respond to short-wavelength light more strongly than hospital workers.",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],
+          "correct_answer": "NOT GIVEN",
+          "explanation": "No comparison between worker sectors is made.",
+          "evidence": "Dynamic schedules are not universal prescriptions."
+        },
+        {
+          "question_id": "AR-V2-005-Q07",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section C.",
+          "options": ["Changing light over time without claiming one perfect schedule", "Using maximum brightness throughout every shift", "Removing individual biological differences", "A fixed recipe for permanent and rotating workers"],
+          "correct_answer": "Changing light over time without claiming one perfect schedule",
+          "explanation": "Section C describes dynamic timing while emphasising individual and schedule differences.",
+          "evidence": "Designers use population evidence as a starting point, then provide safe ranges rather than claiming an exact biological setting for every person."
+        },
+        {
+          "question_id": "AR-V2-005-Q08",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section D.",
+          "options": ["Support beyond work with a clear privacy boundary", "Employer surveillance of home routines", "Driving home in the darkest available glasses", "Why workplace light controls family behaviour"],
+          "correct_answer": "Support beyond work with a clear privacy boundary",
+          "explanation": "The section covers homeward and domestic exposure while limiting employer control.",
+          "evidence": "Information can help workers make choices, while surveillance or pressure may transfer responsibility."
+        },
+        {
+          "question_id": "AR-V2-005-Q09",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section F.",
+          "options": ["Keeping a sophisticated system accurate in daily use", "Installing lights once and ignoring them", "Preventing every manual emergency override", "Training only senior managers"],
+          "correct_answer": "Keeping a sophisticated system accurate in daily use",
+          "explanation": "Section F addresses drift, replacement, records, overrides and broad staff training.",
+          "evidence": "A schedule that performed well during commissioning can gradually become inaccurate."
+        },
+        {
+          "question_id": "AR-V2-005-Q10",
+          "question_type": "matching_heading",
+          "question": "Choose the best heading for Section G.",
+          "options": ["Lighting as an adjustable service with limited claims", "A lamp that solves every night-work problem", "Eliminating darkness from all workplaces", "Replacing staff planning with colour controls"],
+          "correct_answer": "Lighting as an adjustable service with limited claims",
+          "explanation": "The conclusion integrates multiple design concerns and explicitly states what light cannot fix.",
+          "evidence": "Good night-shift lighting is therefore a service rather than a one-time installation."
+        }
+      ]
+    }
+  ]
+}

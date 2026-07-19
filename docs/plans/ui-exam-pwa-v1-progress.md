@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 4 — expand the original Academic Reading bank.
+Stage 5 — Listening, Writing, and Speaking practice flows.
 
 ## Completed
 
@@ -29,6 +29,14 @@ Stage 4 — expand the original Academic Reading bank.
 - Today now hands structured Reading tasks to the dedicated exam route.
 - History can reopen complete explanations from the stored result snapshot.
 - Kept the recovery boundary explicit: unfinished drafts remain session-only.
+- Completed Stage 4 with five new project-original Academic passages and 50
+  new questions across Cities, Technology, Education, Materials, and
+  night-shift design topics.
+- Added a stable eight-passage catalog with 77 globally unique questions.
+- Preserved v1 lookup for stored tasks while new plans rotate through v1/v2
+  and generate accurate 9/10-question instructions.
+- Updated both README files with the expanded bank and non-official copyright
+  boundary.
 
 ## Test Results
 
@@ -46,15 +54,19 @@ Stage 4 — expand the original Academic Reading bank.
 - Full pytest after Stage 3: 140 passed.
 - Compileall after Stage 3: passed.
 - Real database, WAL, and backup fingerprints: unchanged after Stage 3.
+- Stage 4 content/compatibility regression: 27 passed.
+- Full pytest after Stage 4: 144 passed.
+- Compileall after Stage 4: passed.
+- Real database, WAL, and backup fingerprints: unchanged after Stage 4.
 
 ## Current Commit
 
-`e112c3c` (before the pending Stage 3 commit)
+`736abb7` (before the pending Stage 4 commit)
 
 ## Next Step
 
-Commit Stage 3, then write failing multi-bank catalog and content-quality
-tests before adding the five new original passages.
+Commit Stage 4, then write failing pure session and page tests for Listening,
+Writing draft isolation, and Speaking local recording.
 
 ## Known Issues
 
@@ -62,5 +74,3 @@ tests before adding the five new original passages.
 - Listening and Speaking lack standalone interactive pages.
 - Writing drafts are not isolated by task type.
 - PWA metadata and install icons do not exist.
-- Existing three-passage validator must become a multi-bank catalog without
-  breaking v1 tasks.

@@ -40,7 +40,7 @@ privacy controls, automated tests, and product-oriented UI design.
 - Deterministic seven-day plans with exact daily minute allocation
 - Concrete copyright-safe tasks with objectives, material, steps, expected
   outputs, and completion criteria
-- Three versioned project-original Academic reading passages, each with nine
+- Eight versioned project-original Academic reading passages with 77
   Multiple Choice, True/False/Not Given, and Matching Heading questions
 - Start, pause, continue, submit, deterministic score, and evidence-based
   answer review for reading tasks
@@ -147,7 +147,7 @@ Deterministic Python code is responsible for facts and constraints:
   locally without an AI call.
 - Reading answers are normalized for Unicode, repeated whitespace, and case,
   then scored against the versioned answer key without AI.
-- The three bundled reading passages and all questions, explanations, and
+- The eight bundled reading passages and all questions, explanations, and
   evidence are project-original; copyrighted test material is not copied.
 - Exam stages use fixed boundaries: over 90 days, 31–90 days, and 30 days or
   fewer.
@@ -320,8 +320,8 @@ active application imports only the `ielts_ai_coach/` package.
 - V1 has no speaking audio, image input, payments, teacher/parent portals,
   account self-deletion, or password-change flow.
 - Daily quotas use the application server's current date.
-- Reading V1 contains three passages and permits one final submission per task;
-  it does not yet support retry attempts or larger bank rotation.
+- Reading contains eight passages and permits one final submission per task;
+  it does not yet support retry attempts.
 - Listening still requires student-owned material and has no bundled original
   audio practice loop.
 - There is no production monitoring, managed backup, or migration system yet.
@@ -329,8 +329,7 @@ active application imports only the `ielts_ai_coach/` package.
 ## Future Roadmap
 
 1. Run usability tests on the reading loop with synthetic or consented data.
-2. Expand the original reading bank and decide whether controlled retries are
-   pedagogically useful.
+2. Evaluate whether controlled Reading retries are pedagogically useful.
 3. Add project-original listening scripts and audio in a separately approved
    phase.
 4. Build an AI evaluation set and improve prompt/version tracking.

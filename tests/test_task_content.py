@@ -12,6 +12,7 @@ from ielts_ai_coach.services.task_content import (
     TASK_CONTENT_PREFIX,
     get_task_content,
 )
+from ielts_ai_coach.services.task_templates import build_task_content
 
 
 def _concrete_blueprint():
@@ -116,6 +117,22 @@ def test_subject_templates_include_required_original_or_owned_material() -> None
     assert writing.writing_prompt and writing.writing_test_type
     assert speaking.questions
     assert "不进行自动语音评分" in " ".join(speaking.instructions)
+
+
+def test_new_reading_tasks_rotate_into_v2_with_dynamic_question_copy() -> None:
+    """Later plan days must use the additive catalog and accurate question count."""
+
+    reading = build_task_content(
+        subject="reading",
+        phase="targeted",
+        day_offset=4,
+        planned_minutes=35,
+    )
+
+    assert reading.reading_passage_id == "AR-V2-002"
+    assert reading.reading_passage_version == "2.0.0"
+    assert "10道题" in " ".join(reading.instructions)
+    assert "全部10题" in reading.completion_criteria
 
 
 def test_old_plain_text_task_stays_readable() -> None:

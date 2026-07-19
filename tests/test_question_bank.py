@@ -8,6 +8,8 @@ from ielts_ai_coach.services.question_bank import (
     BANK_PATH,
     VALID_QUESTION_TYPES,
     get_reading_bank,
+    get_reading_passage,
+    load_reading_catalog,
 )
 from ielts_ai_coach.services.reading_practice import resolve_reading_passage
 from ielts_ai_coach.services.task_content import (
@@ -86,3 +88,14 @@ def test_existing_structured_reading_task_gets_compatible_practice() -> None:
 
     assert passage is not None
     assert passage.passage_id == "AR-V1-002"
+
+
+def test_multi_bank_catalog_keeps_v1_lookup_compatible() -> None:
+    """Old task references must resolve identically after adding v2 content."""
+
+    v1 = get_reading_bank()
+    catalog = load_reading_catalog()
+
+    assert tuple(catalog[:3]) == v1.passages
+    assert get_reading_passage("AR-V1-002") == v1.passages[1]
+    assert get_reading_passage("AR-V2-005").version == "2.0.0"

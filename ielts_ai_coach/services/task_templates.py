@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ielts_ai_coach.services.question_bank import get_reading_bank
+from ielts_ai_coach.services.question_bank import load_reading_catalog
 from ielts_ai_coach.services.task_content import TaskContent
 
 
@@ -73,8 +73,9 @@ def _reading_task(
 ) -> TaskContent:
     """Build a task linked to one versioned original reading passage."""
 
-    bank = get_reading_bank()
-    passage = bank.passages[day_offset % len(bank.passages)]
+    catalog = load_reading_catalog()
+    passage = catalog[day_offset % len(catalog)]
+    question_count = len(passage.questions)
     time_limit = max(12, min(25, planned_minutes - 5))
     return TaskContent(
         task_title=f"Academic Reading：{passage.title}",
@@ -85,16 +86,19 @@ def _reading_task(
         ),
         instructions=(
             f"点击“开始练习”，限时约{time_limit}分钟阅读全文。",
-            "独立完成9道题；提交前不会显示答案、解析或证据。",
+            f"独立完成{question_count}道题；提交前不会显示答案、解析或证据。",
             "确认所有问题均已作答后一次性提交。",
             "查看逐题结果、原文证据和错题原因，并保留历史记录。",
         ),
-        completion_criteria="完成全部9题并提交；系统自动评分并同步任务完成记录。",
+        completion_criteria=(
+            f"完成全部{question_count}题并提交；"
+            "系统自动评分并同步任务完成记录。"
+        ),
         planned_minutes=planned_minutes,
         subject="reading",
         difficulty=difficulty,
         expected_output="总分、正确率、逐题判定、正确答案、解析与原文证据。",
-        template_id=f"R-V2-{day_offset % len(bank.passages) + 1:03d}",
+        template_id=f"R-V2-{day_offset % len(catalog) + 1:03d}",
         reading_passage_id=passage.passage_id,
         reading_passage_version=passage.version,
     )

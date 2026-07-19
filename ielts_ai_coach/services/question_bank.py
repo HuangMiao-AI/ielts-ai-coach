@@ -16,6 +16,7 @@ BANK_PATH = (
     / "question_banks"
     / "reading_v1.json"
 )
+V2_BANK_PATH = BANK_PATH.with_name("reading_v2.json")
 VALID_QUESTION_TYPES = {
     "multiple_choice",
     "true_false_not_given",
@@ -54,6 +55,7 @@ class ReadingPassage:
     title: str
     sections: tuple[ReadingSection, ...]
     questions: tuple[ReadingQuestion, ...]
+    topic: str
     source_type: str
     source_name: str
     copyright_notice: str
@@ -120,6 +122,8 @@ def _build_passage(
     *,
     version: str,
     source: dict[str, Any],
+    word_range: tuple[int, int],
+    question_range: tuple[int, int],
 ) -> ReadingPassage:
     """Validate and construct one passage."""
 
@@ -127,7 +131,10 @@ def _build_passage(
     raw_questions = payload.get("questions")
     if not isinstance(raw_sections, list) or len(raw_sections) < 5:
         raise ValueError("invalid_sections")
-    if not isinstance(raw_questions, list) or not 8 <= len(raw_questions) <= 10:
+    if (
+        not isinstance(raw_questions, list)
+        or not question_range[0] <= len(raw_questions) <= question_range[1]
+    ):
         raise ValueError("invalid_question_count")
     sections = tuple(
         ReadingSection(
@@ -150,12 +157,14 @@ def _build_passage(
         title=_required_text(payload, "title"),
         sections=sections,
         questions=questions,
+        topic=str(payload.get("topic", "Academic Skills")).strip()
+        or "Academic Skills",
         source_type=_required_text(source, "source_type"),
         source_name=_required_text(source, "source_name"),
         copyright_notice=_required_text(source, "copyright_notice"),
         is_official_ielts_content=source.get("is_official_ielts_content") is True,
     )
-    if not 800 <= passage.word_count <= 1000:
+    if not word_range[0] <= passage.word_count <= word_range[1]:
         raise ValueError("invalid_passage_word_count")
     if {question.question_type for question in questions} != VALID_QUESTION_TYPES:
         raise ValueError("missing_question_type")
@@ -179,8 +188,17 @@ def load_reading_bank(path: Path | None = None) -> ReadingBank:
     ):
         raise ValueError("invalid_source")
     version = _required_text(payload, "version")
+    is_v2 = version.startswith("2.")
+    word_range = (750, 950) if is_v2 else (800, 1000)
+    question_range = (10, 10) if is_v2 else (8, 10)
     passages = tuple(
-        _build_passage(item, version=version, source=source)
+        _build_passage(
+            item,
+            version=version,
+            source=source,
+            word_range=word_range,
+            question_range=question_range,
+        )
         for item in raw_passages
         if isinstance(item, dict)
     )
@@ -190,10 +208,13 @@ def load_reading_bank(path: Path | None = None) -> ReadingBank:
         for passage in passages
         for question in passage.questions
     ]
-    if (
-        len(passages) != 3
-        or tuple(passage_ids) != READING_PASSAGE_IDS
-        or len(set(question_ids)) != len(question_ids)
+    expected_ids = (
+        tuple(f"AR-V2-{index:03d}" for index in range(1, 6))
+        if is_v2
+        else READING_PASSAGE_IDS
+    )
+    if tuple(passage_ids) != expected_ids or len(set(question_ids)) != len(
+        question_ids
     ):
         raise ValueError("invalid_bank_identifiers")
     return ReadingBank(
@@ -210,10 +231,30 @@ def get_reading_bank() -> ReadingBank:
     return load_reading_bank()
 
 
+@lru_cache(maxsize=1)
+def load_reading_catalog() -> tuple[ReadingPassage, ...]:
+    """Return v1 and v2 original passages in stable release order."""
+
+    v1 = get_reading_bank().passages
+    v2 = load_reading_bank(V2_BANK_PATH).passages
+    passages = (*v1, *v2)
+    question_ids = [
+        question.question_id
+        for passage in passages
+        for question in passage.questions
+    ]
+    if (
+        len({passage.passage_id for passage in passages}) != len(passages)
+        or len(set(question_ids)) != len(question_ids)
+    ):
+        raise ValueError("duplicate_catalog_identifier")
+    return passages
+
+
 def get_reading_passage(passage_id: str) -> ReadingPassage:
     """Return one passage by stable identifier."""
 
-    for passage in get_reading_bank().passages:
+    for passage in load_reading_catalog():
         if passage.passage_id == passage_id:
             return passage
     raise KeyError("reading_passage_not_found")
