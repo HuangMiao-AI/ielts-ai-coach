@@ -10,7 +10,8 @@
 
 ## Global Constraints
 
-- The active project is `<PROJECT_ROOT>`; use only root `app.py` and `ielts_ai_coach/`.
+- The active project is `<PROJECT_ROOT>`; use only root `app.py` and
+  `ielts_ai_coach/`.
 - Never import or modify `archive/enterprise-v0/`, `data/study_coach.db`, or inactive root legacy modules.
 - Never modify the real SQLite database, schema, WAL, or SHM; never run a checkpoint.
 - Every business query requires one explicit `user_id`; no all-users export path exists.
@@ -238,11 +239,11 @@ The service implements:
 
 **Files:**
 - Create backup copies and `BACKUP-MANIFEST.md` under the required timestamped Vault backup directory.
-- Modify: `E:\Miao OS\99 Templates\README.md`
-- Create: `E:\Miao OS\99 Templates\AI Coach Feedback Template.md`
-- Create: `E:\Miao OS\02 IELTS\AI Feedback\README.md`
-- Create: `E:\Miao OS\05 IELTS AI Coach\Architecture\Data Contract.md`
-- Modify: `E:\Miao OS\00 Dashboard\Dashboard.md`
+- Modify: `<OBSIDIAN_VAULT>/99 Templates/README.md`
+- Create: `<OBSIDIAN_VAULT>/99 Templates/AI Coach Feedback Template.md`
+- Create: `<OBSIDIAN_VAULT>/02 IELTS/AI Feedback/README.md`
+- Create: `<OBSIDIAN_VAULT>/05 IELTS AI Coach/Architecture/Data Contract.md`
+- Modify: `<OBSIDIAN_VAULT>/00 Dashboard/Dashboard.md`
 
 - [ ] Hash and back up every existing Vault Markdown file that will be modified.
 - [ ] Add the exact short-field schema, enums, types, and version policy to the field registry.

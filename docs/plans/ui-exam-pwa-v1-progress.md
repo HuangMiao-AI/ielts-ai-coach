@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 8–9 — automated regression and visual acceptance.
+Stage 9 — Streamlit runtime and visual acceptance.
 
 ## Completed
 
@@ -52,6 +52,11 @@ Stage 8–9 — automated regression and visual acceptance.
 - Completed Stage 7 with a local manifest, deterministic SVG/PNG icons,
   mobile metadata, safe-area-aware shell, and Streamlit static serving.
 - No service worker is registered; this release does not claim offline use.
+- Completed Stage 8 with behavioral Listening/Writing/Speaking UI tests,
+  complete Exporter regression, deterministic icon regeneration, dependency
+  validation, and tracked-file privacy scans.
+- Sanitized absolute machine and Vault paths in the historical Exporter plan;
+  no Exporter runtime code or external Vault file was touched.
 
 ## Test Results
 
@@ -85,15 +90,20 @@ Stage 8–9 — automated regression and visual acceptance.
 - Full pytest after Stage 7: 157 passed.
 - Compileall after Stage 7: passed.
 - Real database, WAL, and backup fingerprints: unchanged after Stage 7.
+- Full automated matrix: 160 passed.
+- Obsidian Exporter regression: 54 passed.
+- `pip check`: no broken requirements.
+- PWA icon regeneration: byte-identical.
+- Git tracked-risk, secret-pattern, and private-path scans: no matches.
 
 ## Current Commit
 
-`abfd153` (before the pending Stage 7 commit)
+`7d08eff` (before the pending Stage 8 commit)
 
 ## Next Step
 
-Commit Stage 7, then run the complete automated matrix, browser viewport
-acceptance, headless startup, HTTP health, pip check, and asset verification.
+Commit Stage 8, then start Streamlit with a temporary database for HTTP health
+and five-viewport visual acceptance.
 
 ## Known Issues
 
