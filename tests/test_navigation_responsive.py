@@ -88,9 +88,9 @@ def test_top_navigation_groups_and_every_page_opens(
     }
 
     assert NAVIGATION_STRUCTURE == {
-        "学习": ("首页", "成绩诊断", "今日任务", "七天计划"),
-        "AI工具": ("AI学习教练", "写作批改"),
-        "我的": ("我的档案", "历史记录", "设置"),
+        "练习": ("首页", "阅读", "听力", "写作", "口语"),
+        "学习": ("学习计划", "历史记录"),
+        "账户": ("个人资料",),
     }
     for path, title in expected_titles.items():
         _open_page(app, path)
@@ -157,25 +157,32 @@ def test_writing_task_opens_feedback_page_with_prefilled_prompt(
     assert any("已从今日任务带入原创题目" in item.value for item in app.success)
 
 
-def test_mobile_css_stacks_content_and_prevents_page_overflow() -> None:
-    """Responsive rules must use viewport width and avoid device detection."""
+def test_mobile_css_uses_safe_responsive_navigation_and_overflow() -> None:
+    """Responsive rules must preserve compact cards and safe mobile actions."""
 
-    navigation_source = (
+    route_source = (
         PROJECT_ROOT
         / "ielts_ai_coach"
         / "views"
         / "navigation.py"
     ).read_text(encoding="utf-8")
+    navigation_source = (
+        PROJECT_ROOT
+        / "ielts_ai_coach"
+        / "ui"
+        / "navigation.py"
+    ).read_text(encoding="utf-8")
 
-    assert 'position="top"' in navigation_source
-    assert "st.sidebar" not in navigation_source
-    assert "mobile_quick_navigation" in navigation_source
+    assert 'position="hidden"' in navigation_source
+    assert "st.sidebar" in navigation_source
+    assert "mobile_bottom_navigation" in navigation_source
+    assert "run_hidden_navigation" in route_source
     assert "@media (max-width: 768px)" in APP_CSS
-    assert ".st-key-mobile_quick_navigation" in APP_CSS
+    assert ".st-key-mobile_bottom_navigation" in APP_CSS
     assert 'data-testid="stHorizontalBlock"' in APP_CSS
-    assert "flex-direction: column !important" in APP_CSS
-    assert "overflow-x: clip" in APP_CSS
-    assert "text-overflow: clip" in APP_CSS
+    assert "env(safe-area-inset-bottom)" in APP_CSS
+    assert "overflow-x: hidden" in APP_CSS
+    assert "overflow-x: clip" not in APP_CSS
     assert "userAgent" not in APP_CSS
     assert "iPhone" not in APP_CSS
     assert "Android" not in APP_CSS

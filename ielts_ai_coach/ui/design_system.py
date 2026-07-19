@@ -29,19 +29,13 @@ def build_app_css() -> str:
         f"""
         <style>
         :root {{
-            --ink: {tokens["color_ink"]};
-            --text: {tokens["color_text"]};
-            --muted: {tokens["color_muted"]};
-            --primary: {tokens["color_primary"]};
+            --ink: {tokens["color_ink"]}; --text: {tokens["color_text"]};
+            --muted: {tokens["color_muted"]}; --primary: {tokens["color_primary"]};
             --primary-dark: {tokens["color_primary_dark"]};
-            --accent: {tokens["color_accent"]};
-            --border: {tokens["color_border"]};
-            --surface: {tokens["color_surface"]};
-            --surface-strong: {tokens["surface_strong"]};
-            --glass-blur: 18px;
-            --touch-target: {tokens["touch_target_px"]}px;
-            --content-max: {tokens["content_max_px"]}px;
-            --card-radius: {tokens["radius_card"]}px;
+            --accent: {tokens["color_accent"]}; --border: {tokens["color_border"]};
+            --surface: {tokens["color_surface"]}; --surface-strong: {tokens["surface_strong"]};
+            --glass-blur: 18px; --touch-target: {tokens["touch_target_px"]}px;
+            --content-max: {tokens["content_max_px"]}px; --card-radius: {tokens["radius_card"]}px;
             --shadow-soft: 0 18px 50px rgba(16, 42, 46, 0.09);
             --shadow-lift: 0 22px 60px rgba(15, 118, 110, 0.14);
             --supported-viewports: "375 430 768 1024 1366";
@@ -105,15 +99,12 @@ def build_app_css() -> str:
         }}
 
         .auth-hero h1 {{
-            color: white;
-            margin: .45rem 0 .6rem;
+            color: white; margin: .45rem 0 .6rem;
             font-size: clamp(2rem, 5vw, 3rem);
         }}
 
         .auth-hero p {{
-            margin: 0;
-            color: rgba(255, 255, 255, .9);
-            font-size: 1.05rem;
+            margin: 0; color: rgba(255, 255, 255, .9); font-size: 1.05rem;
         }}
 
         .auth-kicker,
@@ -128,57 +119,38 @@ def build_app_css() -> str:
         }}
 
         .auth-kicker {{
-            padding: .3rem .75rem;
-            border: 1px solid rgba(255, 255, 255, .4);
+            padding: .3rem .75rem; border: 1px solid rgba(255, 255, 255, .4);
             letter-spacing: .08em;
         }}
 
         .section-heading {{
-            margin: 1.7rem 0 .7rem;
-            color: var(--ink);
-            font-size: 1.2rem;
-            font-weight: 800;
+            margin: 1.7rem 0 .7rem; color: var(--ink);
+            font-size: 1.2rem; font-weight: 800;
         }}
 
-        .page-header {{
-            margin-bottom: 1.25rem;
-        }}
+        .page-header {{ margin-bottom: 1.25rem; }}
 
         .page-header h1 {{
-            margin: .2rem 0 .45rem;
-            color: var(--ink);
-            letter-spacing: -.025em;
+            margin: .2rem 0 .45rem; color: var(--ink); letter-spacing: -.025em;
         }}
 
         .page-header p {{
-            max-width: 46rem;
-            margin: 0;
-            color: var(--muted);
-            font-size: 1rem;
+            max-width: 46rem; margin: 0; color: var(--muted); font-size: 1rem;
         }}
 
         .page-eyebrow {{
-            color: var(--primary);
-            font-size: .76rem;
-            font-weight: 850;
-            letter-spacing: .1em;
-            text-transform: uppercase;
+            color: var(--primary); font-size: .76rem; font-weight: 850;
+            letter-spacing: .1em; text-transform: uppercase;
         }}
 
-        .empty-card {{
-            margin-top: 1rem;
-        }}
+        .empty-card {{ margin-top: 1rem; }}
 
         .core-entry {{
-            margin-bottom: .7rem;
-            padding: .85rem .95rem;
-            border-radius: 16px;
+            margin-bottom: .7rem; padding: .85rem .95rem; border-radius: 16px;
         }}
 
         div[data-testid="stMetric"] {{
-            min-height: 116px;
-            padding: 1rem 1.1rem;
-            border-radius: 18px;
+            min-height: 116px; padding: 1rem 1.1rem; border-radius: 18px;
         }}
 
         .stButton > button,
@@ -200,11 +172,8 @@ def build_app_css() -> str:
         }}
 
         .current-user {{
-            margin: .4rem 0 .2rem;
-            color: var(--muted);
-            font-size: .82rem;
-            font-weight: 700;
-            text-align: right;
+            margin: .4rem 0 .2rem; color: var(--muted); font-size: .82rem;
+            font-weight: 700; text-align: right;
         }}
 
         .task-time-badge,
@@ -217,35 +186,27 @@ def build_app_css() -> str:
         }}
 
         .status-pill--success {{
-            color: #0B5F59;
-            background: rgba(159, 226, 216, .42);
+            color: #0B5F59; background: rgba(159, 226, 216, .42);
         }}
 
         .status-pill--warning {{
-            color: #8A4B13;
-            background: rgba(247, 210, 164, .48);
+            color: #8A4B13; background: rgba(247, 210, 164, .48);
         }}
 
         .status-pill--danger {{
-            color: #9F2D2D;
-            background: rgba(248, 180, 180, .42);
+            color: #9F2D2D; background: rgba(248, 180, 180, .42);
         }}
 
-        .st-key-mobile_bottom_navigation {{
-            display: none;
-        }}
+        .st-key-mobile_bottom_navigation {{ display: none; }}
 
         @media (max-width: 1024px) {{
             .block-container {{
-                width: 100%;
-                padding-inline: 1.25rem;
+                width: 100%; padding-inline: 1.25rem;
             }}
         }}
 
         @media (max-width: 768px) {{
-            :root {{
-                --glass-blur: 10px;
-            }}
+            :root {{ --glass-blur: 10px; }}
 
             .block-container {{
                 width: 100%;
@@ -254,9 +215,7 @@ def build_app_css() -> str:
                     calc(5.5rem + env(safe-area-inset-bottom));
             }}
 
-            [data-testid="stSidebar"] {{
-                display: none;
-            }}
+            [data-testid="stSidebar"] {{ display: none; }}
 
             .st-key-mobile_bottom_navigation {{
                 position: fixed;
@@ -285,35 +244,24 @@ def build_app_css() -> str:
                 font-size: .76rem;
             }}
 
-            h1 {{
-                font-size: 1.7rem !important;
-                line-height: 1.24 !important;
-            }}
+            h1 {{ font-size: 1.7rem !important; line-height: 1.24 !important; }}
 
-            h2 {{
-                font-size: 1.32rem !important;
-            }}
+            h2 {{ font-size: 1.32rem !important; }}
 
-            h3 {{
-                font-size: 1.08rem !important;
-            }}
+            h3 {{ font-size: 1.08rem !important; }}
 
             .section-heading {{
-                margin-top: 1.2rem;
-                font-size: 1.08rem;
+                margin-top: 1.2rem; font-size: 1.08rem;
             }}
 
-            .current-user {{
-                text-align: left;
-            }}
+            .current-user {{ text-align: left; }}
 
             [data-testid="stHorizontalBlock"] {{
                 gap: .7rem !important;
             }}
 
             div[data-testid="stMetric"] {{
-                min-height: 104px;
-                padding: .8rem .9rem;
+                min-height: 104px; padding: .8rem .9rem;
             }}
 
             .stButton > button,
@@ -328,35 +276,24 @@ def build_app_css() -> str:
                 overflow-x: auto;
             }}
 
-            .auth-hero {{
-                border-radius: 22px;
-            }}
+            .auth-hero {{ border-radius: 22px; }}
         }}
 
         @media (max-width: 430px) {{
-            [data-testid="stHorizontalBlock"] {{
-                flex-wrap: wrap !important;
-            }}
-
-            [data-testid="stColumn"] {{
-                min-width: min(100%, 9rem) !important;
-            }}
+            [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap !important; }}
+            [data-testid="stColumn"] {{ min-width: min(100%, 9rem) !important; }}
         }}
 
         @media (prefers-reduced-motion: reduce) {{
             *,
             *::before,
             *::after {{
-                scroll-behavior: auto !important;
-                transition-duration: .01ms !important;
+                scroll-behavior: auto !important; transition-duration: .01ms !important;
                 animation-duration: .01ms !important;
                 animation-iteration-count: 1 !important;
             }}
         }}
-
-        footer {{
-            visibility: hidden;
-        }}
+        footer {{ visibility: hidden; }}
         </style>
         """
     ).strip()

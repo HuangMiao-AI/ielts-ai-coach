@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 2 — responsive navigation shell implementation.
+Stage 3 — dedicated Reading exam state machine.
 
 ## Completed
 
@@ -19,6 +19,10 @@ Stage 2 — responsive navigation shell implementation.
   reduced-motion support, and escaped UI components.
 - Replaced `overflow-x: clip` with explicit page containment and scrollable
   data surfaces.
+- Completed Stage 2 with one hidden route registry, desktop sidebar, mobile
+  bottom bar, one More panel, and dedicated Reading/Listening/Speaking shells.
+- Kept Scores, Today, AI Coach, and Settings available as contextual routes.
+- Preserved the existing Today-to-Writing handoff.
 
 ## Test Results
 
@@ -28,16 +32,19 @@ Stage 2 — responsive navigation shell implementation.
 - External AI calls: none.
 - Stage 1 focused pytest: 5 passed.
 - Stage 1–2 focused regression: 9 passed.
+- Stage 2 navigation/app/auth regression: 19 passed.
+- Full pytest after Stage 2: 135 passed.
+- Compileall after Stage 2: passed.
+- Real database, WAL, and backup fingerprints: unchanged.
 
 ## Current Commit
 
-`7f1c6d3` (before the pending Stage 1 commit)
+`0eac9cb` (before the pending Stage 2 commit)
 
 ## Next Step
 
-Commit Stage 1, finish the shared navigation modules and page shells, then
-run the complete navigation/authentication regression before the Stage 2
-commit.
+Commit Stage 2, then begin the Reading exam state machine with pure failing
+tests before changing the current reading flow.
 
 ## Known Issues
 
