@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 5 — Listening, Writing, and Speaking practice flows.
+Stage 6 — Home aggregation and interactive progress.
 
 ## Completed
 
@@ -37,6 +37,13 @@ Stage 5 — Listening, Writing, and Speaking practice flows.
   and generate accurate 9/10-question instructions.
 - Updated both README files with the expanded bank and non-official copyright
   boundary.
+- Completed Stage 5 with an honest Listening Demo flow that never persists or
+  claims a score.
+- Writing now uses live word count, user/Task-scoped drafts, stable edit time,
+  clear/submit confirmation, and duplicate-click protection while preserving
+  the existing provider, quota, feedback, and history services.
+- Speaking now provides Part 1/2/3 prompts, preparation/response timers,
+  session notes, browser-local recording/playback, and explicit no-score copy.
 
 ## Test Results
 
@@ -58,19 +65,21 @@ Stage 5 — Listening, Writing, and Speaking practice flows.
 - Full pytest after Stage 4: 144 passed.
 - Compileall after Stage 4: passed.
 - Real database, WAL, and backup fingerprints: unchanged after Stage 4.
+- Stage 5 route/provider/privacy regression: 21 passed.
+- Full pytest after Stage 5: 150 passed.
+- Compileall after Stage 5: passed.
+- Real database, WAL, and backup fingerprints: unchanged after Stage 5.
 
 ## Current Commit
 
-`736abb7` (before the pending Stage 4 commit)
+`4fa2309` (before the pending Stage 5 commit)
 
 ## Next Step
 
-Commit Stage 4, then write failing pure session and page tests for Listening,
-Writing draft isolation, and Speaking local recording.
+Commit Stage 5, then write failing Home aggregation tests using only existing
+user-owned repositories.
 
 ## Known Issues
 
 - Reading drafts are session-only and are lost when the browser session ends.
-- Listening and Speaking lack standalone interactive pages.
-- Writing drafts are not isolated by task type.
 - PWA metadata and install icons do not exist.

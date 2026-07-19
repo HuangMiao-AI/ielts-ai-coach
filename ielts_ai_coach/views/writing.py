@@ -6,6 +6,13 @@ import streamlit as st
 
 from ielts_ai_coach.ai.factory import get_ai_provider
 from ielts_ai_coach.database.models import User, WritingFeedback
+from ielts_ai_coach.services.skill_sessions import (
+    claim_submission,
+    draft_key,
+    elapsed_seconds,
+    release_submission,
+    start_session,
+)
 from ielts_ai_coach.services.writing import (
     WRITING_DAILY_LIMIT,
     WRITING_DISCLAIMER,
@@ -50,7 +57,7 @@ def _apply_writing_task_prefill() -> bool:
         return False
     st.session_state["writing_test_type"] = test_type
     st.session_state["writing_task_type"] = task_type
-    st.session_state["writing_prompt"] = prompt[:2000]
+    st.session_state["writing_pending_prompt"] = prompt[:2000]
     return True
 
 
@@ -142,59 +149,113 @@ def render_writing_page(user: User) -> None:
         )
     st.metric("今日剩余批改额度", f"{remaining}/{WRITING_DAILY_LIMIT} 次")
 
-    with st.form("writing_submission_form"):
-        first, second = st.columns(2)
-        test_type = first.selectbox(
-            "考试类型",
-            ("Academic", "General"),
-            key="writing_test_type",
+    first, second = st.columns(2)
+    test_type = first.selectbox(
+        "考试类型",
+        ("Academic", "General"),
+        key="writing_test_type",
+    )
+    task_type = second.selectbox(
+        "写作任务",
+        ("Task 1", "Task 2"),
+        key="writing_task_type",
+    )
+    active_draft_key = draft_key(user.id, "writing", task_type)
+    prompt_key = f"{active_draft_key}_prompt"
+    content_key = f"{active_draft_key}_content"
+    pending_prompt = st.session_state.pop("writing_pending_prompt", "")
+    if pending_prompt:
+        st.session_state[prompt_key] = pending_prompt
+    prompt = st.text_area(
+        "作文题目",
+        max_chars=2000,
+        height=100,
+        placeholder="粘贴完整的IELTS写作题目",
+        key=prompt_key,
+    )
+    content = st.text_area(
+        "作文正文",
+        max_chars=12000,
+        height=320,
+        placeholder="在这里输入或粘贴你的英文作文",
+        key=content_key,
+    )
+    word_count = count_words(content)
+    st.caption(f"当前字数：{word_count}词")
+    threshold = 150 if task_type == "Task 1" else 250
+    if content and word_count < threshold:
+        st.warning(f"正文少于{threshold}词，可能影响任务完成度。")
+
+    timer_key = f"{active_draft_key}_timer"
+    if content and timer_key not in st.session_state:
+        st.session_state[timer_key] = start_session(
+            user_id=user.id,
+            skill="writing",
+            task_key=task_type,
+            item_count=1,
+            duration_seconds=3600,
         )
-        task_type = second.selectbox(
-            "写作任务",
-            ("Task 1", "Task 2"),
-            key="writing_task_type",
+    timer = st.session_state.get(timer_key)
+    if timer is not None:
+        seconds = elapsed_seconds(timer)
+        st.caption(f"本次编辑用时：{seconds // 60}分{seconds % 60}秒")
+
+    clear_key = f"{active_draft_key}_clear"
+    submit_key = f"{active_draft_key}_submit"
+    clear_column, submit_column = st.columns(2)
+    if clear_column.button("清空草稿", use_container_width=True):
+        st.session_state[clear_key] = True
+    if submit_column.button(
+        "提交AI批改",
+        type="primary",
+        disabled=remaining <= 0,
+        use_container_width=True,
+    ):
+        st.session_state[submit_key] = True
+
+    if st.session_state.get(clear_key, False):
+        confirmed_clear = st.checkbox(
+            "确认清空当前草稿",
+            key=f"{clear_key}_confirmed",
         )
-        prompt = st.text_area(
-            "作文题目",
-            max_chars=2000,
-            height=100,
-            placeholder="粘贴完整的IELTS写作题目",
-            key="writing_prompt",
-        )
-        content = st.text_area(
-            "作文正文",
-            max_chars=12000,
-            height=320,
-            placeholder="在这里粘贴你的英文作文",
-            key="writing_content",
-        )
-        word_count = count_words(content)
-        st.caption(f"当前字数：{word_count}词")
-        threshold = 150 if task_type == "Task 1" else 250
-        if content and word_count < threshold:
-            st.warning(f"正文少于{threshold}词，可能影响任务完成度。")
-        submitted = st.form_submit_button(
-            "提交AI批改",
+        if st.button("执行清空", disabled=not confirmed_clear):
+            for key in (prompt_key, content_key, timer_key, clear_key):
+                st.session_state.pop(key, None)
+            st.rerun()
+
+    if st.session_state.get(submit_key, False):
+        st.warning("请确认题目、任务类型和正文无误；提交后将占用一次成功额度。")
+        if st.button(
+            "确认提交AI批改",
             type="primary",
             use_container_width=True,
-            disabled=remaining <= 0,
-        )
-
-    if submitted:
-        try:
-            with st.spinner("正在分析作文，请稍候..."):
-                result = submit_essay(
-                    user_id=user.id,
-                    test_type=test_type,
-                    task_type=task_type,
-                    prompt=prompt,
-                    content=content,
-                    provider=provider,
-                )
-        except WritingServiceError as error:
-            st.error(WRITING_ERRORS.get(str(error), "批改失败，作文已安全保留。"))
-        else:
-            st.success("批改完成。")
-            render_feedback(result.feedback)
+        ):
+            guard = f"writing-{user.id}-{task_type}"
+            if not claim_submission(st.session_state, guard):
+                st.info("本次提交正在处理中，请勿重复点击。")
+            else:
+                try:
+                    with st.spinner("正在分析作文，请稍候..."):
+                        result = submit_essay(
+                            user_id=user.id,
+                            test_type=test_type,
+                            task_type=task_type,
+                            prompt=prompt,
+                            content=content,
+                            provider=provider,
+                        )
+                except WritingServiceError as error:
+                    st.error(
+                        WRITING_ERRORS.get(
+                            str(error),
+                            "批改失败，作文已安全保留。",
+                        )
+                    )
+                else:
+                    st.success("批改完成。")
+                    st.session_state[submit_key] = False
+                    render_feedback(result.feedback)
+                finally:
+                    release_submission(st.session_state, guard)
 
     _render_recent_history(user)
