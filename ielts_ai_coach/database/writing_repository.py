@@ -121,3 +121,20 @@ def list_feedback_for_essay(
         .order_by(WritingFeedback.created_at.desc(), WritingFeedback.id.desc())
     )
     return list(session.scalars(statement))
+
+
+def list_user_writing_feedback(
+    session: Session,
+    *,
+    user_id: int,
+    limit: int = 100,
+) -> list[WritingFeedback]:
+    """Return one user's feedback history from newest to oldest."""
+
+    statement = (
+        select(WritingFeedback)
+        .where(WritingFeedback.user_id == user_id)
+        .order_by(WritingFeedback.created_at.desc(), WritingFeedback.id.desc())
+        .limit(max(1, min(limit, 500)))
+    )
+    return list(session.scalars(statement))
