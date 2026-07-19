@@ -54,10 +54,18 @@ privacy controls, automated tests, and product-oriented UI design.
 - Personalized AI study coach with a 20-success daily limit
 - Level 2 writing feedback with four IELTS dimensions and a 3-success limit
 - Pydantic validation and one repair attempt for invalid AI JSON
-- Dashboard metrics, task progress, study time, completion rate, and trends
+- Home metrics, four skill shortcuts, task progress, study time, weak-section
+  guidance, recent activity, and deterministic next-step recommendations
 - Consolidated score, plan, essay, and coach history
-- Grouped top navigation plus a width-based mobile navigation fallback
-- Responsive single-column phone layout and wide iPad/desktop layout
+- One route registry with a desktop sidebar and 56-pixel mobile bottom
+  navigation
+- Premium glass-style responsive UI for phone, iPad, and desktop widths
+- Listening Demo workflow with honest no-score messaging
+- Writing editor with live word count, session draft isolation, edit timer,
+  and protected submission
+- Speaking Part 1/2/3 practice with timers, notes, and session-local browser
+  recording without automatic scoring
+- Installable PWA metadata and local app icons without an offline claim
 - Two-step deletion controls for the current user's optional data
 - Daily SQLite online backup with seven-backup retention
 
@@ -227,6 +235,23 @@ Find the computer's private IPv4 address with `ipconfig`, then open
 network. Windows Firewall may ask for local-network permission. Do not expose
 this development server directly to the public internet.
 
+### Install on a phone
+
+The computer must keep Streamlit running and the phone must be able to reach
+its local-network address.
+
+- iPhone/iPad: open the site in Safari, tap **Share**, choose **Add to Home
+  Screen**, then confirm **Add**.
+- Android: open the site in Chrome, open the browser menu, choose **Install
+  app** or **Add to Home screen**, then confirm. Plain LAN HTTP may offer only
+  a home-screen shortcut; full browser installability normally requires a
+  trusted HTTPS origin.
+
+This release provides a manifest, theme metadata, and local icons. It does not
+register a service worker or provide offline access. Unsubmitted Reading,
+Writing, Listening, and Speaking state is session-only and may be lost when
+the browser session ends.
+
 ## Configuration
 
 Configuration is read from environment variables or Streamlit Secrets.
@@ -262,11 +287,12 @@ The base URL may differ by Alibaba Cloud region or workspace. Keep
 
 Tests use temporary SQLite databases and local fake providers. They never call
 a real AI API and never write test records to the production `data/` database.
-The current suite contains 74 tests. Coverage includes authentication,
+The current suite contains 160 tests. Coverage includes authentication,
 isolation, backups, profiles, score diagnosis, planning, reading-bank loading,
-deterministic answer scoring, duplicate submission, reading ownership, page
-flow, quotas, provider failures, writing feedback, deletion, dashboards, and
-the complete Streamlit student flow.
+deterministic answer scoring, duplicate submission, reading ownership,
+interactive Reading/Listening/Writing/Speaking page flows, responsive
+navigation, PWA assets, quotas, provider failures, writing feedback, deletion,
+Home aggregation, and the complete Streamlit student flow.
 
 ## Project Structure
 
@@ -317,13 +343,17 @@ active application imports only the `ielts_ai_coach/` package.
 - The Streamlit process performs AI calls synchronously.
 - Mock writing feedback is a fixed demonstration, not real evaluation.
 - AI feedback quality has not been calibrated against official examiners.
-- V1 has no speaking audio, image input, payments, teacher/parent portals,
-  account self-deletion, or password-change flow.
+- Speaking recordings and all unfinished practice drafts are session-only;
+  there is no server-side audio archive or automatic speaking score.
+- V1 has no image input, payments, teacher/parent portals, account
+  self-deletion, or password-change flow.
 - Daily quotas use the application server's current date.
 - Reading contains eight passages and permits one final submission per task;
   it does not yet support retry attempts.
 - Listening still requires student-owned material and has no bundled original
   audio practice loop.
+- PWA support is an installable shell only; authenticated pages are not
+  available offline.
 - There is no production monitoring, managed backup, or migration system yet.
 
 ## Future Roadmap

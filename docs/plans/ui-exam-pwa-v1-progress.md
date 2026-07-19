@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 9 — completed; final documentation and handover are in progress.
+Stage 10 — complete; the branch is ready for local review.
 
 ## Completed
 
@@ -68,6 +68,9 @@ Stage 9 — completed; final documentation and handover are in progress.
 - Browser error history only contained expected transient health failures
   during deliberate local server restarts; the restarted runtime and page
   interactions completed normally.
+- Updated English and Chinese setup guides, mobile installation instructions,
+  project handover, and project memory to match the implemented UI, skill
+  flows, PWA boundary, 77-question bank, and 160-test baseline.
 
 ## Test Results
 
@@ -106,15 +109,22 @@ Stage 9 — completed; final documentation and handover are in progress.
 - `pip check`: no broken requirements.
 - PWA icon regeneration: byte-identical.
 - Git tracked-risk, secret-pattern, and private-path scans: no matches.
+- Final full pytest: 160 passed.
+- Final Exporter regression: 54 passed.
+- Final compileall and `pip check`: passed.
+- Final temporary-database runtime: health HTTP 200 `ok`, root HTTP 200, and
+  manifest HTTP 200 with three icons.
+- Final tracked-file privacy scan: zero database, secret, private-path,
+  personal-email, virtual-environment, upload, screenshot, or archive matches.
+- Final real database, WAL, SHM, and backup fingerprints: unchanged.
 
 ## Current Commit
 
-`b3ae806` (before the pending Stage 9 commit)
+`ce4f764` (before the pending final documentation commit)
 
 ## Next Step
 
-Commit Stage 9, then complete README, handover, project memory, and final
-verification.
+Review the local branch and decide separately whether to merge or push it.
 
 ## Known Issues
 
