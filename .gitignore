@@ -34,6 +34,7 @@ htmlcov/
 Thumbs.db
 .vscode/
 .idea/
+.superpowers/
 /project图片/
 /archive/enterprise-v0/
 /archive/streamlit-mvp-v0/
