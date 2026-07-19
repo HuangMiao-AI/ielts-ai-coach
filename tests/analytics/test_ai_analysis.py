@@ -16,7 +16,10 @@ from ielts_ai_coach.services.analytics import (
     WritingAnalytics,
     WritingDimensionAnalytics,
 )
-from ielts_ai_coach.services.recommendations import StudyRecommendation
+from ielts_ai_coach.services.recommendations import (
+    StudyRecommendation,
+    build_seven_day_recommendations,
+)
 from ielts_ai_coach.services.weakness_analyzer import Weakness
 
 
@@ -40,9 +43,7 @@ def _analytics(*, include_measurements: bool = True) -> AnalyticsResult:
             )
             if include_measurements
             else (),
-            frequent_error_types=("matching_heading", "multiple_choice")
-            if include_measurements
-            else (),
+            frequent_error_types=("matching_heading",) if include_measurements else (),
             warnings=(),
         ),
         writing=WritingAnalytics(
@@ -64,7 +65,7 @@ def _analytics(*, include_measurements: bool = True) -> AnalyticsResult:
         behavior=LearningBehavior(
             streak_days=0,
             recent_minutes=0,
-            daily_study_minutes=None,
+            daily_study_minutes=60 if include_measurements else None,
         ),
     )
 
@@ -83,17 +84,14 @@ def _weaknesses() -> tuple[Weakness, ...]:
     )
 
 
-def _recommendations() -> tuple[StudyRecommendation, ...]:
+def _recommendations(
+    analytics: AnalyticsResult | None = None,
+    weaknesses: tuple[Weakness, ...] | None = None,
+) -> tuple[StudyRecommendation, ...]:
     """Return one display-only safe action fixture."""
 
-    return (
-        StudyRecommendation(
-            day=1,
-            skill="reading",
-            activity="Complete one Academic Reading Matching Heading practice.",
-            minutes=36,
-            evidence="Use submitted Reading evidence.",
-        ),
+    return build_seven_day_recommendations(
+        analytics or _analytics(), weaknesses or _weaknesses()
     )
 
 
@@ -222,7 +220,7 @@ def test_recording_mock_receives_only_bounded_aggregate_evidence() -> None:
     assert provider.json_mode is False
     assert "12/20" in prompt
     assert "Matching Heading" in prompt
-    assert "Complete one Academic Reading" in prompt
+    assert _recommendations()[0].activity in prompt
     assert "36 minutes" in prompt
     for private_value in (
         "PRIVATE_ESSAY_CONTENT",
@@ -231,8 +229,8 @@ def test_recording_mock_receives_only_bounded_aggregate_evidence() -> None:
         "PRIVATE_RECORDING",
     ):
         assert private_value not in prompt
-    assert result.provider == "recording-mock"
-    assert result.model_name == "recording-mock-v1"
+    assert result.provider == "untrusted-response"
+    assert result.model_name == "untrusted-model"
     assert result.content.count(AI_ANALYSIS_DISCLAIMER) == 1
 
 

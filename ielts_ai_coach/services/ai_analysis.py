@@ -7,8 +7,11 @@ from dataclasses import dataclass
 from ielts_ai_coach.ai.base import AIProvider, AIProviderError
 from ielts_ai_coach.ai.mock import MockAIProvider
 from ielts_ai_coach.services.analytics import AnalyticsResult
-from ielts_ai_coach.services.recommendations import StudyRecommendation
-from ielts_ai_coach.services.weakness_analyzer import Weakness
+from ielts_ai_coach.services.recommendations import (
+    StudyRecommendation,
+    build_seven_day_recommendations,
+)
+from ielts_ai_coach.services.weakness_analyzer import Weakness, analyze_weaknesses
 
 
 AI_ANALYSIS_DISCLAIMER = "以上分析仅用于学习规划，不是官方IELTS评分或诊断。"
@@ -105,26 +108,46 @@ def _writing_summary(analytics: AnalyticsResult) -> str:
     )
 
 
-def _weakness_summary(weaknesses: tuple[Weakness, ...]) -> str:
-    """Describe only the caller's highest-priority weakness and evidence."""
+def _weakness_summary(
+    analytics: AnalyticsResult, weaknesses: tuple[Weakness, ...]
+) -> str:
+    """Describe a validated weakness using evidence reconstructed from analytics."""
 
     if not weaknesses:
         return "No measured weakness is available."
-    weakness = weaknesses[0]
+    supplied = weaknesses[0]
+    weakness = next(
+        (
+            candidate
+            for candidate in analyze_weaknesses(analytics)
+            if candidate.skill == supplied.skill
+            and candidate.weakness == supplied.weakness
+        ),
+        None,
+    )
+    if weakness is None:
+        return "No validated weakness is available."
     return (
-        f"Highest-priority weakness: {_bounded(weakness.weakness)}. "
-        f"Evidence: {_bounded(weakness.evidence)}."
+        f"Highest-priority weakness: {weakness.weakness}. "
+        f"Evidence: {weakness.evidence}"
     )
 
 
 def _recommendation_summary(
+    analytics: AnalyticsResult,
+    weaknesses: tuple[Weakness, ...],
     recommendations: tuple[StudyRecommendation, ...],
 ) -> str:
-    """Describe only the first planned activity and its allotted time."""
+    """Describe the first approved deterministic activity and its duration."""
 
     if not recommendations:
         return "No recommended activity is available."
-    recommendation = recommendations[0]
+    approved_recommendations = build_seven_day_recommendations(analytics, weaknesses)
+    if not approved_recommendations:
+        return "No validated recommended activity is available."
+    recommendation = approved_recommendations[0]
+    if recommendations[0].activity != recommendation.activity:
+        return "No validated recommended activity is available."
     minutes = (
         f"{recommendation.minutes} minutes"
         if recommendation.minutes is not None
@@ -150,8 +173,8 @@ def _messages(
             _band_summary(analytics),
             _writing_summary(analytics),
             _reading_summary(analytics),
-            _weakness_summary(weaknesses),
-            _recommendation_summary(recommendations),
+            _weakness_summary(analytics, weaknesses),
+            _recommendation_summary(analytics, weaknesses, recommendations),
         )
     )
     return [
@@ -161,11 +184,9 @@ def _messages(
 
 
 def _with_disclaimer(content: str) -> str:
-    """Append the learning-only disclaimer when the provider did not include it."""
+    """Normalize the learning-only disclaimer to exactly one occurrence."""
 
-    clean_content = content.strip()
-    if AI_ANALYSIS_DISCLAIMER in clean_content:
-        return clean_content
+    clean_content = content.replace(AI_ANALYSIS_DISCLAIMER, "").strip()
     separator = "\n\n" if clean_content else ""
     return f"{clean_content}{separator}{AI_ANALYSIS_DISCLAIMER}"
 
@@ -180,7 +201,7 @@ def explain_analytics(
     """Explain approved aggregate evidence through the local Mock provider only."""
 
     active_provider = provider if provider is not None else MockAIProvider()
-    if active_provider.is_mock is False:
+    if not active_provider.is_mock:
         raise AIAnalysisError("mock_provider_required")
     try:
         response = active_provider.generate(
@@ -190,7 +211,7 @@ def explain_analytics(
         raise AIAnalysisError(error.code) from None
     return AIAnalysisExplanation(
         content=_with_disclaimer(response.content),
-        provider=_bounded(active_provider.provider_name, limit=80).lower(),
-        model_name=_bounded(active_provider.model_name, limit=120),
+        provider=response.provider,
+        model_name=response.model_name,
         is_mock=True,
     )
