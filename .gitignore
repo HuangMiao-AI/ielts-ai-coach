@@ -17,6 +17,8 @@ data/*.db-shm
 data/*.db-wal
 data/*.db-journal
 data/backups/
+data/export_state/
+data/export_logs/
 backups/
 uploads/
 user_uploads/
