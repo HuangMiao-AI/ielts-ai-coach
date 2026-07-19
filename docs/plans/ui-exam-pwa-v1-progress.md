@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 6 — Home aggregation and interactive progress.
+Stage 7 — responsive acceptance and installable PWA metadata.
 
 ## Completed
 
@@ -44,6 +44,11 @@ Stage 6 — Home aggregation and interactive progress.
   the existing provider, quota, feedback, and history services.
 - Speaking now provides Part 1/2/3 prompts, preparation/response timers,
   session notes, browser-local recording/playback, and explicit no-score copy.
+- Completed Stage 6 with one read-only Home snapshot for streak, latest
+  Reading/Writing, weak sections, today's tasks, plan preview, activity, and
+  deterministic recommended route.
+- Home now shows four skill shortcuts and honest empty states using only
+  current-user records.
 
 ## Test Results
 
@@ -69,15 +74,19 @@ Stage 6 — Home aggregation and interactive progress.
 - Full pytest after Stage 5: 150 passed.
 - Compileall after Stage 5: passed.
 - Real database, WAL, and backup fingerprints: unchanged after Stage 5.
+- Stage 6 Home/dashboard/ownership regression: 12 passed.
+- Full pytest after Stage 6: 153 passed.
+- Compileall after Stage 6: passed.
+- Real database, WAL, and backup fingerprints: unchanged after Stage 6.
 
 ## Current Commit
 
-`4fa2309` (before the pending Stage 5 commit)
+`ff8fffa` (before the pending Stage 6 commit)
 
 ## Next Step
 
-Commit Stage 5, then write failing Home aggregation tests using only existing
-user-owned repositories.
+Commit Stage 6, then write failing PWA asset and responsive acceptance tests
+before enabling Streamlit static serving.
 
 ## Known Issues
 

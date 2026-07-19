@@ -103,3 +103,14 @@ def test_dashboard_renders_complete_student_metrics(
     assert "最新总分" in metric_labels
     assert "本周任务完成率" in metric_labels
     assert "AI教练剩余" in metric_labels
+    assert "连续学习" in metric_labels
+    assert "最近阅读" in metric_labels
+    assert "最近写作" in metric_labels
+    dashboard_source = (
+        Path(__file__).resolve().parent.parent
+        / "ielts_ai_coach"
+        / "views"
+        / "dashboard.py"
+    ).read_text(encoding="utf-8")
+    for route in ("reading", "listening", "writing", "speaking"):
+        assert f'("{route}",' in dashboard_source

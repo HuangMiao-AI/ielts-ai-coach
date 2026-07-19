@@ -9,6 +9,7 @@ import streamlit as st
 from ielts_ai_coach.ai.factory import get_ai_provider
 from ielts_ai_coach.database.models import StudentProfile, User
 from ielts_ai_coach.services.coaching import get_coach_remaining
+from ielts_ai_coach.services.home import HomeSnapshot, build_home_snapshot
 from ielts_ai_coach.services.profiles import days_until_exam, get_profile
 from ielts_ai_coach.services.scoring import SUBJECT_LABELS, analyze_scores
 from ielts_ai_coach.services.scores import get_latest_score, list_score_history
@@ -32,13 +33,13 @@ def _render_core_entries(page_refs: Mapping[str, object] | None) -> None:
 
     _section("快捷开始")
     entries = (
-        ("today", "今日任务", "✅"),
-        ("plan", "七天计划", "🗓️"),
-        ("coach", "AI教练", "💬"),
-        ("writing", "写作批改", "✍️"),
+        ("reading", "阅读", "📖"),
+        ("listening", "听力", "🎧"),
+        ("writing", "写作", "✍️"),
+        ("speaking", "口语", "🎙️"),
     )
     if not page_refs:
-        st.caption("今日任务 · 七天计划 · AI教练 · 写作批改")
+        st.caption("阅读 · 听力 · 写作 · 口语")
         return
     columns = st.columns(4)
     for column, (key, label, icon) in zip(columns, entries):
@@ -49,6 +50,76 @@ def _render_core_entries(page_refs: Mapping[str, object] | None) -> None:
                 icon=icon,
                 use_container_width=True,
             )
+
+
+def _render_snapshot_overview(
+    snapshot: HomeSnapshot,
+    page_refs: Mapping[str, object] | None,
+) -> None:
+    """Render real recent outcomes, next action, plan, and activity."""
+
+    columns = st.columns(4)
+    columns[0].metric("连续学习", f"{snapshot.streak_days} 天")
+    columns[1].metric(
+        "今日完成",
+        f"{snapshot.completed_today}/{len(snapshot.today_tasks)} 项"
+        if snapshot.today_tasks
+        else "暂无计划",
+    )
+    reading_value = (
+        f"{snapshot.latest_reading.score}/"
+        f"{snapshot.latest_reading.total_questions}"
+        if snapshot.latest_reading
+        else "暂无"
+    )
+    columns[2].metric("最近阅读", reading_value)
+    writing_value = (
+        f"{snapshot.latest_writing.word_count} 词"
+        if snapshot.latest_writing
+        else "暂无"
+    )
+    columns[3].metric("最近写作", writing_value)
+
+    _section("推荐下一步")
+    route_labels = {
+        "profile": "完善个人资料",
+        "scores": "完成成绩诊断",
+        "plan": "生成学习计划",
+        "reading": "开始阅读练习",
+        "listening": "开始听力练习",
+        "writing": "开始写作练习",
+        "speaking": "开始口语练习",
+        "today": "继续今日任务",
+        "history": "查看学习历史",
+    }
+    route = snapshot.recommended_route
+    if page_refs and route in page_refs:
+        st.page_link(
+            page_refs[route],
+            label=route_labels[route],
+            icon="➡️",
+            use_container_width=True,
+        )
+    else:
+        st.info(route_labels[route])
+
+    _section("计划预览")
+    if snapshot.plan_preview:
+        for task in snapshot.plan_preview:
+            content = get_task_content(task)
+            st.write(
+                f"{task.task_date} · {SUBJECT_LABELS.get(task.subject, task.subject)}"
+                f" · {content.task_title}"
+            )
+    else:
+        st.caption("暂无待完成计划。")
+
+    _section("近期活动")
+    if snapshot.recent_activity:
+        for activity in snapshot.recent_activity:
+            st.write(activity)
+    else:
+        st.caption("完成任务后，这里会显示真实学习记录。")
 
 
 def _render_today_progress(user: User) -> list:
@@ -161,10 +232,12 @@ def render_dashboard(
     """Render the mobile-first user-owned study overview."""
 
     profile = get_profile(user.id)
+    snapshot = build_home_snapshot(user.id)
     display_name = profile.nickname if profile else user.username
     st.title(f"你好，{display_name}")
     st.caption("今天也向目标前进一步。")
     _render_core_entries(page_refs)
+    _render_snapshot_overview(snapshot, page_refs)
     tasks = _render_today_progress(user)
 
     if profile is None:
