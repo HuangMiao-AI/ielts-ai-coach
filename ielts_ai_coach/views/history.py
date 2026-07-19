@@ -10,7 +10,10 @@ from ielts_ai_coach.database.models import User
 from ielts_ai_coach.services.coaching import get_coach_history
 from ielts_ai_coach.services.planning import get_plan_history
 from ielts_ai_coach.services.planning_rules import PHASE_LABELS
-from ielts_ai_coach.services.reading_practice import list_reading_history
+from ielts_ai_coach.services.reading_practice import (
+    get_reading_practice_state,
+    list_reading_history,
+)
 from ielts_ai_coach.services.scores import list_score_history
 from ielts_ai_coach.services.tasks import get_study_logs
 from ielts_ai_coach.services.writing import (
@@ -18,6 +21,7 @@ from ielts_ai_coach.services.writing import (
     get_essay_history,
 )
 from ielts_ai_coach.views.charts import render_score_trend
+from ielts_ai_coach.views.task_cards import render_reading_result
 from ielts_ai_coach.views.writing import render_feedback
 
 
@@ -43,6 +47,23 @@ def _render_learning_history(user: User) -> None:
                 st.write(f"**正确率：** {item.accuracy:.0%}")
                 incorrect = ", ".join(item.incorrect_question_ids)
                 st.write(f"**错题：** {incorrect or '无'}")
+                review_key = (
+                    f"history_reading_review_{user.id}_{item.task_id}"
+                )
+                if st.session_state.get(review_key, False):
+                    practice = get_reading_practice_state(
+                        user_id=user.id,
+                        task_id=item.task_id,
+                    )
+                    if practice is not None and practice.score is not None:
+                        render_reading_result(practice.score)
+                elif st.button(
+                    "查看完整解析",
+                    key=f"open_history_reading_review_{item.task_id}",
+                    use_container_width=True,
+                ):
+                    st.session_state[review_key] = True
+                    st.rerun()
     else:
         st.info("还没有已提交的阅读练习记录。")
 

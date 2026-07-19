@@ -151,8 +151,29 @@ def _has_reading_draft(state: ReadingPracticeState) -> bool:
 def _render_reading_practice(
     user: User,
     state: ReadingPracticeState,
+    page_refs: Mapping[str, object] | None = None,
 ) -> None:
     """Render the start, continue, submit, and persisted-result states."""
+
+    reading_page = page_refs.get("reading") if page_refs else None
+    if reading_page is not None:
+        session_key = f"reading_exam_{user.id}_{state.task.id}"
+        label = (
+            "查看结果"
+            if state.score is not None
+            else "继续练习"
+            if session_key in st.session_state
+            else "开始练习"
+        )
+        if st.button(
+            label,
+            type="primary",
+            use_container_width=True,
+            key=f"open_reading_exam_{state.task.id}",
+        ):
+            st.session_state[f"reading_selected_task_{user.id}"] = state.task.id
+            st.switch_page(reading_page)
+        return
 
     if state.score is not None:
         st.success(
@@ -265,7 +286,7 @@ def render_today_page(
             )
             _render_writing_link(content, page_refs, task.id)
             if reading_state is not None:
-                _render_reading_practice(user, reading_state)
+                _render_reading_practice(user, reading_state, page_refs)
             elif task.status == "completed":
                 _render_completed_task(user, task)
             else:

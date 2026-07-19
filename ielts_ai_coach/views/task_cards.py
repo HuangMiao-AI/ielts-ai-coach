@@ -5,7 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from ielts_ai_coach.database.models import PlanTask
-from ielts_ai_coach.services.question_bank import ReadingPassage
+from ielts_ai_coach.services.question_bank import ReadingPassage, ReadingQuestion
 from ielts_ai_coach.services.reading_scoring import ReadingScore
 from ielts_ai_coach.services.scoring import SUBJECT_LABELS
 from ielts_ai_coach.services.task_content import TaskContent, get_task_content
@@ -148,6 +148,58 @@ def render_reading_result(score: ReadingScore) -> None:
             st.write(f"**正确答案：** {result.correct_answer}")
             st.write(f"**解析：** {result.explanation}")
             st.write(f"**原文证据：** {result.evidence}")
+
+
+def render_reading_exam_question(
+    question: ReadingQuestion,
+    *,
+    index: int,
+    total: int,
+    widget_key: str,
+    saved_answer: str = "",
+) -> str:
+    """Render one exam question without exposing answer material."""
+
+    if saved_answer and widget_key not in st.session_state:
+        st.session_state[widget_key] = saved_answer
+    st.caption(f"第 {index} 题，共 {total} 题")
+    st.markdown(f"### {question.question}")
+    answer = st.radio(
+        f"第 {index} 题答案",
+        options=question.options,
+        index=None,
+        key=widget_key,
+    )
+    return answer or ""
+
+
+def render_reading_result_summary(score: ReadingScore) -> None:
+    """Render score metrics and deterministic weakness by question type."""
+
+    score_column, correct_column, accuracy_column = st.columns(3)
+    score_column.metric("总分", f"{score.correct_count}/{score.total_questions}")
+    correct_column.metric("正确数量", score.correct_count)
+    accuracy_column.metric("正确率", f"{score.accuracy:.0%}")
+
+    labels = {
+        "multiple_choice": "单项选择",
+        "true_false_not_given": "判断题",
+        "matching_heading": "段落标题匹配",
+    }
+    totals: dict[str, int] = {}
+    errors: dict[str, int] = {}
+    for result in score.results:
+        totals[result.question_type] = totals.get(result.question_type, 0) + 1
+        if not result.is_correct:
+            errors[result.question_type] = errors.get(result.question_type, 0) + 1
+    if not errors:
+        st.success("本次所有题型均作答正确。")
+        return
+    weakest = max(errors, key=lambda key: errors[key] / totals[key])
+    st.warning(
+        f"需要优先复盘：{labels.get(weakest, weakest)}"
+        f"（错 {errors[weakest]}/{totals[weakest]} 题）。"
+    )
 
 
 def render_plan_task_summary(task: PlanTask) -> None:

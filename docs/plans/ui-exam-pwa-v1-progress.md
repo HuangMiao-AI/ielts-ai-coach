@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 3 — dedicated Reading exam state machine.
+Stage 4 — expand the original Academic Reading bank.
 
 ## Completed
 
@@ -23,6 +23,12 @@ Stage 3 — dedicated Reading exam state machine.
   bottom bar, one More panel, and dedicated Reading/Listening/Speaking shells.
 - Kept Scores, Today, AI Coach, and Settings available as contextual routes.
 - Preserved the existing Today-to-Writing handoff.
+- Completed Stage 3 with an immutable Reading state machine, stable timer,
+  user/task-scoped session draft, numbered navigation, article/question modes,
+  explicit confirmation, persisted deterministic result, and locked review.
+- Today now hands structured Reading tasks to the dedicated exam route.
+- History can reopen complete explanations from the stored result snapshot.
+- Kept the recovery boundary explicit: unfinished drafts remain session-only.
 
 ## Test Results
 
@@ -36,19 +42,23 @@ Stage 3 — dedicated Reading exam state machine.
 - Full pytest after Stage 2: 135 passed.
 - Compileall after Stage 2: passed.
 - Real database, WAL, and backup fingerprints: unchanged.
+- Stage 3 Reading/task/history regression: 26 passed.
+- Full pytest after Stage 3: 140 passed.
+- Compileall after Stage 3: passed.
+- Real database, WAL, and backup fingerprints: unchanged after Stage 3.
 
 ## Current Commit
 
-`0eac9cb` (before the pending Stage 2 commit)
+`e112c3c` (before the pending Stage 3 commit)
 
 ## Next Step
 
-Commit Stage 2, then begin the Reading exam state machine with pure failing
-tests before changing the current reading flow.
+Commit Stage 3, then write failing multi-bank catalog and content-quality
+tests before adding the five new original passages.
 
 ## Known Issues
 
-- Reading is embedded inside Today and drafts are session-only.
+- Reading drafts are session-only and are lost when the browser session ends.
 - Listening and Speaking lack standalone interactive pages.
 - Writing drafts are not isolated by task type.
 - PWA metadata and install icons do not exist.
