@@ -84,6 +84,50 @@ def _weaknesses() -> tuple[Weakness, ...]:
     )
 
 
+@pytest.mark.parametrize(
+    ("weakness", "expected_activity"),
+    [
+        pytest.param(Weakness("reading", "Reading Matching Heading accuracy needs improvement", "high", "matching evidence", "Practice matching."), "完成 1 组原创 Reading Matching Heading，并逐题记录段落主旨与干扰项原因", id="matching-heading"),
+        pytest.param(Weakness("reading", "Reading Multiple Choice accuracy needs improvement", "high", "multiple-choice evidence", "Practice multiple choice."), "完成 1 组原创 Reading Multiple Choice，并标出定位词和同义替换", id="multiple-choice"),
+        pytest.param(Weakness("reading", "Reading True/False/Not Given accuracy needs improvement", "high", "tfng evidence", "Practice TFNG."), "完成 1 组原创 Reading TFNG，并分别记录 False 与 Not Given 的证据边界", id="tfng"),
+        pytest.param(Weakness("writing", "Task Achievement improvement needed", "high", "task-achievement evidence", "Practice task achievement."), "完成 1 份 Writing Task 2 提纲，检查立场、论点和例证是否完整回应题目", id="task-achievement"),
+        pytest.param(Weakness("writing", "Coherence improvement needed", "medium", "coherence evidence", "Practice coherence."), "重写 1 个 Writing Task 2 主体段，明确主题句、论证顺序和衔接", id="coherence"),
+        pytest.param(Weakness("writing", "Vocabulary improvement needed", "low", "vocabulary evidence", "Practice vocabulary."), "整理 10 个 Writing Task 2 主题词组，并各写 1 个准确例句", id="vocabulary"),
+        pytest.param(Weakness("writing", "Grammar improvement needed", "high", "grammar evidence", "Practice grammar."), "复查 1 个 Writing Task 2 主体段的主谓一致、冠词、从句和标点", id="grammar"),
+    ],
+)
+def test_weakness_labels_use_exact_mapped_activities(
+    weakness: Weakness, expected_activity: str
+) -> None:
+    """Every supported analyzer label selects its exact concrete activity."""
+
+    items = build_seven_day_recommendations(_analytics(), (weakness,))
+
+    assert items[0].activity == expected_activity
+
+
+def test_recommendations_preserve_injected_non_natural_weakness_order() -> None:
+    """Fault-injected, non-analyzer ordering is repeated without internal sorting."""
+
+    injected_weaknesses = (
+        Weakness("writing", "Vocabulary improvement needed", "low", "injected vocabulary evidence", "Practice vocabulary."),
+        Weakness("reading", "Reading True/False/Not Given accuracy needs improvement", "high", "injected tfng evidence", "Practice TFNG."),
+        Weakness("writing", "Grammar improvement needed", "high", "injected grammar evidence", "Practice grammar."),
+    )
+
+    items = build_seven_day_recommendations(_analytics(), injected_weaknesses)
+
+    assert [(item.activity, item.evidence) for item in items] == [
+        ("整理 10 个 Writing Task 2 主题词组，并各写 1 个准确例句", "injected vocabulary evidence"),
+        ("完成 1 组原创 Reading TFNG，并分别记录 False 与 Not Given 的证据边界", "injected tfng evidence"),
+        ("复查 1 个 Writing Task 2 主体段的主谓一致、冠词、从句和标点", "injected grammar evidence"),
+        ("整理 10 个 Writing Task 2 主题词组，并各写 1 个准确例句", "injected vocabulary evidence"),
+        ("完成 1 组原创 Reading TFNG，并分别记录 False 与 Not Given 的证据边界", "injected tfng evidence"),
+        ("复查 1 个 Writing Task 2 主体段的主谓一致、冠词、从句和标点", "injected grammar evidence"),
+        ("整理 10 个 Writing Task 2 主题词组，并各写 1 个准确例句", "injected vocabulary evidence"),
+    ]
+
+
 def test_recommendations_cycle_ordered_weaknesses_for_seven_days() -> None:
     """Ordered weaknesses produce concrete repeated Reading and Writing actions."""
 
@@ -178,29 +222,42 @@ def test_no_weaknesses_rotate_concrete_baseline_actions() -> None:
     assert all("weakness" not in item.evidence.lower() for item in items)
 
 
-def test_missing_reading_and_writing_evidence_collects_baselines() -> None:
-    """Missing evidence is stated as baseline collection rather than a weakness."""
-
-    items = build_seven_day_recommendations(
-        _analytics(
-            reading=ReadingAnalytics(
-                attempt_count=0,
-                correct=0,
-                total=0,
-                accuracy=None,
-                error_counts=(),
-                frequent_error_types=(),
-                warnings=(),
+@pytest.mark.parametrize(
+    ("analytics", "missing_index", "present_index", "missing_skill"),
+    [
+        pytest.param(
+            _analytics(
+                reading=ReadingAnalytics(0, 0, 0, None, (), (), ()),
+                writing_feedback_count=1,
             ),
-            writing_feedback_count=0,
+            0,
+            1,
+            "Reading",
+            id="reading-only-missing",
         ),
-        (),
-    )
+        pytest.param(
+            _analytics(writing_feedback_count=0),
+            1,
+            0,
+            "Writing",
+            id="writing-only-missing",
+        ),
+    ],
+)
+def test_only_missing_skill_collects_baseline_data(
+    analytics: AnalyticsResult,
+    missing_index: int,
+    present_index: int,
+    missing_skill: str,
+) -> None:
+    """Independent missing evidence cases affect only the absent skill action."""
 
-    assert "收集 Reading 基线数据" in items[0].activity
-    assert "收集 Writing 基线数据" in items[1].activity
-    assert "collect baseline data" in items[0].evidence.lower()
-    assert "collect baseline data" in items[1].evidence.lower()
+    items = build_seven_day_recommendations(analytics, ())
+
+    assert f"收集 {missing_skill} 基线数据" in items[missing_index].activity
+    assert "collect baseline data" in items[missing_index].evidence.lower()
+    assert "基线数据" not in items[present_index].activity
+    assert "collect baseline data" not in items[present_index].evidence.lower()
 
 
 def test_recommendations_are_deterministic_and_ignore_low_unsupported_scores() -> None:
