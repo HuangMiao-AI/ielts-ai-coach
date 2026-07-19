@@ -57,14 +57,11 @@ def _seed_owner_data(
         add_reading_attempt(
             session,
             user_id=owner_id,
-            score=3,
-            total_questions=5,
+            score=1,
+            total_questions=2,
             results_json=reading_snapshot(
                 [
                     ("true_false_not_given", True),
-                    ("true_false_not_given", True),
-                    ("true_false_not_given", True),
-                    ("true_false_not_given", False),
                     ("true_false_not_given", False),
                 ]
             ),
@@ -73,11 +70,11 @@ def _seed_owner_data(
         add_reading_attempt(
             session,
             user_id=owner_id,
-            score=6,
-            total_questions=10,
+            score=12,
+            total_questions=16,
             results_json=reading_snapshot(
                 [
-                    *(("multiple_choice", True),) * 6,
+                    *(("multiple_choice", True),) * 12,
                     *(("matching_heading", False),) * 3,
                     ("multiple_choice", False),
                 ]
@@ -87,7 +84,7 @@ def _seed_owner_data(
         add_reading_attempt(
             session,
             user_id=owner_id,
-            score=3,
+            score=1,
             total_questions=5,
             results_json="not valid JSON",
             submitted_at=datetime(2026, 7, 14, 9, 0),
@@ -151,6 +148,19 @@ def _seed_owner_data(
             grammar=9.0,
             created_at=datetime(2026, 7, 18, 9, 0),
         )
+        add_reading_attempt(
+            session,
+            user_id=other_id,
+            score=1,
+            total_questions=7,
+            results_json=reading_snapshot(
+                [
+                    ("other_user_distinctive", True),
+                    *(("other_user_distinctive", False),) * 6,
+                ]
+            ),
+            submitted_at=datetime(2026, 7, 18, 10, 0),
+        )
         add_study_log(
             session, user_id=other_id, study_date=TODAY, minutes=240
         )
@@ -173,6 +183,9 @@ def test_builds_evidence_backed_analytics_for_only_the_requested_user(
     assert result.target_gap == 1.0
     assert [point.band for point in result.overall_trend] == [5.5, 6.0]
     assert result.skill("listening").latest_band == 6.5
+    assert result.skill("listening").detail_status == (
+        "No detailed practice analytics available"
+    )
     assert [point.band for point in result.skill("listening").trend] == [
         6.0,
         6.5,
@@ -186,12 +199,12 @@ def test_builds_evidence_backed_analytics_for_only_the_requested_user(
         "No detailed practice analytics available"
     )
     assert result.reading.attempt_count == 3
-    assert result.reading.correct == 12
-    assert result.reading.total == 20
-    assert result.reading.accuracy == pytest.approx(0.6)
+    assert result.reading.correct == 14
+    assert result.reading.total == 23
+    assert result.reading.accuracy == pytest.approx(14 / 23)
     assert dict(result.reading.error_counts) == {
         "matching_heading": 3,
-        "true_false_not_given": 2,
+        "true_false_not_given": 1,
         "multiple_choice": 1,
     }
     assert result.reading.frequent_error_types == ("matching_heading",)
@@ -222,6 +235,15 @@ def test_analytics_isolated_from_other_users_and_rejects_unknown_names(
         )
 
     assert [point.band for point in result.overall_trend] == [5.5, 6.0]
+    assert result.reading.attempt_count == 3
+    assert result.reading.correct == 14
+    assert result.reading.total == 23
+    assert dict(result.reading.error_counts) == {
+        "matching_heading": 3,
+        "true_false_not_given": 1,
+        "multiple_choice": 1,
+    }
+    assert result.reading.frequent_error_types == ("matching_heading",)
     assert result.writing.feedback_count == 2
     assert result.behavior.recent_minutes == 90
     assert len(other_feedback) == 1
