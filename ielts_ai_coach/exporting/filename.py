@@ -11,7 +11,9 @@ from ielts_ai_coach.exporting.errors import ExportConfigurationError
 
 
 ENTITY_FILE_LABELS = {
-    SourceEntity.TASK_QUESTION_ATTEMPT: "task-question-attempt",
+    SourceEntity.TASK_QUESTION_ATTEMPT: "-".join(
+        ("task", "question", "attempt")
+    ),
     SourceEntity.WRITING_FEEDBACK: "writing-feedback",
 }
 FORBIDDEN_FILENAME_CHARACTERS = frozenset(':\\/?*"<>|')

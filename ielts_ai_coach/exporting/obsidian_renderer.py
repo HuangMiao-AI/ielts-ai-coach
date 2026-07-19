@@ -84,6 +84,8 @@ class ObsidianMarkdownAdapter(ExportAdapter):
     """Render the canonical AI Feedback Markdown format."""
 
     def preview(self, record: FeedbackExportRecord) -> str:
+        """Render one validated record as deterministic Markdown."""
+
         self.validate(record)
         lines = [
             *_frontmatter(record),

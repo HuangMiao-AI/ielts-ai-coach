@@ -11,9 +11,13 @@ class FeishuAdapterStub(ExportAdapter):
     """Reject all destination operations until separately approved."""
 
     def preview(self, record: FeedbackExportRecord) -> str:
+        """Reject preview because Feishu is intentionally unavailable."""
+
         self.validate(record)
         raise UnsupportedAdapterError("feishu_not_configured")
 
     def apply(self, record: FeedbackExportRecord) -> None:
+        """Reject apply without reading credentials or using the network."""
+
         self.validate(record)
         raise UnsupportedAdapterError("feishu_not_configured")

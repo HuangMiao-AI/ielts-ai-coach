@@ -212,8 +212,10 @@ def test_list_users_prints_minimum_safe_summary(
     assert code == ExitCode.SUCCESS
     assert f'"user_id":{user_id}' in output
     assert '"account_label":"CliList"' in output
+    assert '"has_profile":true' in output
     assert "password" not in output.lower()
-    assert "profile" not in output.lower()
+    assert "nickname" not in output.lower()
+    assert "target_overall" not in output.lower()
 
 
 def test_conflict_returns_documented_exit_code(
@@ -271,3 +273,34 @@ def test_show_state_reports_metadata_not_generated_content(
 
     assert code == ExitCode.SUCCESS
     assert payload == {"user_id": 8, "entries": 0}
+
+
+def test_log_path_inside_vault_is_rejected(
+    capsys: object,
+    tmp_path: Path,
+    test_database_url: str,
+    session_factory: sessionmaker[Session],
+) -> None:
+    user_id, _, _ = _seed_user("CliLogPath", session_factory, attempt_score=1)
+    vault = _vault(tmp_path)
+
+    code = main(
+        [
+            "export",
+            "--database",
+            str(_database_path(test_database_url)),
+            "--vault",
+            str(vault),
+            "--user-id",
+            str(user_id),
+            "--apply",
+            "--state-path",
+            str(tmp_path / "state.json"),
+            "--log-path",
+            str(vault / "export.log"),
+        ]
+    )
+
+    assert code == ExitCode.CONFIG_ERROR
+    assert "log_path_inside_vault" in capsys.readouterr().err
+    assert not (vault / "export.log").exists()

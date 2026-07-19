@@ -11,20 +11,12 @@ from sqlalchemy import create_engine, event, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from ielts_ai_coach.database.models import (
-    Essay,
-    StudentProfile,
-    TaskQuestionAttempt,
-    User,
-    WritingFeedback,
+    Essay, StudentProfile, TaskQuestionAttempt, User, WritingFeedback
 )
 from ielts_ai_coach.exporting.contracts import (
-    ExportUserSummary,
-    FeedbackDetail,
-    ReadingSourceRecord,
-    WritingSourceRecord,
+    ExportUserSummary, FeedbackDetail, ReadingSourceRecord, WritingSourceRecord
 )
 from ielts_ai_coach.exporting.errors import ExportDatabaseError
-
 
 def _aware_utc(value: datetime) -> datetime:
     """Treat SQLite's naive stored timestamps as application UTC."""
@@ -32,7 +24,6 @@ def _aware_utc(value: datetime) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         return value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc)
-
 
 def _safe_limit(limit: int | None) -> int | None:
     """Validate a bounded optional source limit."""
@@ -293,6 +284,8 @@ def create_read_only_session_factory(
 
     @event.listens_for(engine, "connect")
     def configure_read_only(connection: object, _: object) -> None:
+        """Enable connection-local read-only safety pragmas."""
+
         cursor = connection.cursor()  # type: ignore[attr-defined]
         cursor.execute("PRAGMA query_only=ON")
         cursor.execute("PRAGMA busy_timeout=5000")

@@ -11,7 +11,11 @@ from typing import Any
 
 from ielts_ai_coach.exporting.atomic_writer import atomic_write_text
 from ielts_ai_coach.exporting.enums import SourceEntity
-from ielts_ai_coach.exporting.errors import ExportStateError, ExportWriteError
+from ielts_ai_coach.exporting.errors import (
+    ExportConfigurationError,
+    ExportStateError,
+    ExportWriteError,
+)
 from ielts_ai_coach.exporting.filename import validate_existing_output_path
 
 
@@ -41,6 +45,8 @@ class ExportStateEntry:
     exported_at: datetime
 
     def __post_init__(self) -> None:
+        """Validate every persisted state field at construction."""
+
         if (
             not isinstance(self.source_record_id, int)
             or isinstance(self.source_record_id, bool)
@@ -75,6 +81,8 @@ class ExportState:
     entries: dict[str, ExportStateEntry] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        """Validate user isolation and stable entry keys."""
+
         if (
             not isinstance(self.user_id, int)
             or isinstance(self.user_id, bool)
@@ -94,12 +102,16 @@ class ExportState:
 
 
 def _timestamp(value: datetime) -> str:
+    """Normalize one state timestamp to canonical UTC."""
+
     return value.astimezone(timezone.utc).isoformat(timespec="seconds").replace(
         "+00:00", "Z"
     )
 
 
 def _entry_payload(entry: ExportStateEntry) -> dict[str, Any]:
+    """Serialize one validated entry with fixed field order."""
+
     return {
         "source_entity": entry.source_entity.value,
         "source_record_id": entry.source_record_id,
@@ -111,6 +123,8 @@ def _entry_payload(entry: ExportStateEntry) -> dict[str, Any]:
 
 
 def _state_payload(state: ExportState) -> dict[str, Any]:
+    """Serialize one complete versioned state document."""
+
     return {
         "schema_version": STATE_SCHEMA_VERSION,
         "exporter_version": EXPORTER_VERSION,
@@ -124,6 +138,8 @@ def _state_payload(state: ExportState) -> dict[str, Any]:
 
 
 def _parse_timestamp(value: object) -> datetime:
+    """Parse one timezone-aware ISO state timestamp."""
+
     if not isinstance(value, str):
         raise ExportStateError("state_invalid")
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -133,6 +149,8 @@ def _parse_timestamp(value: object) -> datetime:
 
 
 def _parse_entry(value: object) -> ExportStateEntry:
+    """Parse and validate one exact state entry object."""
+
     if not isinstance(value, dict) or set(value) != {
         "source_entity",
         "source_record_id",
@@ -142,14 +160,17 @@ def _parse_entry(value: object) -> ExportStateEntry:
         "exported_at",
     }:
         raise ExportStateError("state_invalid")
-    return ExportStateEntry(
-        source_entity=SourceEntity(value["source_entity"]),
-        source_record_id=value["source_record_id"],
-        source_fingerprint=value["source_fingerprint"],
-        output_relative_path=value["output_relative_path"],
-        last_exported_file_hash=value["last_exported_file_hash"],
-        exported_at=_parse_timestamp(value["exported_at"]),
-    )
+    try:
+        return ExportStateEntry(
+            source_entity=SourceEntity(value["source_entity"]),
+            source_record_id=value["source_record_id"],
+            source_fingerprint=value["source_fingerprint"],
+            output_relative_path=value["output_relative_path"],
+            last_exported_file_hash=value["last_exported_file_hash"],
+            exported_at=_parse_timestamp(value["exported_at"]),
+        )
+    except ExportConfigurationError as exc:
+        raise ExportStateError("state_invalid") from exc
 
 
 def load_state(path: Path, *, user_id: int) -> ExportState:

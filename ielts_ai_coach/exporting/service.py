@@ -59,16 +59,26 @@ class ExportService:
     """Plan idempotent output and apply only provably safe writes."""
 
     def __init__(self, *, vault_root: Path, state_path: Path) -> None:
+        """Configure one Vault destination and local state manifest."""
+
         self.vault_root = vault_root
         self.state_path = state_path
         self._adapter = ObsidianMarkdownAdapter()
 
     def _validate_vault(self) -> None:
+        """Require Miao OS markers and keep state outside the Vault."""
+
         if not self.vault_root.is_dir() or any(
             not (self.vault_root / marker).is_dir()
             for marker in _VAULT_MARKERS
         ):
             raise ExportConfigurationError("invalid_miao_vault")
+        try:
+            self.state_path.resolve().relative_to(self.vault_root.resolve())
+        except ValueError:
+            pass
+        else:
+            raise ExportConfigurationError("state_path_inside_vault")
 
     def render(self, record: FeedbackExportRecord) -> str:
         """Return deterministic Obsidian Markdown."""
@@ -96,6 +106,8 @@ class ExportService:
         record: FeedbackExportRecord,
         state: ExportState,
     ) -> tuple[ExportItemResult, Path, str, str]:
+        """Select one safe state-machine action without writing."""
+
         key = state_key(record.source_entity, record.source_record_id)
         entry = state.entries.get(key)
         relative = output_relative_path(
@@ -173,6 +185,8 @@ class ExportService:
 
     @staticmethod
     def _read_source_key(path: Path) -> tuple[object, int] | None:
+        """Read a generated source key or return no trusted key."""
+
         try:
             return parse_source_key(path.read_text(encoding="utf-8"))
         except (OSError, UnicodeError):

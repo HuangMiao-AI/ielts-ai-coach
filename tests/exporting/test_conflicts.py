@@ -111,3 +111,41 @@ def test_atomic_write_failure_does_not_update_state(
     ]
     assert not state_path.exists()
     assert not (vault / "02 IELTS" / "AI Feedback").exists()
+
+
+def test_state_path_inside_vault_is_rejected(tmp_path: Path) -> None:
+    vault = _vault(tmp_path)
+    service = ExportService(
+        vault_root=vault,
+        state_path=vault / "10 Archive" / "state.json",
+    )
+
+    with pytest.raises(
+        ExportConfigurationError, match="state_path_inside_vault"
+    ):
+        service.execute([_record()], user_id=1, apply=False)
+
+
+def test_apply_creates_no_other_vault_directory(tmp_path: Path) -> None:
+    vault = _vault(tmp_path)
+    before = {
+        item.relative_to(vault).as_posix()
+        for item in vault.rglob("*")
+        if item.is_dir()
+    }
+    service = ExportService(
+        vault_root=vault,
+        state_path=tmp_path / "state.json",
+    )
+
+    service.execute([_record()], user_id=1, apply=True)
+    after = {
+        item.relative_to(vault).as_posix()
+        for item in vault.rglob("*")
+        if item.is_dir()
+    }
+
+    assert after - before == {
+        "02 IELTS/AI Feedback",
+        "02 IELTS/AI Feedback/2026",
+    }

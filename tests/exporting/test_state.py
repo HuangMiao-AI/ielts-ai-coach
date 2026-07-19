@@ -70,3 +70,29 @@ def test_state_for_another_user_is_rejected(tmp_path: Path) -> None:
 
     with pytest.raises(ExportStateError, match="state_user_mismatch"):
         load_state(path, user_id=6)
+
+
+def test_state_with_output_outside_managed_directory_is_rejected(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "state.json"
+    payload = {
+        "schema_version": 1,
+        "exporter_version": "1.0.0",
+        "source_system": "ielts-ai-coach",
+        "user_id": 3,
+        "entries": {
+            "task_question_attempt:7": {
+                "source_entity": "task_question_attempt",
+                "source_record_id": 7,
+                "source_fingerprint": "a" * 64,
+                "output_relative_path": "../outside.md",
+                "last_exported_file_hash": "b" * 64,
+                "exported_at": "2026-07-19T03:00:00Z",
+            }
+        },
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ExportStateError, match="state_invalid"):
+        load_state(path, user_id=3)
