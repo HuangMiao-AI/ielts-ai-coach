@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 ## Current Stage
 
-Stage 7 — responsive acceptance and installable PWA metadata.
+Stage 8–9 — automated regression and visual acceptance.
 
 ## Completed
 
@@ -49,6 +49,9 @@ Stage 7 — responsive acceptance and installable PWA metadata.
   deterministic recommended route.
 - Home now shows four skill shortcuts and honest empty states using only
   current-user records.
+- Completed Stage 7 with a local manifest, deterministic SVG/PNG icons,
+  mobile metadata, safe-area-aware shell, and Streamlit static serving.
+- No service worker is registered; this release does not claim offline use.
 
 ## Test Results
 
@@ -78,17 +81,20 @@ Stage 7 — responsive acceptance and installable PWA metadata.
 - Full pytest after Stage 6: 153 passed.
 - Compileall after Stage 6: passed.
 - Real database, WAL, and backup fingerprints: unchanged after Stage 6.
+- Stage 7 PWA/app/config regression: 10 passed.
+- Full pytest after Stage 7: 157 passed.
+- Compileall after Stage 7: passed.
+- Real database, WAL, and backup fingerprints: unchanged after Stage 7.
 
 ## Current Commit
 
-`ff8fffa` (before the pending Stage 6 commit)
+`abfd153` (before the pending Stage 7 commit)
 
 ## Next Step
 
-Commit Stage 6, then write failing PWA asset and responsive acceptance tests
-before enabling Streamlit static serving.
+Commit Stage 7, then run the complete automated matrix, browser viewport
+acceptance, headless startup, HTTP health, pip check, and asset verification.
 
 ## Known Issues
 
 - Reading drafts are session-only and are lost when the browser session ends.
-- PWA metadata and install icons do not exist.

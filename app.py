@@ -13,6 +13,7 @@ from ielts_ai_coach.config import (
 from ielts_ai_coach.database.backup import backup_database_if_due
 from ielts_ai_coach.database.connection import initialize_database
 from ielts_ai_coach.ui.styles import apply_styles
+from ielts_ai_coach.ui.pwa import install_pwa_metadata
 from ielts_ai_coach.views.login import render_auth_page
 from ielts_ai_coach.views.navigation import render_authenticated_app
 
@@ -38,6 +39,7 @@ def main() -> None:
 
     initialize_application()
     apply_styles()
+    install_pwa_metadata()
 
     try:
         current_user = require_login()

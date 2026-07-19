@@ -7,3 +7,4 @@ font = "sans-serif"
 
 [server]
 headless = true
+enableStaticServing = true
