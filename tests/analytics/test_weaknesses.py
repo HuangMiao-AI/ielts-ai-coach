@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from ielts_ai_coach.services.analytics import (
     AnalyticsResult,
     LearningBehavior,
     ReadingAnalytics,
+    ScorePoint,
     SkillScoreAnalytics,
     WritingAnalytics,
     WritingDimensionAnalytics,
@@ -79,14 +82,18 @@ def test_reading_accuracy_thresholds_are_evidence_backed() -> None:
     """Reading severity changes only at the specified submitted-score bands."""
 
     reading_49 = analyze_weaknesses(_analytics(reading=_reading(49, 100)))[0]
+    reading_50 = analyze_weaknesses(_analytics(reading=_reading(50, 100)))[0]
     reading_55 = analyze_weaknesses(_analytics(reading=_reading(55, 100)))[0]
+    reading_60 = analyze_weaknesses(_analytics(reading=_reading(60, 100)))[0]
     reading_65 = analyze_weaknesses(_analytics(reading=_reading(65, 100)))[0]
     reading_70_weaknesses = analyze_weaknesses(
         _analytics(reading=_reading(70, 100))
     )
 
     assert reading_49.severity == "high"
+    assert reading_50.severity == "medium"
     assert reading_55.severity == "medium"
+    assert reading_60.severity == "low"
     assert reading_65.severity == "low"
     assert reading_49.weakness == "Reading accuracy needs improvement"
     assert "49/100" in reading_49.evidence
@@ -185,8 +192,66 @@ def test_writing_gap_thresholds_exclude_met_targets() -> None:
         )
 
     assert writing_gap(6.0) == ("medium", "Grammar improvement needed")
+    assert writing_gap(5.51) == ("medium", "Grammar improvement needed")
     assert writing_gap(6.25) == ("low", "Grammar improvement needed")
+    assert writing_gap(6.01) == ("low", "Grammar improvement needed")
     assert writing_gap(7.0) == ("none", "")
+
+
+def test_writing_requires_target_even_with_dimension_evidence() -> None:
+    """Writing evidence without a target cannot establish a target gap."""
+
+    analytics = _analytics(
+        target_band=None,
+        dimensions=(
+            WritingDimensionAnalytics(
+                name="grammar", latest_band=5.5, trend=()
+            ),
+        ),
+    )
+
+    assert not analyze_weaknesses(analytics)
+
+
+def test_writing_uses_latest_band_not_historical_trend() -> None:
+    """Only the latest Writing band, rather than prior trend points, is analyzed."""
+
+    analytics = _analytics(
+        dimensions=(
+            WritingDimensionAnalytics(
+                name="grammar",
+                latest_band=7.0,
+                trend=(
+                    ScorePoint(
+                        recorded_at=datetime(2026, 1, 1, 9, 0),
+                        band=4.0,
+                    ),
+                ),
+            ),
+        )
+    )
+
+    assert not analyze_weaknesses(analytics)
+
+
+def test_equal_severity_results_use_reading_before_writing() -> None:
+    """Equal severities are ordered by skill after severity ranking."""
+
+    weaknesses = analyze_weaknesses(
+        _analytics(
+            reading=_reading(49, 100),
+            dimensions=(
+                WritingDimensionAnalytics(
+                    name="grammar", latest_band=5.5, trend=()
+                ),
+            ),
+        )
+    )
+
+    assert [(item.skill, item.severity) for item in weaknesses] == [
+        ("reading", "high"),
+        ("writing", "high"),
+    ]
 
 
 def test_absent_evidence_and_low_listening_speaking_scores_create_no_weaknesses() -> None:
