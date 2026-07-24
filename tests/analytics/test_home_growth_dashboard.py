@@ -236,9 +236,11 @@ def test_populated_authenticated_home_renders_owner_growth_dashboard(
     assert 'data-severity="high"' in rendered
     assert "证据：已提交 Reading：4/10 正确（40%）" in rendered
     assert "建议：练习 Multiple Choice 题型并复盘错误模式。" in rendered
+    assert "证据：Task Achievement：6.5；目标：7.0；差距：0.5。" in rendered
     assert "accuracy needs improvement" not in rendered
     assert "Submitted Reading:" not in rendered
     assert "Practise Multiple Choice question types" not in rendered
+    assert "task_achievement band" not in rendered
     assert "Recommended Next Actions" in rendered
     assert "第 1 天" in rendered
     assert "第 2 天" in rendered

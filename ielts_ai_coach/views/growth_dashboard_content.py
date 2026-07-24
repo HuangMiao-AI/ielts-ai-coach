@@ -34,6 +34,12 @@ _WRITING_WEAKNESS_LABELS = {
     "Vocabulary improvement needed": "Vocabulary 需要提高",
     "Grammar improvement needed": "Grammar 需要提高",
 }
+_WRITING_EVIDENCE_FIELDS = {
+    "Task Achievement": "task_achievement",
+    "Coherence": "coherence",
+    "Vocabulary": "vocabulary",
+    "Grammar": "grammar",
+}
 
 
 def format_band(value: float | None) -> str:
@@ -93,8 +99,11 @@ def _localized_weakness(weakness: Weakness) -> tuple[str, str, str]:
         weakness.weakness, weakness.weakness
     )
     dimension = weakness.weakness.removesuffix(" improvement needed")
+    evidence_field = _WRITING_EVIDENCE_FIELDS.get(
+        dimension, dimension.lower()
+    )
     evidence = (
-        weakness.evidence.replace(f"{dimension.lower()} band ", f"{dimension}：")
+        weakness.evidence.replace(f"{evidence_field} band ", f"{dimension}：")
         .replace("; target ", "；目标：")
         .replace("; gap ", "；差距：")
         .removesuffix(".")
