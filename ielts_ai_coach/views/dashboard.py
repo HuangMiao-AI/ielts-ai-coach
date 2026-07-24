@@ -17,6 +17,7 @@ from ielts_ai_coach.services.task_content import get_task_content
 from ielts_ai_coach.services.tasks import get_tasks_for_day, get_week_progress
 from ielts_ai_coach.services.writing import get_writing_remaining
 from ielts_ai_coach.views.charts import render_score_trend
+from ielts_ai_coach.views.growth_dashboard import render_growth_dashboard
 
 
 def _section(title: str) -> None:
@@ -237,6 +238,7 @@ def render_dashboard(
     st.title(f"你好，{display_name}")
     st.caption("今天也向目标前进一步。")
     _render_core_entries(page_refs)
+    render_growth_dashboard(user.id)
     _render_snapshot_overview(snapshot, page_refs)
     tasks = _render_today_progress(user)
 

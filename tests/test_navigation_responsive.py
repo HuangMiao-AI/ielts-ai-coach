@@ -191,6 +191,16 @@ def test_mobile_css_uses_safe_responsive_navigation_and_overflow() -> None:
     assert "flex: 1 1 0 !important" in APP_CSS
     assert "overflow-x: hidden" in APP_CSS
     assert "overflow-x: clip" not in APP_CSS
+    assert ".growth-dashboard-grid" in APP_CSS
+    assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in APP_CSS
+    assert "@media (max-width: 768px)" in APP_CSS
+    assert "grid-template-columns: 1fr" in APP_CSS
+    assert "@media (max-width: 430px)" in APP_CSS
+    assert "gap: .65rem" in APP_CSS
+    assert "min-width: 0" in APP_CSS
+    assert "calc(5.5rem + env(safe-area-inset-bottom))" in APP_CSS
+    assert "min-height: 44px" in APP_CSS
+    assert APP_CSS.count("overflow-x:") == 2
     assert "userAgent" not in APP_CSS
     assert "iPhone" not in APP_CSS
     assert "Android" not in APP_CSS

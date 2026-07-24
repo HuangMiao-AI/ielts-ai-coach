@@ -145,13 +145,12 @@ def build_app_css() -> str:
 
         .empty-card {{ margin-top: 1rem; }}
 
-        .core-entry {{
-            margin-bottom: .7rem; padding: .85rem .95rem; border-radius: 16px;
-        }}
+        .core-entry {{ margin-bottom: .7rem; padding: .85rem .95rem; border-radius: 16px; }}
 
-        div[data-testid="stMetric"] {{
-            min-height: 116px; padding: 1rem 1.1rem; border-radius: 18px;
-        }}
+        div[data-testid="stMetric"] {{ min-height: 116px; padding: 1rem 1.1rem; border-radius: 18px; }}
+        .growth-dashboard-grid, .st-key-growth-dashboard-grid [data-testid="stHorizontalBlock"] {{ display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem !important; }}
+        .growth-dashboard-grid > *, .st-key-growth-dashboard-grid [data-testid="stColumn"] {{ width: 100% !important; min-width: 0 !important; }}
+        .growth-dashboard-grid .glass-card {{ margin: 0; }}
 
         .stButton > button,
         .stFormSubmitButton > button,
@@ -171,10 +170,7 @@ def build_app_css() -> str:
             box-shadow: 0 10px 24px rgba(15, 118, 110, .12);
         }}
 
-        .current-user {{
-            margin: .4rem 0 .2rem; color: var(--muted); font-size: .82rem;
-            font-weight: 700; text-align: right;
-        }}
+        .current-user {{ margin: .4rem 0 .2rem; color: var(--muted); font-size: .82rem; font-weight: 700; text-align: right; }}
 
         .task-time-badge,
         .status-pill {{
@@ -207,6 +203,8 @@ def build_app_css() -> str:
 
         @media (max-width: 768px) {{
             :root {{ --glass-blur: 10px; }}
+
+            .growth-dashboard-grid, .st-key-growth-dashboard-grid [data-testid="stHorizontalBlock"] {{ grid-template-columns: 1fr; }}
 
             .block-container {{
                 width: 100%;
@@ -280,6 +278,8 @@ def build_app_css() -> str:
         }}
 
         @media (max-width: 430px) {{
+            .growth-dashboard-grid, .st-key-growth-dashboard-grid [data-testid="stHorizontalBlock"] {{ gap: .65rem !important; }}
+
             [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap !important; }}
             [data-testid="stColumn"] {{ min-width: min(100%, 9rem) !important; }}
         }}
