@@ -3,7 +3,8 @@
 IELTS AI Coach is a modular Streamlit learning application for Chinese IELTS
 students. It combines deterministic score diagnosis and study planning with an
 optional AI study coach, Level 2 writing feedback, and a deterministic original
-academic-reading practice loop.
+academic-reading practice loop. The Home page also provides request-time,
+user-isolated learning analytics without persisting analytics snapshots.
 
 The project is built as a Computer Science / AI university application
 portfolio and as a local V1 that can be tested by a small group of students.
@@ -56,6 +57,11 @@ privacy controls, automated tests, and product-oriented UI design.
 - Pydantic validation and one repair attempt for invalid AI JSON
 - Home metrics, four skill shortcuts, task progress, study time, weak-section
   guidance, recent activity, and deterministic next-step recommendations
+- IELTS Growth Dashboard with current/target bands, target gap, four-skill
+  trends, Reading aggregates, four Writing dimensions, evidence-backed
+  weaknesses, learning streak, and a concrete seven-day recommendation summary
+- Mock-only analytics explanation that rejects network providers and excludes
+  identity, essays, answers, recordings, and raw stored payloads
 - Consolidated score, plan, essay, and coach history
 - One route registry with a desktop sidebar and 56-pixel mobile bottom
   navigation
@@ -287,12 +293,14 @@ The base URL may differ by Alibaba Cloud region or workspace. Keep
 
 Tests use temporary SQLite databases and local fake providers. They never call
 a real AI API and never write test records to the production `data/` database.
-The current suite contains 160 tests. Coverage includes authentication,
+The current suite contains 204 tests. Coverage includes authentication,
 isolation, backups, profiles, score diagnosis, planning, reading-bank loading,
 deterministic answer scoring, duplicate submission, reading ownership,
 interactive Reading/Listening/Writing/Speaking page flows, responsive
 navigation, PWA assets, quotas, provider failures, writing feedback, deletion,
-Home aggregation, and the complete Streamlit student flow.
+Home aggregation, request-time learning analytics, deterministic weaknesses and
+recommendations, Mock-only explanation safety, and the complete Streamlit
+student flow.
 
 ## Project Structure
 
@@ -352,6 +360,10 @@ active application imports only the `ielts_ai_coach/` package.
   it does not yet support retry attempts.
 - Listening still requires student-owned material and has no bundled original
   audio practice loop.
+- Listening and Speaking expose score trends when score records exist, but they
+  have no granular practice analytics and never infer detailed weaknesses.
+- Learning analytics is computed per request and has no persisted snapshot or
+  historical analytics comparison.
 - PWA support is an installable shell only; authenticated pages are not
   available offline.
 - There is no production monitoring, managed backup, or migration system yet.
