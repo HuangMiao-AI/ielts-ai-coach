@@ -33,7 +33,7 @@ Updated: 2026-07-25
 - [x] Phase 5: original Listening mini tests and offline audio
 - [x] Phase 6: Writing save-only fallback
 - [x] Phase 7: Speaking microphone recovery and text fallback
-- [ ] Phase 8: desktop UI and responsive contracts
+- [x] Phase 8: desktop UI and responsive contracts
 - [ ] Phase 9: browser flows and full verification
 - [ ] Phase 10: real database additive apply and final handover
 
@@ -76,6 +76,14 @@ Updated: 2026-07-25
   recovery path, and a session-only text-answer alternative
 - Completion accepts a local recording or a non-empty text answer and never
   claims recognition, pronunciation analysis, or an IELTS score
+- Phase 8 Home, Analytics, navigation, and responsive regression: 55 passed
+- Home retains one independent four-skill entry group with concrete metadata;
+  no-plan guidance recommends a plan without blocking any skill
+- Reading cards show topic, version, difficulty, question count, time,
+  status, and only the current user's latest submitted result when present
+- Shared CSS contracts cover 375, 430, 768, 1024, 1366, 1440, and 1920 pixel
+  viewports with wrapping, zero-minimum grids, touch targets, and mobile safe
+  bottom spacing
 - Complete, partial, and empty baselines generate deterministic plans without
   creating synthetic `score_records`
 - Partial baselines appear as latest values without fabricated trends or an

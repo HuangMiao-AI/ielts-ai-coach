@@ -76,10 +76,18 @@ def _render_library(
                 "started": "进行中",
                 "not_started": "未开始",
             }[item.status]
+            difficulty = "综合"
+            latest_score = (
+                f"最近成绩：{state.score.correct_count}/"
+                f"{state.score.total_questions}"
+                if state is not None and state.score is not None
+                else "最近成绩：暂无"
+            )
             st.markdown(f"### {passage.title}")
             st.caption(
-                f"{passage.topic} · 约 {passage.word_count} 词 · "
-                f"{len(passage.questions)} 题 · 约 30 分钟 · {status}"
+                f"{passage.topic} · 版本 {passage.version} · 难度：{difficulty} · "
+                f"约 {passage.word_count} 词 · {len(passage.questions)} 题 · "
+                f"约 30 分钟 · {latest_score} · {status}"
             )
             saved = (
                 st.session_state.get(

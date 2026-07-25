@@ -83,9 +83,9 @@ def test_top_navigation_groups_and_every_page_opens(
         "listening": "听力练习",
         "plan": "七天计划",
         "coach": "AI学习教练",
-        "writing": "写作批改",
+        "writing": "写作练习",
         "speaking": "口语练习",
-        "profile": "我的档案",
+        "profile": "开始设置学习档案",
         "history": "历史记录",
         "settings": "设置",
     }
@@ -155,7 +155,7 @@ def test_writing_task_opens_feedback_page_with_prefilled_prompt(
         area for area in app.text_area if area.label == "作文题目"
     )
     assert not app.exception
-    assert app.title[0].value == "写作批改"
+    assert app.title[0].value == "写作练习"
     assert prompt.value
     assert any("已从今日任务带入原创题目" in item.value for item in app.success)
 

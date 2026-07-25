@@ -38,7 +38,7 @@ def build_app_css() -> str:
             --content-max: {tokens["content_max_px"]}px; --card-radius: {tokens["radius_card"]}px;
             --shadow-soft: 0 18px 50px rgba(16, 42, 46, 0.09);
             --shadow-lift: 0 22px 60px rgba(15, 118, 110, 0.14);
-            --supported-viewports: "375 430 768 1024 1366";
+            --supported-viewports: "375 430 768 1024 1366 1440 1920";
         }}
 
         html, body, .stApp, [data-testid="stAppViewContainer"] {{
@@ -70,6 +70,7 @@ def build_app_css() -> str:
         .empty-card,
         .core-entry,
         div[data-testid="stMetric"],
+        [data-testid="stVerticalBlockBorderWrapper"],
         [data-testid="stForm"] {{
             border: 1px solid var(--border);
             background: var(--surface);
@@ -201,6 +202,11 @@ def build_app_css() -> str:
             }}
         }}
 
+        @media (min-width: 1366px) {{
+            .block-container {{ padding-top: 2.25rem; padding-bottom: 4rem; }}
+            .section-heading {{ margin-top: 2rem; }}
+        }}
+
         @media (max-width: 768px) {{
             :root {{ --glass-blur: 10px; }}
 
@@ -282,6 +288,14 @@ def build_app_css() -> str:
 
             [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap !important; }}
             [data-testid="stColumn"] {{ min-width: min(100%, 9rem) !important; }}
+        }}
+
+        @media (max-width: 375px) {{
+            .block-container {{ padding-inline: .75rem; }}
+            .st-key-mobile_bottom_navigation {{ right: .4rem; left: .4rem; }}
+            .st-key-mobile_bottom_navigation [data-testid="stPageLink"] a {{
+                font-size: .7rem;
+            }}
         }}
 
         @media (prefers-reduced-motion: reduce) {{

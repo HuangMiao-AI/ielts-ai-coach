@@ -38,23 +38,25 @@ def _render_core_entries(page_refs: Mapping[str, object] | None) -> None:
 
     _section("快捷开始")
     entries = (
-        ("reading", "阅读", "📖"),
-        ("listening", "听力", "🎧"),
-        ("writing", "写作", "✍️"),
-        ("speaking", "口语", "🎙️"),
+        ("reading", "阅读", "📖", "8 篇原创文章 · 约 30 分钟"),
+        ("listening", "听力", "🎧", "2 套 Test · 本地音频 · 16 题"),
+        ("writing", "写作", "✍️", "Task 1 / Task 2 · 20–40 分钟"),
+        ("speaking", "口语", "🎙️", "Part 1 / 2 / 3 · 准备与回答计时"),
     )
     if not page_refs:
         st.caption("阅读 · 听力 · 写作 · 口语")
         return
     columns = st.columns(4)
-    for column, (key, label, icon) in zip(columns, entries):
+    for column, (key, label, icon, detail) in zip(columns, entries):
         with column:
-            st.page_link(
-                page_refs[key],
-                label=label,
-                icon=icon,
-                use_container_width=True,
-            )
+            with st.container(border=True):
+                st.markdown(f"**{icon} {label}**")
+                st.caption(detail)
+                st.page_link(
+                    page_refs[key],
+                    label=f"开始{label}练习",
+                    use_container_width=True,
+                )
 
 
 def _render_snapshot_overview(
