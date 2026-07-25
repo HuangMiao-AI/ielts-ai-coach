@@ -199,6 +199,45 @@ def submit_essay(
     )
 
 
+def save_essay_without_feedback(
+    *,
+    user_id: int,
+    test_type: str,
+    task_type: str,
+    prompt: str,
+    content: str,
+    session_factory: sessionmaker[Session] | None = None,
+) -> Essay:
+    """Persist an owned essay without provider calls, feedback, or quota use."""
+
+    validate_essay_input(
+        test_type=test_type,
+        task_type=task_type,
+        prompt=prompt,
+        content=content,
+    )
+    factory = session_factory or get_session_factory()
+    with session_scope(factory) as session:
+        essay = create_essay(
+            session,
+            user_id=user_id,
+            test_type=test_type,
+            task_type=task_type,
+            prompt=prompt.strip(),
+            content=content.strip(),
+            word_count=count_words(content),
+        )
+        saved = set_essay_status(
+            session,
+            user_id=user_id,
+            essay_id=essay.id,
+            status="saved",
+        )
+        if saved is None:
+            raise WritingServiceError("essay_not_found")
+        return saved
+
+
 def retry_essay(
     *,
     user_id: int,

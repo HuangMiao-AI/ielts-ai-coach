@@ -22,7 +22,12 @@ from ielts_ai_coach.services.writing import (
     get_essay_history,
     get_writing_remaining,
     retry_essay,
+    save_essay_without_feedback,
     submit_essay,
+)
+from ielts_ai_coach.services.writing_tasks import (
+    get_writing_task,
+    inspect_writing_locally,
 )
 
 
@@ -64,6 +69,8 @@ def _apply_writing_task_prefill() -> bool:
 def render_feedback(feedback: WritingFeedback) -> None:
     """Render one validated structured writing report."""
 
+    if feedback.provider.casefold() == "mock":
+        st.warning("Demo feedback · 固定示例，不代表真实AI评分或官方成绩。")
     st.error(WRITING_DISCLAIMER)
     columns = st.columns(5)
     labels = (
@@ -105,11 +112,13 @@ def _render_recent_history(user: User) -> None:
             "pending": "处理中",
             "completed": "已完成",
             "failed": "处理失败",
+            "saved": "已保存（未评分）",
         }.get(essay.status, essay.status)
         with st.expander(
             f"#{essay.id} · {essay.task_type} · {essay.word_count}词 · {status_label}"
         ):
             st.caption(essay.prompt)
+            st.markdown(essay.content)
             feedback_records = get_essay_feedback(
                 user_id=user.id,
                 essay_id=essay.id,
@@ -136,18 +145,19 @@ def render_writing_page(user: User) -> None:
     provider = get_ai_provider()
     remaining = get_writing_remaining(user.id)
     was_prefilled = _apply_writing_task_prefill()
-    st.title("写作批改")
-    st.caption("按IELTS四项标准提供Level 2学习反馈，并保存历史记录。")
-    st.error(WRITING_DISCLAIMER)
+    st.title("写作练习")
+    st.caption("选择原创题目、计时写作并保存历史；AI可用时才进行批改。")
     if was_prefilled:
         st.success("已从今日任务带入原创题目，请完成作文后提交批改。")
 
     if provider.is_mock:
         st.info(
-            "当前为演示模式：未配置Qwen API Key，反馈为固定示例，不代表真实水平。",
+            "AI评分当前未启用。你仍可完成并保存作文，系统不会生成模拟分数。",
             icon="🧪",
         )
-    st.metric("今日剩余批改额度", f"{remaining}/{WRITING_DAILY_LIMIT} 次")
+    else:
+        st.error(WRITING_DISCLAIMER)
+        st.metric("今日剩余批改额度", f"{remaining}/{WRITING_DAILY_LIMIT} 次")
 
     first, second = st.columns(2)
     test_type = first.selectbox(
@@ -160,12 +170,23 @@ def render_writing_page(user: User) -> None:
         ("Task 1", "Task 2"),
         key="writing_task_type",
     )
-    active_draft_key = draft_key(user.id, "writing", task_type)
+    original_task = get_writing_task(test_type, task_type)
+    st.caption(
+        f"{original_task.title} · 建议 {original_task.suggested_minutes} 分钟 · "
+        f"至少 {original_task.minimum_words} 词"
+    )
+    active_draft_key = draft_key(
+        user.id,
+        "writing",
+        f"{test_type}-{task_type}",
+    )
     prompt_key = f"{active_draft_key}_prompt"
     content_key = f"{active_draft_key}_content"
     pending_prompt = st.session_state.pop("writing_pending_prompt", "")
     if pending_prompt:
         st.session_state[prompt_key] = pending_prompt
+    elif prompt_key not in st.session_state:
+        st.session_state[prompt_key] = original_task.prompt
     prompt = st.text_area(
         "作文题目",
         max_chars=2000,
@@ -182,9 +203,19 @@ def render_writing_page(user: User) -> None:
     )
     word_count = count_words(content)
     st.caption(f"当前字数：{word_count}词")
-    threshold = 150 if task_type == "Task 1" else 250
+    threshold = original_task.minimum_words
     if content and word_count < threshold:
         st.warning(f"正文少于{threshold}词，可能影响任务完成度。")
+    if content:
+        checks = inspect_writing_locally(
+            content,
+            minimum_words=threshold,
+        )
+        st.caption(
+            f"本地基础检查：{checks.paragraph_count} 段 · "
+            f"{'达到' if checks.meets_recommended_length else '未达到'}"
+            "建议字数 · 不产生IELTS分数"
+        )
 
     timer_key = f"{active_draft_key}_timer"
     if content and timer_key not in st.session_state:
@@ -206,9 +237,9 @@ def render_writing_page(user: User) -> None:
     if clear_column.button("清空草稿", use_container_width=True):
         st.session_state[clear_key] = True
     if submit_column.button(
-        "提交AI批改",
+        "保存作文" if provider.is_mock else "提交AI批改",
         type="primary",
-        disabled=remaining <= 0,
+        disabled=(not provider.is_mock and remaining <= 0),
         use_container_width=True,
     ):
         st.session_state[submit_key] = True
@@ -224,9 +255,14 @@ def render_writing_page(user: User) -> None:
             st.rerun()
 
     if st.session_state.get(submit_key, False):
-        st.warning("请确认题目、任务类型和正文无误；提交后将占用一次成功额度。")
+        st.warning(
+            "请确认题目、任务类型和正文无误；保存后可在历史中查看，"
+            "不会生成AI评分。"
+            if provider.is_mock
+            else "请确认题目、任务类型和正文无误；提交后将占用一次成功额度。"
+        )
         if st.button(
-            "确认提交AI批改",
+            "确认保存作文" if provider.is_mock else "确认提交AI批改",
             type="primary",
             use_container_width=True,
         ):
@@ -235,15 +271,25 @@ def render_writing_page(user: User) -> None:
                 st.info("本次提交正在处理中，请勿重复点击。")
             else:
                 try:
-                    with st.spinner("正在分析作文，请稍候..."):
-                        result = submit_essay(
+                    if provider.is_mock:
+                        save_essay_without_feedback(
                             user_id=user.id,
                             test_type=test_type,
                             task_type=task_type,
                             prompt=prompt,
                             content=content,
-                            provider=provider,
                         )
+                        result = None
+                    else:
+                        with st.spinner("正在分析作文，请稍候..."):
+                            result = submit_essay(
+                                user_id=user.id,
+                                test_type=test_type,
+                                task_type=task_type,
+                                prompt=prompt,
+                                content=content,
+                                provider=provider,
+                            )
                 except WritingServiceError as error:
                     st.error(
                         WRITING_ERRORS.get(
@@ -252,9 +298,14 @@ def render_writing_page(user: User) -> None:
                         )
                     )
                 else:
-                    st.success("批改完成。")
+                    st.success(
+                        "作文已保存。AI评分当前未启用。"
+                        if provider.is_mock
+                        else "批改完成。"
+                    )
                     st.session_state[submit_key] = False
-                    render_feedback(result.feedback)
+                    if result is not None:
+                        render_feedback(result.feedback)
                 finally:
                     release_submission(st.session_state, guard)
 

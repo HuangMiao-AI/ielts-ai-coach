@@ -45,7 +45,7 @@ def test_writing_editor_updates_word_count_and_requires_confirmation(
 
     assert any("当前字数：5词" in item.value for item in app.caption)
     next(
-        button for button in app.button if button.label == "提交AI批改"
+        button for button in app.button if button.label == "保存作文"
     ).click().run(timeout=10)
-    assert any("占用一次成功额度" in item.value for item in app.warning)
+    assert any("不会生成AI评分" in item.value for item in app.warning)
     assert not any(metric.label == "预估总分" for metric in app.metric)

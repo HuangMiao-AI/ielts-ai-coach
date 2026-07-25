@@ -31,7 +31,7 @@ Updated: 2026-07-25
 - [x] Phase 3: baseline-aware plans and independent skill actions
 - [x] Phase 4: plan-independent Reading library
 - [x] Phase 5: original Listening mini tests and offline audio
-- [ ] Phase 6: Writing save-only fallback
+- [x] Phase 6: Writing save-only fallback
 - [ ] Phase 7: Speaking microphone recovery and text fallback
 - [ ] Phase 8: desktop UI and responsive contracts
 - [ ] Phase 9: browser flows and full verification
@@ -62,6 +62,14 @@ Updated: 2026-07-25
   per-question explanations and script evidence only after confirmation
 - Listening answers and scores are user/test-scoped Streamlit session state;
   no database or Analytics persistence is claimed
+- Phase 6 save-only, editor, existing evaluation, and provider regression:
+  14 passed
+- Writing offers 4 project-original prompts covering Academic/General Task 1
+  and Task 2, with timing and minimum-word metadata
+- Mock/no-key student submissions persist as `Essay(status="saved")` without
+  `WritingFeedback`, provider calls, or `AIUsageDaily` quota changes
+- Local word/paragraph/structure observations are explicitly non-scoring;
+  any separately rendered Mock feedback is labeled `Demo feedback`
 - Complete, partial, and empty baselines generate deterministic plans without
   creating synthetic `score_records`
 - Partial baselines appear as latest values without fabricated trends or an
