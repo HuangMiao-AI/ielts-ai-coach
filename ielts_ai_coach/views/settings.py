@@ -13,6 +13,9 @@ from ielts_ai_coach.services.data_management import (
     clear_ai_content,
     clear_learning_records,
 )
+from ielts_ai_coach.views.learner_profile_form import (
+    render_learning_profile_editor,
+)
 
 
 def _render_confirmation(
@@ -62,6 +65,11 @@ def render_settings_page(user: User) -> None:
     if st.button("退出登录", use_container_width=True, key="settings_logout"):
         logout()
         st.rerun()
+
+    st.divider()
+    st.subheader("学习设置")
+    st.caption("更新目标、学习时间和可选当前成绩。")
+    render_learning_profile_editor(user, source_key="settings")
 
     st.divider()
     with st.expander("清理学习记录"):

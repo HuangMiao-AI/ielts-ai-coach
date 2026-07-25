@@ -8,7 +8,7 @@ from functools import partial
 import streamlit as st
 
 from ielts_ai_coach.database.models import User
-from ielts_ai_coach.services.profiles import get_profile
+from ielts_ai_coach.services.learner_profiles import get_learner_profile
 from ielts_ai_coach.ui.layout import render_page_shell
 from ielts_ai_coach.ui.navigation import (
     CONTEXTUAL_ROUTE_KEYS,
@@ -99,7 +99,7 @@ def build_navigation_pages(
         "speaking": partial(render_speaking_page, user),
         "plan": partial(render_plan_page, user),
         "history": partial(render_history_page, user),
-        "profile": partial(render_profile_page, user),
+        "profile": partial(render_profile_page, user, refs),
         "scores": partial(render_scores_page, user),
         "today": partial(render_today_page, user, refs),
         "coach": partial(render_coach_page, user),
@@ -144,6 +144,11 @@ def _run_page(
 def render_authenticated_app(user: User) -> None:
     """Run the selected route behind the custom responsive navigation."""
 
-    profile = get_profile(user.id)
-    pages, _ = build_navigation_pages(user, has_profile=profile is not None)
+    profile = get_learner_profile(user.id)
+    pages, _ = build_navigation_pages(
+        user,
+        has_profile=(
+            profile is not None and profile.onboarding_completed
+        ),
+    )
     run_hidden_navigation(pages)

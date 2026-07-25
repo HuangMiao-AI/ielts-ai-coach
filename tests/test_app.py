@@ -28,7 +28,8 @@ def test_student_can_register_open_profile_and_logout(
     app.button[1].click().run()
 
     assert not app.exception
-    assert app.title[0].value == "我的档案"
+    assert app.title[0].value == "开始设置学习档案"
+    assert any("步骤 1/4" in item.value for item in app.caption)
     user_id = app.session_state["user_id"]
     app = AppTest.from_file("app.py")
     app.session_state["authenticated"] = True

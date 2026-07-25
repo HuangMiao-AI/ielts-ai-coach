@@ -237,6 +237,8 @@ def render_dashboard(
     display_name = profile.nickname if profile else user.username
     st.title(f"你好，{display_name}")
     st.caption("今天也向目标前进一步。")
+    if st.session_state.pop(f"onboarding_{user.id}_saved", False):
+        st.success("资料已保存，欢迎开始学习。")
     _render_core_entries(page_refs)
     render_growth_dashboard(user.id)
     _render_snapshot_overview(snapshot, page_refs)
