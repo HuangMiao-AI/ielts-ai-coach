@@ -4,27 +4,56 @@ from __future__ import annotations
 
 from collections.abc import MutableMapping
 from dataclasses import dataclass
+from datetime import date
 
 from sqlalchemy.orm import Session, sessionmaker
 
+from ielts_ai_coach.database.connection import (
+    get_session_factory,
+    session_scope,
+)
+from ielts_ai_coach.database.plan_repository import (
+    create_library_plan,
+    create_plan_task,
+    get_library_plan,
+    list_user_tasks_by_subject,
+)
 from ielts_ai_coach.services.exam_state import (
     ReadingExamSession,
     create_exam_session,
     exam_session_key,
 )
-from ielts_ai_coach.services.planning import get_active_plan_data
+from ielts_ai_coach.services.question_bank import (
+    ReadingPassage,
+    get_reading_passage,
+    load_reading_catalog,
+)
 from ielts_ai_coach.services.reading_practice import (
     ReadingPracticeState,
     get_reading_practice_state,
+    resolve_reading_passage,
 )
+from ielts_ai_coach.services.task_content import serialize_task_content
+from ielts_ai_coach.services.task_templates import build_task_content
 
 
 @dataclass(frozen=True)
 class ReadingExamLibraryItem:
-    """One user-owned Reading task available in the exam library."""
+    """One original passage plus an optional user-owned practice state."""
 
-    state: ReadingPracticeState
+    passage: ReadingPassage
+    state: ReadingPracticeState | None
     is_submitted: bool
+
+    @property
+    def status(self) -> str:
+        """Return an honest durable status for the library card."""
+
+        if self.is_submitted:
+            return "submitted"
+        if self.state is not None:
+            return "started"
+        return "not_started"
 
 
 def list_reading_exam_library(
@@ -32,28 +61,109 @@ def list_reading_exam_library(
     *,
     session_factory: sessionmaker[Session] | None = None,
 ) -> tuple[ReadingExamLibraryItem, ...]:
-    """Return eligible Reading tasks from the user's active plan."""
+    """Return all original passages with only this user's saved state."""
 
-    plan = get_active_plan_data(user_id, session_factory=session_factory)
-    if plan is None:
-        return ()
-    items = []
-    for task in plan.tasks:
-        if task.subject != "reading":
+    factory = session_factory or get_session_factory()
+    with factory() as session:
+        tasks = list_user_tasks_by_subject(
+            session,
+            user_id=user_id,
+            subject="reading",
+        )
+    states_by_passage: dict[str, ReadingPracticeState] = {}
+    for task in tasks:
+        passage = resolve_reading_passage(task)
+        if passage is None or passage.passage_id in states_by_passage:
             continue
         state = get_reading_practice_state(
             user_id=user_id,
             task_id=task.id,
-            session_factory=session_factory,
+            session_factory=factory,
         )
         if state is not None:
-            items.append(
-                ReadingExamLibraryItem(
-                    state=state,
-                    is_submitted=state.score is not None,
-                )
+            states_by_passage[passage.passage_id] = state
+    return tuple(
+        ReadingExamLibraryItem(
+            passage=passage,
+            state=states_by_passage.get(passage.passage_id),
+            is_submitted=(
+                states_by_passage.get(passage.passage_id) is not None
+                and states_by_passage[passage.passage_id].score is not None
+            ),
+        )
+        for passage in load_reading_catalog()
+    )
+
+
+def open_reading_library_item(
+    *,
+    user_id: int,
+    passage_id: str,
+    session_factory: sessionmaker[Session] | None = None,
+) -> ReadingPracticeState:
+    """Open or create one user-owned task for a validated catalog passage."""
+
+    passage = get_reading_passage(passage_id)
+    factory = session_factory or get_session_factory()
+    with factory() as session:
+        tasks = list_user_tasks_by_subject(
+            session,
+            user_id=user_id,
+            subject="reading",
+        )
+    for task in tasks:
+        resolved = resolve_reading_passage(task)
+        if resolved is not None and resolved.passage_id == passage_id:
+            state = get_reading_practice_state(
+                user_id=user_id,
+                task_id=task.id,
+                session_factory=factory,
             )
-    return tuple(items)
+            if state is not None:
+                return state
+
+    catalog = load_reading_catalog()
+    passage_index = next(
+        index
+        for index, item in enumerate(catalog)
+        if item.passage_id == passage_id
+    )
+    active_date = date.today()
+    content = build_task_content(
+        subject="reading",
+        phase="targeted",
+        day_offset=passage_index,
+        planned_minutes=30,
+    )
+    with session_scope(factory) as session:
+        library_plan = get_library_plan(session, user_id)
+        if library_plan is None:
+            library_plan = create_library_plan(
+                session,
+                user_id=user_id,
+                active_date=active_date,
+            )
+        task = create_plan_task(
+            session,
+            user_id=user_id,
+            plan_id=library_plan.id,
+            task_date=active_date,
+            subject="reading",
+            task_type="library_practice",
+            title=content.task_title,
+            description=serialize_task_content(content),
+            planned_minutes=content.planned_minutes,
+            priority=passage_index + 1,
+        )
+        task_id = task.id
+    state = get_reading_practice_state(
+        user_id=user_id,
+        task_id=task_id,
+        session_factory=factory,
+    )
+    if state is None:
+        raise RuntimeError("reading_library_task_creation_failed")
+    return state
 
 
 def load_exam_session(

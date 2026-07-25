@@ -29,7 +29,7 @@ Updated: 2026-07-25
 - [x] Phase 1: additive schema and compatibility layer
 - [x] Phase 2: onboarding and editable profile/settings
 - [x] Phase 3: baseline-aware plans and independent skill actions
-- [ ] Phase 4: plan-independent Reading library
+- [x] Phase 4: plan-independent Reading library
 - [ ] Phase 5: original Listening mini tests and offline audio
 - [ ] Phase 6: Writing save-only fallback
 - [ ] Phase 7: Speaking microphone recovery and text fallback
@@ -44,6 +44,14 @@ Updated: 2026-07-25
 - Phase 1 focused schema/compatibility regression: 21 passed
 - Phase 2 onboarding/profile/navigation regression: 28 passed
 - Phase 3 planning/Home/Analytics/end-to-end regression: 59 passed
+- Phase 4 Reading library and plan regression: 19 passed
+- Phase 4 question bank, scoring, exam state, and exporter regression:
+  67 passed
+- All 8 versioned original Reading passages are visible without an active
+  seven-day plan
+- Starting a passage creates or reuses a user-owned internal library task;
+  internal library containers are excluded from plan history
+- Reading task lookup and saved state remain strictly scoped by `user_id`
 - Complete, partial, and empty baselines generate deterministic plans without
   creating synthetic `score_records`
 - Partial baselines appear as latest values without fabricated trends or an

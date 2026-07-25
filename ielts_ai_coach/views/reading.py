@@ -11,6 +11,7 @@ from ielts_ai_coach.services.reading_exam import (
     ReadingExamLibraryItem,
     list_reading_exam_library,
     load_exam_session,
+    open_reading_library_item,
 )
 from ielts_ai_coach.views.reading_workspace import render_reading_session
 
@@ -28,7 +29,11 @@ def _find_selected(
     """Resolve a selected item from the current user-owned library."""
 
     return next(
-        (item for item in items if item.state.task.id == task_id),
+        (
+            item
+            for item in items
+            if item.state is not None and item.state.task.id == task_id
+        ),
         None,
     )
 
@@ -36,7 +41,10 @@ def _find_selected(
 def _open_task(user: User, item: ReadingExamLibraryItem) -> None:
     """Select one user-owned task and initialize its transient session."""
 
-    state = item.state
+    state = item.state or open_reading_library_item(
+        user_id=user.id,
+        passage_id=item.passage.passage_id,
+    )
     st.session_state[selected_reading_task_key(user.id)] = state.task.id
     if not item.is_submitted:
         load_exam_session(
@@ -54,25 +62,31 @@ def _render_library(
     user: User,
     items: tuple[ReadingExamLibraryItem, ...],
 ) -> None:
-    """Render available active-plan Reading tasks."""
+    """Render the complete original Reading catalog."""
 
     st.title("阅读练习")
     st.caption("原创 IELTS 风格练习，非官方 IELTS 或 Cambridge 试题。")
-    if not items:
-        st.info("当前学习计划中没有可用的阅读练习，请先生成学习计划。")
-        return
     st.subheader("练习题库")
     for item in items:
         state = item.state
+        passage = item.passage
         with st.container(border=True):
-            status = "已提交" if item.is_submitted else "待完成"
-            st.markdown(f"### {state.passage.title}")
+            status = {
+                "submitted": "已提交",
+                "started": "进行中",
+                "not_started": "未开始",
+            }[item.status]
+            st.markdown(f"### {passage.title}")
             st.caption(
-                f"{state.task.task_date} · 约 {state.passage.word_count} 词 · "
-                f"{len(state.passage.questions)} 题 · {status}"
+                f"{passage.topic} · 约 {passage.word_count} 词 · "
+                f"{len(passage.questions)} 题 · 约 30 分钟 · {status}"
             )
-            saved = st.session_state.get(
-                f"reading_exam_{user.id}_{state.task.id}"
+            saved = (
+                st.session_state.get(
+                    f"reading_exam_{user.id}_{state.task.id}"
+                )
+                if state is not None
+                else None
             )
             label = (
                 "查看结果"
@@ -83,7 +97,7 @@ def _render_library(
             )
             if st.button(
                 label,
-                key=f"reading_library_open_{state.task.id}",
+                key=f"reading_library_open_{passage.passage_id}",
                 type="primary" if not item.is_submitted else "secondary",
                 use_container_width=True,
             ):
@@ -104,6 +118,10 @@ def render_reading_page(
     )
     if selected is None:
         _render_library(user, items)
+        return
+    if selected.state is None:
+        st.session_state.pop(selected_reading_task_key(user.id), None)
+        st.rerun()
         return
     render_reading_session(
         user,
