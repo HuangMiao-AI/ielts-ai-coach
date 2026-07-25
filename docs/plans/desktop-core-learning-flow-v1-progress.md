@@ -30,7 +30,7 @@ Updated: 2026-07-25
 - [x] Phase 2: onboarding and editable profile/settings
 - [x] Phase 3: baseline-aware plans and independent skill actions
 - [x] Phase 4: plan-independent Reading library
-- [ ] Phase 5: original Listening mini tests and offline audio
+- [x] Phase 5: original Listening mini tests and offline audio
 - [ ] Phase 6: Writing save-only fallback
 - [ ] Phase 7: Speaking microphone recovery and text fallback
 - [ ] Phase 8: desktop UI and responsive contracts
@@ -52,6 +52,16 @@ Updated: 2026-07-25
 - Starting a passage creates or reuses a user-owned internal library task;
   internal library containers are excluded from plan history
 - Reading task lookup and saved state remain strictly scoped by `user_id`
+- Phase 5 Listening bank, scoring, page, and shared-session regression:
+  10 passed
+- Listening V1 contains 2 project-original tests, 2 sections and 16 questions
+  per test, covering multiple choice, form completion, and note completion
+- Local Windows SAPI generated 2 committed PCM WAV files without network TTS:
+  131.2 seconds and 126.2 seconds
+- Listening submission enforces complete answers and shows deterministic
+  per-question explanations and script evidence only after confirmation
+- Listening answers and scores are user/test-scoped Streamlit session state;
+  no database or Analytics persistence is claimed
 - Complete, partial, and empty baselines generate deterministic plans without
   creating synthetic `score_records`
 - Partial baselines appear as latest values without fabricated trends or an

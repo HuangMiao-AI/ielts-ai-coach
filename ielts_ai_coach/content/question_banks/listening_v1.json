@@ -1,0 +1,388 @@
+{
+  "bank_id": "ielts-ai-coach-listening-original",
+  "version": "1.0",
+  "source": {
+    "source_type": "project_original",
+    "source_name": "IELTS AI Coach Original Listening Team",
+    "copyright_notice": "原创 IELTS 风格练习，非官方 IELTS 或 Cambridge 试题。",
+    "is_official_ielts_content": false
+  },
+  "tests": [
+    {
+      "test_id": "LISTEN-V1-001",
+      "title": "Community Learning and Library Services",
+      "audio_path": "static/audio/listening_v1_test_1.wav",
+      "estimated_minutes": 18,
+      "sections": [
+        {
+          "section_id": "LISTEN-V1-001-S1",
+          "title": "Section 1 · Course Registration",
+          "scenario": "A student calls a community learning centre to register for a course.",
+          "script": [
+            {"speaker": "Speaker A", "text": "Good morning, Westbridge Community Learning Centre. How can I help?", "pause_ms": 450},
+            {"speaker": "Speaker B", "text": "Hello. I would like to register for the urban sketching course.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "Certainly. May I have your full name?", "pause_ms": 300},
+            {"speaker": "Speaker B", "text": "It is Maya Chen. Chen is spelled C H E N.", "pause_ms": 500},
+            {"speaker": "Speaker A", "text": "The course begins on the fourteenth of September and runs on Tuesday evenings.", "pause_ms": 550},
+            {"speaker": "Speaker B", "text": "Tuesday is perfect. Which room is it in?", "pause_ms": 300},
+            {"speaker": "Speaker A", "text": "Room two hundred and four. The full fee is eighty-five pounds.", "pause_ms": 550},
+            {"speaker": "Speaker A", "text": "Please bring an A four sketchbook. Pencils are provided.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "Finally, who should we contact in an emergency?", "pause_ms": 300},
+            {"speaker": "Speaker B", "text": "Daniel Chen. He is my brother.", "pause_ms": 450}
+          ],
+          "questions": [
+            {
+              "question_id": "L1-Q01",
+              "question_type": "multiple_choice",
+              "question": "Which course does Maya choose?",
+              "options": ["Urban sketching", "Digital photography", "Watercolour painting"],
+              "correct_answer": "Urban sketching",
+              "explanation": "Maya directly names the urban sketching course.",
+              "evidence": "I would like to register for the urban sketching course."
+            },
+            {
+              "question_id": "L1-Q02",
+              "question_type": "form_completion",
+              "question": "Family name: ____",
+              "options": [],
+              "correct_answer": "Chen",
+              "explanation": "The caller spells her family name after giving her full name.",
+              "evidence": "It is Maya Chen. Chen is spelled C H E N."
+            },
+            {
+              "question_id": "L1-Q03",
+              "question_type": "form_completion",
+              "question": "Course start date: ____",
+              "options": [],
+              "correct_answer": "14 September",
+              "explanation": "The coordinator gives the course start date.",
+              "evidence": "The course begins on the fourteenth of September."
+            },
+            {
+              "question_id": "L1-Q04",
+              "question_type": "multiple_choice",
+              "question": "On which day is the class held?",
+              "options": ["Monday", "Tuesday", "Thursday"],
+              "correct_answer": "Tuesday",
+              "explanation": "The class runs on Tuesday evenings.",
+              "evidence": "It runs on Tuesday evenings."
+            },
+            {
+              "question_id": "L1-Q05",
+              "question_type": "form_completion",
+              "question": "Room number: ____",
+              "options": [],
+              "correct_answer": "204",
+              "explanation": "The room number is stated immediately after Maya asks.",
+              "evidence": "Room two hundred and four."
+            },
+            {
+              "question_id": "L1-Q06",
+              "question_type": "note_completion",
+              "question": "The complete course fee is ____ pounds.",
+              "options": [],
+              "correct_answer": "85",
+              "explanation": "The coordinator states the full fee.",
+              "evidence": "The full fee is eighty-five pounds."
+            },
+            {
+              "question_id": "L1-Q07",
+              "question_type": "multiple_choice",
+              "question": "What must Maya bring?",
+              "options": ["A4 sketchbook", "Paint brushes", "Coloured pencils"],
+              "correct_answer": "A4 sketchbook",
+              "explanation": "Pencils are supplied, but students must bring a sketchbook.",
+              "evidence": "Please bring an A four sketchbook. Pencils are provided."
+            },
+            {
+              "question_id": "L1-Q08",
+              "question_type": "note_completion",
+              "question": "Emergency contact: ____",
+              "options": [],
+              "correct_answer": "Daniel Chen",
+              "explanation": "Maya names her brother as the emergency contact.",
+              "evidence": "Daniel Chen. He is my brother."
+            }
+          ]
+        },
+        {
+          "section_id": "LISTEN-V1-001-S2",
+          "title": "Section 2 · Library Orientation",
+          "scenario": "A librarian explains facilities and rules to a new student.",
+          "script": [
+            {"speaker": "Speaker A", "text": "Welcome to Northbank Library. The help desk is on the first floor, opposite the main stairs.", "pause_ms": 500},
+            {"speaker": "Speaker B", "text": "Is there somewhere completely quiet for individual study?", "pause_ms": 300},
+            {"speaker": "Speaker A", "text": "Yes. Quiet room three B is beside the history collection.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "Group rooms must be booked forty-eight hours in advance.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "Ordinary books can be borrowed for fourteen days and renewed twice online.", "pause_ms": 550},
+            {"speaker": "Speaker B", "text": "Where can I print my assignments?", "pause_ms": 300},
+            {"speaker": "Speaker A", "text": "The printers are beside the east staircase.", "pause_ms": 400},
+            {"speaker": "Speaker A", "text": "A research skills workshop begins at four p m this Friday.", "pause_ms": 500},
+            {"speaker": "Speaker A", "text": "If the fire alarm sounds, leave by the nearest exit and meet at the garden gate.", "pause_ms": 600}
+          ],
+          "questions": [
+            {
+              "question_id": "L1-Q09",
+              "question_type": "multiple_choice",
+              "question": "Where is the help desk?",
+              "options": ["Ground floor", "First floor", "Second floor"],
+              "correct_answer": "First floor",
+              "explanation": "The librarian locates the desk on the first floor.",
+              "evidence": "The help desk is on the first floor."
+            },
+            {
+              "question_id": "L1-Q10",
+              "question_type": "form_completion",
+              "question": "Individual study room: ____",
+              "options": [],
+              "correct_answer": "3B",
+              "explanation": "The designated quiet room is identified by number and letter.",
+              "evidence": "Quiet room three B is beside the history collection."
+            },
+            {
+              "question_id": "L1-Q11",
+              "question_type": "note_completion",
+              "question": "Book group rooms ____ hours before use.",
+              "options": [],
+              "correct_answer": "48",
+              "explanation": "The booking period is forty-eight hours.",
+              "evidence": "Group rooms must be booked forty-eight hours in advance."
+            },
+            {
+              "question_id": "L1-Q12",
+              "question_type": "multiple_choice",
+              "question": "How long is the ordinary book loan?",
+              "options": ["7 days", "14 days", "21 days"],
+              "correct_answer": "14 days",
+              "explanation": "Ordinary books have a fourteen-day loan period.",
+              "evidence": "Ordinary books can be borrowed for fourteen days."
+            },
+            {
+              "question_id": "L1-Q13",
+              "question_type": "form_completion",
+              "question": "Maximum online renewals: ____",
+              "options": [],
+              "correct_answer": "2",
+              "explanation": "A loan may be renewed twice online.",
+              "evidence": "Renewed twice online."
+            },
+            {
+              "question_id": "L1-Q14",
+              "question_type": "note_completion",
+              "question": "Printers are beside the ____ staircase.",
+              "options": [],
+              "correct_answer": "east",
+              "explanation": "The directional detail distinguishes the printer location.",
+              "evidence": "The printers are beside the east staircase."
+            },
+            {
+              "question_id": "L1-Q15",
+              "question_type": "multiple_choice",
+              "question": "When does the workshop begin?",
+              "options": ["3 pm Thursday", "4 pm Friday", "5 pm Friday"],
+              "correct_answer": "4 pm Friday",
+              "explanation": "The librarian gives both the hour and weekday.",
+              "evidence": "A research skills workshop begins at four p m this Friday."
+            },
+            {
+              "question_id": "L1-Q16",
+              "question_type": "note_completion",
+              "question": "Fire assembly point: the ____",
+              "options": [],
+              "correct_answer": "garden gate",
+              "explanation": "Everyone must meet at the garden gate after evacuation.",
+              "evidence": "Meet at the garden gate."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "test_id": "LISTEN-V1-002",
+      "title": "Field Research and Urban Ecology",
+      "audio_path": "static/audio/listening_v1_test_2.wav",
+      "estimated_minutes": 18,
+      "sections": [
+        {
+          "section_id": "LISTEN-V1-002-S1",
+          "title": "Section 1 · Field Trip Briefing",
+          "scenario": "A tutor briefs a student about a coastal field trip.",
+          "script": [
+            {"speaker": "Speaker A", "text": "For Saturday's field trip, meet at the main entrance of Riverside Station at seven forty-five.", "pause_ms": 550},
+            {"speaker": "Speaker B", "text": "What time does the train leave?", "pause_ms": 250},
+            {"speaker": "Speaker A", "text": "At eight ten from platform six, so please do not be late.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "The coast may be windy. Bring a waterproof jacket rather than an umbrella.", "pause_ms": 500},
+            {"speaker": "Speaker A", "text": "You also need a packed lunch and a notebook. We will provide the measuring equipment.", "pause_ms": 550},
+            {"speaker": "Speaker B", "text": "Who is leading our group?", "pause_ms": 250},
+            {"speaker": "Speaker A", "text": "Doctor Priya Shah. She will meet you on the platform.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "We expect to return to Riverside Station at six thirty in the evening.", "pause_ms": 550}
+          ],
+          "questions": [
+            {
+              "question_id": "L2-Q01",
+              "question_type": "form_completion",
+              "question": "Meeting place: main entrance of ____ Station",
+              "options": [],
+              "correct_answer": "Riverside",
+              "explanation": "The station name is included in the meeting instruction.",
+              "evidence": "Meet at the main entrance of Riverside Station."
+            },
+            {
+              "question_id": "L2-Q02",
+              "question_type": "note_completion",
+              "question": "Meeting time: ____",
+              "options": [],
+              "correct_answer": "7:45",
+              "explanation": "Students meet before the train departure time.",
+              "evidence": "At seven forty-five."
+            },
+            {
+              "question_id": "L2-Q03",
+              "question_type": "multiple_choice",
+              "question": "When does the train leave?",
+              "options": ["7:45", "8:10", "8:30"],
+              "correct_answer": "8:10",
+              "explanation": "The tutor distinguishes departure from meeting time.",
+              "evidence": "At eight ten from platform six."
+            },
+            {
+              "question_id": "L2-Q04",
+              "question_type": "form_completion",
+              "question": "Departure platform: ____",
+              "options": [],
+              "correct_answer": "6",
+              "explanation": "The train leaves from platform six.",
+              "evidence": "From platform six."
+            },
+            {
+              "question_id": "L2-Q05",
+              "question_type": "multiple_choice",
+              "question": "What should students wear or bring for the weather?",
+              "options": ["Warm hat", "Waterproof jacket", "Large umbrella"],
+              "correct_answer": "Waterproof jacket",
+              "explanation": "The tutor recommends a jacket and rejects an umbrella.",
+              "evidence": "Bring a waterproof jacket rather than an umbrella."
+            },
+            {
+              "question_id": "L2-Q06",
+              "question_type": "note_completion",
+              "question": "Students must supply lunch and a ____.",
+              "options": [],
+              "correct_answer": "notebook",
+              "explanation": "Equipment is provided, but a notebook is not.",
+              "evidence": "You also need a packed lunch and a notebook."
+            },
+            {
+              "question_id": "L2-Q07",
+              "question_type": "form_completion",
+              "question": "Group leader: Dr ____",
+              "options": [],
+              "correct_answer": "Priya Shah",
+              "explanation": "The tutor names the group leader.",
+              "evidence": "Doctor Priya Shah."
+            },
+            {
+              "question_id": "L2-Q08",
+              "question_type": "multiple_choice",
+              "question": "What is the expected return time?",
+              "options": ["5:30 pm", "6:00 pm", "6:30 pm"],
+              "correct_answer": "6:30 pm",
+              "explanation": "The group expects to return at half past six.",
+              "evidence": "At six thirty in the evening."
+            }
+          ]
+        },
+        {
+          "section_id": "LISTEN-V1-002-S2",
+          "title": "Section 2 · Rooftop Garden Research",
+          "scenario": "A researcher presents findings about rooftop gardens and urban heat.",
+          "script": [
+            {"speaker": "Narrator", "text": "Today's seminar examines how rooftop gardens affect urban heat.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "Our team monitored twelve office buildings during the summer.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "Temperature sensors recorded a reading every ten minutes.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "North-facing green roofs were on average two point four degrees cooler than bare roofs.", "pause_ms": 550},
+            {"speaker": "Speaker B", "text": "Did the depth of the soil make a difference?", "pause_ms": 250},
+            {"speaker": "Speaker A", "text": "Yes. A minimum soil depth of twenty centimetres retained moisture most reliably.", "pause_ms": 500},
+            {"speaker": "Speaker A", "text": "We were surprised to record many wild bees, even on buildings near busy roads.", "pause_ms": 500},
+            {"speaker": "Speaker A", "text": "The main limitation was the short six-week study period.", "pause_ms": 450},
+            {"speaker": "Speaker A", "text": "The next phase will collect winter data to compare seasonal performance.", "pause_ms": 550}
+          ],
+          "questions": [
+            {
+              "question_id": "L2-Q09",
+              "question_type": "multiple_choice",
+              "question": "What is the main research topic?",
+              "options": ["Urban air pollution", "Rooftop gardens and heat", "Office energy bills"],
+              "correct_answer": "Rooftop gardens and heat",
+              "explanation": "The opening sentence states the focus.",
+              "evidence": "How rooftop gardens affect urban heat."
+            },
+            {
+              "question_id": "L2-Q10",
+              "question_type": "form_completion",
+              "question": "Number of monitored buildings: ____",
+              "options": [],
+              "correct_answer": "12",
+              "explanation": "The sample consisted of twelve office buildings.",
+              "evidence": "Our team monitored twelve office buildings."
+            },
+            {
+              "question_id": "L2-Q11",
+              "question_type": "note_completion",
+              "question": "Sensors recorded data every ____ minutes.",
+              "options": [],
+              "correct_answer": "10",
+              "explanation": "The recording interval was ten minutes.",
+              "evidence": "Recorded a reading every ten minutes."
+            },
+            {
+              "question_id": "L2-Q12",
+              "question_type": "multiple_choice",
+              "question": "Which roofs showed the reported cooling result?",
+              "options": ["North-facing roofs", "South-facing roofs", "All glass roofs"],
+              "correct_answer": "North-facing roofs",
+              "explanation": "The finding is specifically about north-facing green roofs.",
+              "evidence": "North-facing green roofs were on average two point four degrees cooler."
+            },
+            {
+              "question_id": "L2-Q13",
+              "question_type": "form_completion",
+              "question": "Average cooling difference: ____ degrees",
+              "options": [],
+              "correct_answer": "2.4",
+              "explanation": "The measured difference was two point four degrees.",
+              "evidence": "Two point four degrees cooler than bare roofs."
+            },
+            {
+              "question_id": "L2-Q14",
+              "question_type": "note_completion",
+              "question": "Recommended minimum soil depth: ____ cm",
+              "options": [],
+              "correct_answer": "20",
+              "explanation": "Twenty centimetres retained moisture most reliably.",
+              "evidence": "A minimum soil depth of twenty centimetres."
+            },
+            {
+              "question_id": "L2-Q15",
+              "question_type": "multiple_choice",
+              "question": "Which observation surprised the researchers?",
+              "options": ["Wild bees", "Heavy traffic", "Low rainfall"],
+              "correct_answer": "Wild bees",
+              "explanation": "The team explicitly describes the bee records as surprising.",
+              "evidence": "We were surprised to record many wild bees."
+            },
+            {
+              "question_id": "L2-Q16",
+              "question_type": "note_completion",
+              "question": "The next phase will collect ____ data.",
+              "options": [],
+              "correct_answer": "winter",
+              "explanation": "Winter observations will support seasonal comparison.",
+              "evidence": "The next phase will collect winter data."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
