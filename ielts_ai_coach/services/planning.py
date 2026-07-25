@@ -7,10 +7,6 @@ from datetime import date, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from ielts_ai_coach.database.account_repository import (
-    get_latest_score,
-    get_profile,
-)
 from ielts_ai_coach.database.connection import get_session_factory, session_scope
 from ielts_ai_coach.database.models import PlanTask, StudyPlan
 from ielts_ai_coach.database.plan_repository import (
@@ -26,6 +22,7 @@ from ielts_ai_coach.services.planning_rules import (
     PlanGenerationError,
     build_plan_blueprint,
 )
+from ielts_ai_coach.services.learner_profiles import get_learner_profile
 
 
 @dataclass(frozen=True)
@@ -46,14 +43,10 @@ def generate_plan(
 
     active_date = today or date.today()
     factory = session_factory or get_session_factory()
+    profile = get_learner_profile(user_id, session_factory=factory)
+    if profile is None or not profile.onboarding_completed:
+        raise PlanGenerationError("profile_required")
     with session_scope(factory) as session:
-        profile = get_profile(session, user_id)
-        score = get_latest_score(session, user_id)
-        if profile is None:
-            raise PlanGenerationError("profile_required")
-        if score is None:
-            raise PlanGenerationError("score_required")
-
         completion_rate = recent_completion_rate(
             session,
             user_id=user_id,
@@ -62,12 +55,12 @@ def generate_plan(
         )
         blueprint = build_plan_blueprint(
             scores={
-                "listening": score.listening,
-                "reading": score.reading,
-                "writing": score.writing,
-                "speaking": score.speaking,
+                "listening": profile.current_listening_band,
+                "reading": profile.current_reading_band,
+                "writing": profile.current_writing_band,
+                "speaking": profile.current_speaking_band,
             },
-            target_overall=profile.target_overall,
+            target_overall=profile.target_overall_band,
             exam_date=profile.exam_date,
             daily_minutes=profile.daily_study_minutes,
             completion_rate=completion_rate,

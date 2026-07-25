@@ -5,7 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from ielts_ai_coach.services.scoring import SUBJECTS, analyze_scores
+from ielts_ai_coach.services.scoring import (
+    SUBJECTS,
+    analyze_scores,
+    is_valid_score,
+)
 from ielts_ai_coach.services.task_content import serialize_task_content
 from ielts_ai_coach.services.task_templates import build_task_content
 
@@ -53,10 +57,15 @@ class PlanBlueprint:
     tasks: tuple[TaskBlueprint, ...]
 
 
-def determine_exam_phase(exam_date: date, today: date | None = None) -> str:
+def determine_exam_phase(
+    exam_date: date | None,
+    today: date | None = None,
+) -> str:
     """Return the approved phase from days remaining until the exam."""
 
     active_date = today or date.today()
+    if exam_date is None:
+        return "foundation"
     days_remaining = (exam_date - active_date).days
     if days_remaining < 0:
         raise PlanGenerationError("exam_in_past")
@@ -80,7 +89,7 @@ def _task_count(daily_minutes: int, completion_rate: float) -> int:
 
 
 def _subject_weights(
-    scores: dict[str, float],
+    scores: dict[str, float | None],
     target_overall: float,
     weakest_subjects: tuple[str, ...],
 ) -> dict[str, float]:
@@ -89,11 +98,49 @@ def _subject_weights(
     return {
         subject: (
             1.0
-            + max(0.0, target_overall - scores[subject])
+            + (
+                max(0.0, target_overall - float(scores[subject]))
+                if scores[subject] is not None
+                else 0.0
+            )
             + (2.0 if subject in weakest_subjects else 0.0)
         )
         for subject in SUBJECTS
     }
+
+
+def _weakest_measured_subjects(
+    scores: dict[str, float | None],
+    target_overall: float,
+) -> tuple[str, ...]:
+    """Return weaknesses only from supplied bands, never missing skills."""
+
+    if set(scores) != set(SUBJECTS):
+        raise PlanGenerationError("invalid_scores")
+    supplied = {
+        subject: float(value)
+        for subject, value in scores.items()
+        if value is not None
+    }
+    if any(not is_valid_score(value) for value in supplied.values()):
+        raise PlanGenerationError("invalid_scores")
+    if len(supplied) == len(SUBJECTS):
+        return analyze_scores(
+            {subject: supplied[subject] for subject in SUBJECTS},
+            target_overall,
+        ).lowest_subjects
+    gaps = {
+        subject: max(0.0, target_overall - value)
+        for subject, value in supplied.items()
+    }
+    largest_gap = max(gaps.values(), default=0.0)
+    if largest_gap <= 0:
+        return ()
+    return tuple(
+        subject
+        for subject in SUBJECTS
+        if gaps.get(subject) == largest_gap
+    )
 
 
 def _select_subjects(
@@ -148,9 +195,9 @@ def _allocate_minutes(
 
 def build_plan_blueprint(
     *,
-    scores: dict[str, float],
+    scores: dict[str, float | None],
     target_overall: float,
-    exam_date: date,
+    exam_date: date | None,
     daily_minutes: int,
     completion_rate: float = 1.0,
     start_date: date | None = None,
@@ -161,15 +208,15 @@ def build_plan_blueprint(
         raise PlanGenerationError("invalid_minutes")
     first_date = start_date or date.today()
     phase = determine_exam_phase(exam_date, first_date)
-    diagnosis = analyze_scores(scores, target_overall)
-    weights = _subject_weights(scores, target_overall, diagnosis.lowest_subjects)
+    weakest_subjects = _weakest_measured_subjects(scores, target_overall)
+    weights = _subject_weights(scores, target_overall, weakest_subjects)
     count = _task_count(daily_minutes, completion_rate)
     tasks: list[TaskBlueprint] = []
 
     for day_offset in range(7):
         task_date = first_date + timedelta(days=day_offset)
         subjects = _select_subjects(
-            weights, diagnosis.lowest_subjects, count, day_offset
+            weights, weakest_subjects, count, day_offset
         )
         minutes = _allocate_minutes(daily_minutes, subjects, weights)
         for priority, (subject, task_minutes) in enumerate(

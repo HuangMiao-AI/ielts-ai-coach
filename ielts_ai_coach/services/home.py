@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from ielts_ai_coach.database.connection import get_session_factory
 from ielts_ai_coach.database.models import Essay, PlanTask
+from ielts_ai_coach.services.learner_profiles import get_learner_profile
 from ielts_ai_coach.services.planning import get_active_plan_data
-from ielts_ai_coach.services.profiles import get_profile
 from ielts_ai_coach.services.reading_practice import (
     ReadingHistoryItem,
     list_reading_history,
@@ -60,7 +60,6 @@ def calculate_streak(
 def _recommend_route(
     *,
     has_profile: bool,
-    has_score: bool,
     has_plan: bool,
     weak_subjects: tuple[str, ...],
     today_tasks: tuple[PlanTask, ...],
@@ -69,8 +68,6 @@ def _recommend_route(
 
     if not has_profile:
         return "profile"
-    if not has_score:
-        return "scores"
     if not has_plan:
         return "plan"
     pending_subjects = {
@@ -97,7 +94,7 @@ def build_home_snapshot(
 
     active_date = today or date.today()
     factory = session_factory or get_session_factory()
-    profile = get_profile(user_id, session_factory=factory)
+    profile = get_learner_profile(user_id, session_factory=factory)
     score = get_latest_score(user_id, session_factory=factory)
     plan = get_active_plan_data(user_id, session_factory=factory)
     logs = get_study_logs(
@@ -130,7 +127,7 @@ def build_home_snapshot(
                 "writing": score.writing,
                 "speaking": score.speaking,
             },
-            profile.target_overall,
+            profile.target_overall_band,
         )
         weak_subjects = diagnosis.lowest_subjects
     activity = tuple(
@@ -153,7 +150,6 @@ def build_home_snapshot(
         recent_activity=activity,
         recommended_route=_recommend_route(
             has_profile=profile is not None,
-            has_score=score is not None,
             has_plan=plan is not None,
             weak_subjects=weak_subjects,
             today_tasks=today_tasks,

@@ -66,15 +66,16 @@ def test_complete_student_flow_runs_in_mock_mode(
 
     _text_input(app, "姓名或昵称").input("")
     _selectbox(app, "当前年级或阶段").select("高二")
-    app.select_slider[0].set_value(7.0)
-    app.date_input[0].set_value(date.today() + timedelta(days=60))
-    app.slider[0].set_value(90)
-    _button(app, "保存档案").click().run(timeout=10)
+    _button(app, "下一步").click().run(timeout=10)
     assert any("昵称长度" in item.value for item in app.error)
 
     _text_input(app, "姓名或昵称").input("小流")
-    _button(app, "保存档案").click().run(timeout=10)
-    assert any(item.value == "档案保存成功" for item in app.success)
+    _button(app, "下一步").click().run(timeout=10)
+    _button(app, "下一步").click().run(timeout=10)
+    app.slider[0].set_value(90)
+    _button(app, "下一步").click().run(timeout=10)
+    _button(app, "保存并进入首页").click().run(timeout=10)
+    assert any("资料已保存" in item.value for item in app.success)
 
     _open_page(app, "scores")
     _selectbox(app, "听力").select(6.5)

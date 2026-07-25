@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Mapping
 
 import streamlit as st
 
 from ielts_ai_coach.ai.factory import get_ai_provider
-from ielts_ai_coach.database.models import StudentProfile, User
+from ielts_ai_coach.database.models import User
 from ielts_ai_coach.services.coaching import get_coach_remaining
 from ielts_ai_coach.services.home import HomeSnapshot, build_home_snapshot
-from ielts_ai_coach.services.profiles import days_until_exam, get_profile
+from ielts_ai_coach.services.learner_profiles import (
+    LearnerProfileSnapshot,
+    get_learner_profile,
+)
 from ielts_ai_coach.services.scoring import SUBJECT_LABELS, analyze_scores
 from ielts_ai_coach.services.scores import get_latest_score, list_score_history
 from ielts_ai_coach.services.task_content import get_task_content
@@ -131,7 +135,7 @@ def _render_today_progress(user: User) -> list:
     _section("今日学习进度")
     if not tasks:
         st.metric("今日完成", "待生成计划")
-        st.info("生成七天计划后，这里会显示今天的学习进度。")
+        st.info("目前没有学习计划。你可以生成计划，也可以直接开始四科练习。")
         return tasks
     st.metric("今日完成", f"{completed}/{len(tasks)} 项")
     st.progress(
@@ -141,13 +145,21 @@ def _render_today_progress(user: User) -> list:
     return tasks
 
 
-def _render_target(profile: StudentProfile) -> None:
+def _render_target(profile: LearnerProfileSnapshot) -> None:
     """Render the target band and exam countdown."""
 
     _section("当前目标")
     target_column, countdown_column = st.columns(2)
-    target_column.metric("目标IELTS分数", f"{profile.target_overall:.1f}")
-    countdown_column.metric("距离考试", f"{days_until_exam(profile)} 天")
+    target_column.metric(
+        "目标IELTS分数",
+        f"{profile.target_overall_band:.1f}",
+    )
+    countdown = (
+        f"{max(0, (profile.exam_date - date.today()).days)} 天"
+        if profile.exam_date is not None
+        else "暂未确定"
+    )
+    countdown_column.metric("距离考试", countdown)
 
 
 def _render_today_tasks(tasks: list) -> None:
@@ -170,7 +182,10 @@ def _render_today_tasks(tasks: list) -> None:
             st.caption(f"完成标准：{content.completion_criteria}")
 
 
-def _render_latest_score(user: User, profile: StudentProfile) -> None:
+def _render_latest_score(
+    user: User,
+    profile: LearnerProfileSnapshot,
+) -> None:
     """Render latest section scores, weakness, and recent trend."""
 
     latest_score = get_latest_score(user.id)
@@ -188,7 +203,7 @@ def _render_latest_score(user: User, profile: StudentProfile) -> None:
     columns = st.columns(4)
     for column, subject in zip(columns, scores):
         column.metric(SUBJECT_LABELS[subject], f"{scores[subject]:.1f}")
-    diagnosis = analyze_scores(scores, profile.target_overall)
+    diagnosis = analyze_scores(scores, profile.target_overall_band)
     weak_labels = "、".join(
         SUBJECT_LABELS[subject] for subject in diagnosis.lowest_subjects
     )
@@ -232,9 +247,9 @@ def render_dashboard(
 ) -> None:
     """Render the mobile-first user-owned study overview."""
 
-    profile = get_profile(user.id)
+    profile = get_learner_profile(user.id)
     snapshot = build_home_snapshot(user.id)
-    display_name = profile.nickname if profile else user.username
+    display_name = profile.display_name if profile else user.username
     st.title(f"你好，{display_name}")
     st.caption("今天也向目标前进一步。")
     if st.session_state.pop(f"onboarding_{user.id}_saved", False):

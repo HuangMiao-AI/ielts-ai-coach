@@ -8,10 +8,7 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from ielts_ai_coach.database.account_repository import (
-    get_profile,
-    list_score_records,
-)
+from ielts_ai_coach.database.account_repository import list_score_records
 from ielts_ai_coach.database.connection import get_session_factory
 from ielts_ai_coach.database.exercise_repository import (
     list_task_question_attempts,
@@ -21,6 +18,8 @@ from ielts_ai_coach.database.writing_repository import (
     list_user_writing_feedback,
 )
 from ielts_ai_coach.services.reading_scoring import deserialize_reading_score
+from ielts_ai_coach.services.learner_profiles import get_learner_profile
+from ielts_ai_coach.services.scoring import calculate_overall
 
 
 DETAIL_UNAVAILABLE = "No detailed practice analytics available"
@@ -137,13 +136,13 @@ def _trend(
     )
 
 
-def _skill_status(skill: str, has_scores: bool) -> str:
+def _skill_status(skill: str, has_band: bool) -> str:
     """Return the exact availability boundary for Listening and Speaking."""
 
     if skill == "listening":
-        return DETAIL_UNAVAILABLE if has_scores else LISTENING_NO_DATA
+        return DETAIL_UNAVAILABLE if has_band else LISTENING_NO_DATA
     if skill == "speaking":
-        return DETAIL_UNAVAILABLE if has_scores else SPEAKING_NO_DATA
+        return DETAIL_UNAVAILABLE if has_band else SPEAKING_NO_DATA
     return ""
 
 
@@ -234,8 +233,8 @@ def build_analytics_result(
 
     active_today = today or date.today()
     factory = session_factory or get_session_factory()
+    profile = get_learner_profile(user_id, session_factory=factory)
     with factory() as session:
-        profile = get_profile(session, user_id)
         score_records = list_score_records(session, user_id=user_id)
         attempts = list_task_question_attempts(session, user_id=user_id)
         feedback_records = list_user_writing_feedback(session, user_id=user_id)
@@ -247,18 +246,52 @@ def build_analytics_result(
         )
 
     latest_score = score_records[0] if score_records else None
-    target_band = float(profile.target_overall) if profile is not None else None
-    current_band = float(latest_score.overall) if latest_score is not None else None
+    target_band = (
+        float(profile.target_overall_band) if profile is not None else None
+    )
+    baseline_scores = (
+        {
+            skill: profile.current_band(skill)
+            for skill in ("listening", "reading", "writing", "speaking")
+        }
+        if profile is not None
+        else {
+            skill: None
+            for skill in ("listening", "reading", "writing", "speaking")
+        }
+    )
+    complete_baseline = all(
+        value is not None for value in baseline_scores.values()
+    )
+    current_band = (
+        float(latest_score.overall)
+        if latest_score is not None
+        else calculate_overall(
+            {
+                skill: float(value)
+                for skill, value in baseline_scores.items()
+                if value is not None
+            }
+        )
+        if complete_baseline
+        else None
+    )
     skills = tuple(
         SkillScoreAnalytics(
             skill=skill,
             latest_band=(
                 float(getattr(latest_score, skill))
                 if latest_score is not None
-                else None
+                else baseline_scores[skill]
             ),
             trend=_trend(score_records, skill, "recorded_at"),
-            detail_status=_skill_status(skill, bool(score_records)),
+            detail_status=_skill_status(
+                skill,
+                (
+                    latest_score is not None
+                    or baseline_scores[skill] is not None
+                ),
+            ),
         )
         for skill in ("listening", "reading", "writing", "speaking")
     )

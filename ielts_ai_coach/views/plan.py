@@ -22,7 +22,6 @@ from ielts_ai_coach.views.task_cards import render_plan_task_summary
 
 PLAN_ERRORS = {
     "profile_required": "请先完善学生档案。",
-    "score_required": "请先录入至少一次IELTS四科成绩。",
     "exam_in_past": "考试日期已经过去，请先更新学生档案。",
     "invalid_minutes": "每日学习时间无效，请更新学生档案。",
 }
@@ -85,7 +84,9 @@ def render_plan_page(user: User) -> None:
             st.rerun()
 
     if plan_data is None:
-        st.info("完成档案和成绩录入后，即可生成第一份七天计划。")
+        st.info(
+            "完成学习档案后即可生成计划；没有成绩时会使用平衡探索方案。"
+        )
         return
 
     phase_label = PHASE_LABELS.get(plan_data.plan.phase, plan_data.plan.phase)

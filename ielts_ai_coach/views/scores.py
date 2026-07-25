@@ -5,7 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from ielts_ai_coach.database.models import ScoreRecord, User
-from ielts_ai_coach.services.profiles import get_profile
+from ielts_ai_coach.services.learner_profiles import get_learner_profile
 from ielts_ai_coach.services.scoring import (
     SUBJECT_LABELS,
     SUBJECTS,
@@ -17,6 +17,7 @@ from ielts_ai_coach.services.scores import list_score_history, save_score_record
 
 
 BAND_OPTIONS = [value / 2 for value in range(0, 19)]
+EMPTY_BAND = "未填写"
 
 
 def _record_scores(record: ScoreRecord) -> dict[str, float]:
@@ -27,6 +28,17 @@ def _record_scores(record: ScoreRecord) -> dict[str, float]:
         "reading": record.reading,
         "writing": record.writing,
         "speaking": record.speaking,
+    }
+
+
+def _profile_scores(profile) -> dict[str, float | None]:
+    """Return independently optional baseline values from a learner profile."""
+
+    return {
+        "listening": profile.current_listening_band,
+        "reading": profile.current_reading_band,
+        "writing": profile.current_writing_band,
+        "speaking": profile.current_speaking_band,
     }
 
 
@@ -108,26 +120,35 @@ def _render_score_history(history: list[ScoreRecord]) -> None:
 def render_scores_page(user: User) -> None:
     """Render score input, latest diagnosis, and user-owned history."""
 
-    profile = get_profile(user.id)
+    profile = get_learner_profile(user.id)
     history = list_score_history(user.id)
     latest = history[0] if history else None
 
     st.title("成绩诊断")
     st.caption("总分和弱项由确定性规则计算，不使用AI。")
-    if profile is None:
+    if profile is None or not profile.onboarding_completed:
         st.warning("请先在“我的档案”中设置目标分和考试日期。")
         return
 
-    defaults = _record_scores(latest) if latest else dict.fromkeys(SUBJECTS, 6.0)
+    defaults = _record_scores(latest) if latest else _profile_scores(profile)
     with st.form("score_record_form"):
         columns = st.columns(4)
-        scores: dict[str, float] = {}
+        selected_scores: dict[str, str | float] = {}
+        score_options: tuple[str | float, ...] = (
+            EMPTY_BAND,
+            *BAND_OPTIONS,
+        )
         for column, subject in zip(columns, SUBJECTS):
             with column:
-                scores[subject] = st.selectbox(
+                default = defaults[subject]
+                selected_scores[subject] = st.selectbox(
                     SUBJECT_LABELS[subject],
-                    BAND_OPTIONS,
-                    index=BAND_OPTIONS.index(float(defaults[subject])),
+                    score_options,
+                    index=(
+                        score_options.index(float(default))
+                        if default is not None
+                        else 0
+                    ),
                     key=f"score_{subject}",
                 )
         note = st.text_input(
@@ -142,6 +163,16 @@ def render_scores_page(user: User) -> None:
         )
 
     if submitted:
+        if any(
+            value == EMPTY_BAND for value in selected_scores.values()
+        ):
+            st.error("请完整填写四科成绩；缺失项不会使用默认值补齐。")
+            _render_score_history(history)
+            return
+        scores = {
+            subject: float(selected_scores[subject])
+            for subject in SUBJECTS
+        }
         try:
             latest = save_score_record(
                 user_id=user.id,
@@ -157,7 +188,7 @@ def render_scores_page(user: User) -> None:
     if latest is not None:
         diagnosis = analyze_scores(
             _record_scores(latest),
-            target_overall=profile.target_overall,
+            target_overall=profile.target_overall_band,
         )
         _render_diagnosis(diagnosis)
 
