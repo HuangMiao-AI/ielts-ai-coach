@@ -15,6 +15,9 @@ from ielts_ai_coach.database.ai_models import (
 from ielts_ai_coach.database.exercise_models import (
     TaskQuestionAttempt as TaskQuestionAttempt,
 )
+from ielts_ai_coach.database.learner_profile_models import (
+    LearnerProfileV2 as LearnerProfileV2,
+)
 from ielts_ai_coach.database.plan_models import (
     PlanTask as PlanTask,
     StudyLog as StudyLog,
@@ -26,6 +29,7 @@ __all__ = [
     "Base",
     "CoachMessage",
     "Essay",
+    "LearnerProfileV2",
     "PlanTask",
     "ScoreRecord",
     "StudentProfile",
