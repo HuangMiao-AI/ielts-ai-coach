@@ -1,222 +1,95 @@
-# IELTS AI Coach 项目交接说明
+# IELTS AI Coach Handover
 
-最后核对日期：2026-07-24
+Updated: 2026-07-25
 
-## 1. 当前结论
+## Active branch
 
-IELTS AI Coach 是一个使用 Streamlit、SQLAlchemy 和 SQLite 构建的本地
-模块化应用。当前 V2.1 Phase 1 已完成第一个可用的 Academic 阅读练习闭环：
+`fix/desktop-core-learning-flow-v1` is based on
+`feature/ai-learning-analytics-v1`. It remains local: do not merge to `main`
+or push without separate approval.
 
-```text
-今日任务
-→ 开始或继续练习
-→ 完成原创阅读题
-→ 提交答案
-→ 确定性评分
-→ 查看逐题解析与原文证据
-→ 保存历史
-→ 同步任务状态和学习日志
-```
+## Completed desktop core learning flow
 
-当前自动化测试基线为 204 项。测试使用临时 SQLite 数据库和本地 Mock/Fake
-Provider，不调用真实 Qwen API，也不读写默认运行数据库。
+- New users complete a persistent four-step onboarding flow and may leave the
+  exam date and all current bands empty.
+- Profile and Settings use the same user-scoped learner-profile editor.
+- Plans handle complete, partial, and empty baselines without writing synthetic
+  score records.
+- Reading is available as an independent original-content library, even before
+  a plan exists. Submission creates a user-owned internal library task only
+  when necessary.
+- Listening offers two original, offline mini tests with two sections and
+  deterministic post-submit review. It is session-only by design.
+- Writing offers four original prompts. In no-key/Mock mode it saves an essay
+  with `status="saved"` and does not create feedback, consume AI quota, or
+  display an estimated band.
+- Speaking provides microphone guidance and a text fallback. Audio/text is
+  session-only and no automatic score, recognition, or pronunciation claim is
+  made.
+- Home has one four-skill entry group with no-plan guidance that does not block
+  practice. Responsive contracts cover phone through wide desktop widths.
 
-## 2. 已完成功能
+## Learner profile V2 data contract
 
-### 账号与数据隔离
+Only one table was added: `learner_profiles_v2`.
 
-- 用户名和密码注册、登录、退出。
-- 密码只保存 Argon2id 哈希。
-- 用户名按规范化值进行大小写不敏感的唯一性判断。
-- Streamlit Session 只保存必要的登录状态。
-- 业务查询和修改都使用认证 Session 中的 `user_id`，不信任页面输入的用户 ID。
+- `user_id` is unique and foreign-keyed to `users`.
+- Other fields are `display_name`, `current_grade`, nullable `exam_date`,
+  `daily_study_minutes`, `target_overall_band`, nullable current Reading,
+  Listening, Writing, and Speaking bands, `onboarding_completed`,
+  `created_at`, and `updated_at`.
+- Present bands are constrained to 0–9 in 0.5 increments. All four may be
+  null, partially supplied, or fully supplied.
+- `NULL` / `None` is the only missing-band representation. A real `0` is
+  never treated as missing.
+- The compatibility service reads V2 first, then the legacy
+  `student_profiles` row only if V2 is absent. It never turns targets or
+  placeholder values into achieved scores.
+- No startup backfill exists. Saving an old user's profile is the only path
+  that creates that user's V2 row.
+- `score_records` remains for complete real scores only.
 
-### 学习档案、成绩和计划
+No old table or field was altered, dropped, renamed, rebuilt, or bulk-updated.
 
-- 学生档案、目标分、考试日期和每日学习时长。
-- IELTS 四科成绩历史和确定性 Overall 计算。
-- 并列弱项识别和规则化中文建议。
-- 确定性七天计划、任务内容、完成状态和实际学习日志。
-- 计划重新生成时归档旧版本，不覆盖历史。
+## Database application record
 
-### AI Learning Analytics V1
+The application database is `data/ielts_ai_coach.db`. Before the additive
+operation, its DB, WAL, and SHM files were copied into the ignored runtime
+backup directory. A copied database rehearsal added exactly one empty table
+and preserved every old table's schema, row count, and canonical content hash.
 
-- 分析结果只在请求时生成，不新增表、字段、迁移或持久化快照。
-- 使用认证 Session 中的 `user_id` 读取当前用户的成绩、阅读提交、写作反馈和
-  学习日志；页面不能输入或覆盖用户 ID。
-- 首页展示当前总分、目标分、差距、四科最新分与趋势、Reading 加权正确率与
-  错误类型、Writing 四项最新分与趋势、学习连续天数和七天建议。
-- Reading 与 Writing 弱项来自确定性规则和可追溯证据；推荐引擎生成恰好七天
-  的具体活动，不写入现有计划表。
-- Listening/Speaking 有成绩时只展示最新分、趋势和
-  `No detailed practice analytics available`；无成绩时分别展示
-  `No enough listening data`、`No enough speaking data`，不推断细粒度弱项。
-- 学习分析解释固定使用本地 Mock Provider，非 Mock Provider 在调用前被拒绝；
-  提示词不包含身份、作文、答案、录音或原始结果快照。
+The real additive apply then produced the same result:
 
-### 原创阅读练习
+- old tables before/after: 11 / 11, with schema, row count, and canonical
+  content hashes unchanged;
+- new table: `learner_profiles_v2`, with zero rows;
+- no `ALTER`, `DROP`, `RENAME`, rebuild, bulk backfill, or explicit
+  `wal_checkpoint` command was executed.
 
-- 版本化题库位于
-  `ielts_ai_coach/content/question_banks/reading_v1.json` 和
-  `reading_v2.json`。
-- 当前共有 8 篇项目原创 Academic 阅读文章、77 题；v1 每篇 9 题，v2
-  每篇 10 题。
-- 题型包括 Multiple Choice、True/False/Not Given 和 Matching Heading。
-- 每题保存题目、选项、正确答案、解析和原文证据。
-- 提交前不渲染答案、解析或证据。
-- 答案按 Unicode、大小写和连续空格进行规范化后确定性判分，不调用 AI。
-- 最终提交保存得分、正确率、错题编号、答案和复盘快照。
-- 一个任务只允许一次最终提交；重复提交不会覆盖历史。
-- 提交、任务完成和学习日志同步在同一事务中完成。
-- 独立阅读页包含说明、稳定计时、文章/题目视图、逐题导航、提交确认、
-  确定性结果和锁定复盘；未提交草稿只保存在当前会话。
+The SQLite main-file hash changed because the new table was added. SQLite
+consolidated pre-existing WAL contents into the main file while the schema
+connection closed; this is visible in the DB/WAL size changes. It did not
+change logical old-table contents, which were verified from before/after
+inventories. The original DB/WAL/SHM triplet is retained in the ignored backup
+directory.
 
-原创IELTS风格练习，非官方IELTS或Cambridge试题。
+## Verification
 
-### AI 与写作
+- Full pytest: 247 passed.
+- `compileall`: passed.
+- `pip check`: passed.
+- Streamlit temporary-database smoke run: health endpoint returned `ok`.
+- Browser smoke run: registration, onboarding, Home, Reading library, local
+  Listening audio element, Writing save-only confirmation, and Speaking
+  microphone-failure fallback were checked using a fictional account.
+- Responsive browser checks at 375, 430, 768, 1024, 1366, 1440, and 1920 px
+  found no horizontal overflow.
+- No real AI API, external TTS, Obsidian operation, remote push, or deployment
+  was performed.
 
-- Provider 接口隔离外部 AI 调用。
-- 未配置 API Key 时自动使用 Mock 演示模式。
-- Qwen 模式使用兼容 OpenAI Chat Completions 的 Provider。
-- AI 教练和写作反馈有成功次数限制；失败调用不计入成功额度。
-- 写作反馈为学习用途的 AI 预估，不等同于官方考官评分。
-- 自动化测试不得调用真实 AI API。
+## Known limitations and next sensible step
 
-### 四科界面与移动端
-
-- 桌面使用统一侧边栏，手机和平板窄屏使用 56 像素底部导航；隐藏的
-  Streamlit 原生导航不再形成第二套路由。
-- 首页使用当前用户真实数据展示四科入口、连续学习、最近成绩、弱项、计划、
-  活动和确定性下一步建议。
-- 听力当前是诚实标记的 Demo 流程，不保存或声称分数，材料必须由学生合法持有。
-- 写作支持实时字数、用户与任务隔离的会话草稿、编辑计时、清空/提交确认和
-  重复点击保护，原有 Provider、额度和历史流程保持不变。
-- 口语支持 Part 1/2/3、准备与回答计时、笔记和浏览器会话内录音；录音不上传，
-  不提供自动评分。
-- PWA 提供 Manifest、主题元数据和本地图标，可添加到手机主屏幕；未注册
-  Service Worker，不支持离线访问。
-
-### Dashboard、历史和数据控制
-
-- Dashboard 展示目标、成绩、任务进度、学习时间、趋势和 AI 额度。
-- 历史页汇总成绩、计划、阅读结果、作文和教练记录。
-- 用户只能清理自己的可选学习数据或 AI 内容，并需要二次确认。
-- 本地 SQLite 每日在线备份，保留数量受配置控制。
-
-## 3. 活动架构
-
-```text
-app.py
-└── ielts_ai_coach/
-    ├── auth.py              认证规则
-    ├── config.py            环境与 Secrets 配置
-    ├── views/               中文界面和页面流程
-    ├── services/            业务规则和流程编排
-    ├── database/            SQLAlchemy 模型与 Repository
-    ├── ai/                  Qwen、Mock 和响应结构校验
-    └── content/
-        └── question_banks/  版本化原创题库
-```
-
-页面只负责展示和流程控制。SQL 位于数据库层，评分、计划、提交和额度规则位于
-Service 层，外部 AI HTTP 调用位于 Provider 后面。
-
-根目录中的旧 MVP 模块尚未获准归档，不能擅自删除。历史企业原型
-`archive/enterprise-v0/` 只用于保留参考，禁止修改、导入、测试或提交。
-
-## 4. 数据库
-
-本地开发默认使用 SQLite，连接地址由 `DATABASE_URL` 配置。表结构通过
-SQLAlchemy `create_all` 补充；不删除旧表，不修改旧字段，不清空旧数据。
-
-当前活动模型共有 11 张表：
-
-1. `users`
-2. `student_profiles`
-3. `score_records`
-4. `study_plans`
-5. `plan_tasks`
-6. `study_logs`
-7. `coach_messages`
-8. `ai_usage_daily`
-9. `essays`
-10. `writing_feedback`
-11. `task_question_attempts`
-
-运行数据库、WAL/SHM、备份和测试临时数据库都不得提交到 Git。交接文档不记录
-真实用户、作文、学习记录或各表行数。
-
-## 5. 本地运行
-
-要求 Python 3.12.x：
-
-```powershell
-py -3.12 -m venv .venv
-.venv\Scripts\python.exe -m pip install --upgrade pip
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe -m streamlit run app.py
-```
-
-不配置 `QWEN_API_KEY` 时会使用 Mock 模式。私密配置只能写入环境变量或
-`.streamlit/secrets.toml`，不能写入示例文件、代码、截图或 Git。
-
-## 6. 验证
-
-基础命令：
-
-```powershell
-.venv\Scripts\python.exe -m pytest
-.venv\Scripts\python.exe -m pip check
-```
-
-当前 204 项测试覆盖：
-
-- 认证、密码哈希和 Session 安全；
-- 用户隔离和数据清理边界；
-- 成绩、计划、任务和学习日志；
-- 题库加载和版权来源约束；
-- 三种阅读题型、答案规范化和错误反馈；
-- 漏答、重复提交、跨用户提交和历史保存；
-- Streamlit 开始、继续、提交和结果页面流程；
-- Mock/Qwen Provider 边界、额度和写作反馈；
-- 备份、Dashboard 和完整学生流程。
-- 统一导航、响应式布局、PWA 资源、首页聚合及四科交互页面。
-- 请求时 Analytics、Reading 加权汇总、Writing 四项趋势、用户隔离、弱项等级、
-  七天建议、Mock fail-closed 和 Growth Dashboard。
-
-完成修改后还应进行无界面 Streamlit 启动和 HTTP 健康检查。验收应使用临时
-数据库并显式保持 Mock 模式。
-
-## 7. Git 与隐私边界
-
-允许提交的核心内容包括应用代码、原创题库、测试、说明文档、示例配置和依赖
-声明。以下内容必须留在本地并由 `.gitignore` 排除：
-
-- `.env` 和 `.streamlit/secrets.toml`；
-- SQLite 数据库、WAL/SHM 和备份；
-- 日志、上传文件、缓存和虚拟环境；
-- `archive/enterprise-v0/`；
-- 未裁剪、仍包含浏览器或桌面环境信息的本地截图。
-
-示例配置只能包含空值或占位值。本地截图在裁剪浏览器书签、桌面任务栏等环境
-信息并确认只使用虚构学生数据后，才适合单独加入。
-
-## 8. 当前限制
-
-- SQLite 只适合当前本地阶段，不是公网多实例数据库方案。
-- 原创阅读题库目前有 8 篇、77 题，每个任务只允许一次最终提交。
-- 听力没有内置原创音频练习闭环。
-- Listening/Speaking 没有细粒度练习分析，不根据计划或任务完成情况推断能力。
-- Analytics 不保存历史快照，只反映每次请求时可读取的现有记录。
-- AI 调用是同步的，写作预估尚未经过官方考官校准。
-- 口语录音和未提交草稿只保存在当前会话，不上传、不自动评分，也不跨会话恢复。
-- 没有用户上传、账号自删除、密码修改、支付或教师后台。
-- PWA 只是可安装外壳，没有完整离线能力。
-- 没有生产监控、托管备份、正式迁移或云部署。
-
-## 9. 建议的下一阶段
-
-当前分支已经可以使用虚构或明确同意的数据进行人工网站验收。下一步建议先记录
-Home 分析可读性、推荐可执行性和四科跳转反馈，再决定是否增加阅读重试、
-跨会话草稿恢复或原创听力脚本与音频。AI 上下文增强、用户上传、数据库迁移、
-完整离线缓存和云部署都应分别获得批准后再开始。
+Listening and Speaking practice remains session-only. Speaking has no scoring
+or transcript analysis. The next approved feature should be persistence and
+analytics for Listening/Speaking only after a separate privacy and data-model
+approval; do not infer those skills from plan completion.

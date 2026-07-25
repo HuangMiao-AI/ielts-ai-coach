@@ -34,8 +34,8 @@ Updated: 2026-07-25
 - [x] Phase 6: Writing save-only fallback
 - [x] Phase 7: Speaking microphone recovery and text fallback
 - [x] Phase 8: desktop UI and responsive contracts
-- [ ] Phase 9: browser flows and full verification
-- [ ] Phase 10: real database additive apply and final handover
+- [x] Phase 9: browser flows and full verification
+- [x] Phase 10: real database additive apply and final handover
 
 ## Current Evidence
 
@@ -98,3 +98,15 @@ Updated: 2026-07-25
   canonical content hashes
 - No production code changed before design and schema approval
 - No real AI or external TTS call made
+- Phase 9 full pytest: 247 passed; compileall and pip check passed
+- Temporary-database Streamlit smoke run returned health `ok`
+- Browser smoke coverage used a fictional user for onboarding, Home, Reading
+  library, Listening audio, Writing save-only, and Speaking microphone
+  recovery. Responsive checks at 375, 430, 768, 1024, 1366, 1440, and 1920
+  pixels found no horizontal overflow.
+- Phase 10 copied-DB rehearsal and real `create_all` apply added exactly one
+  empty `learner_profiles_v2` table. All 11 old table definitions, row counts,
+  and canonical content hashes were unchanged.
+- The pre-apply DB/WAL/SHM triplet is stored in an ignored runtime backup.
+  No ALTER, DROP, RENAME, rebuild, bulk backfill, or explicit checkpoint
+  command was issued.

@@ -1,78 +1,32 @@
 # IELTS AI Coach
 
-## 项目简介
+IELTS AI Coach 是一个本地运行的雅思学习应用，面向中文学习者。项目使用
+Python、Streamlit、SQLAlchemy 和 SQLite，重点提供可验证的练习流程、确定性
+评分与可选的 AI 学习辅助。
 
-IELTS AI Coach 是一个面向中国雅思学生的模块化学习助手，也是一个
-Computer Science / AI 大学申请作品。它把确定性成绩诊断、七天计划、每日
-任务、学习记录、AI教练和写作批改整合在一个可维护的 Streamlit 应用中。
-V2.1 Phase 1 已加入第一个可直接作答和自动评分的原创 Academic 阅读闭环。
-首页同时提供按当前用户实时计算的学习分析，不保存额外分析快照。
+## 当前功能
 
-> 写作页面中的分数均为 AI 预估，仅用于学习参考，不是官方 IELTS 成绩，
-> 项目不承诺评分准确度。
-
-## 功能
-
-- 用户名和密码注册、登录、退出
-- Argon2id 密码哈希和 Streamlit Session 用户隔离
-- 学生档案：昵称、年级、目标分、考试日期、每日学习时间
-- IELTS 四科历史成绩和确定性 Overall 计算
-- 最低分、并列弱项、目标差距和规则化建议
-- 每日分钟数严格相等的七天学习计划
-- 含目标、材料、步骤、产出和完成标准的具体任务
-- 8篇项目原创 Academic 阅读文章，共77题；v1 每篇9题，v2 每篇10题
-- 覆盖 Multiple Choice、True/False/Not Given 和 Matching Heading
-- 支持开始、暂存、继续、完整提交、确定性评分和逐题解析
-- 保存答案、得分、正确率、错题、解析快照和完成时间
-- 阅读提交后自动同步任务完成状态和学习日志
-- 基础、专项提高、限时训练与模拟三个考试阶段
-- 今日任务一键完成、可选修改实际用时、取消后同步撤销学习记录
-- 旧计划自动归档，不删除历史
-- Qwen 兼容 AI Provider；无 Key 时自动进入 Mock 演示模式
-- AI学习教练：每天最多 20 次成功回答
-- 写作批改 Level 2：四项预估分数、优点、问题、建议和单段改写
-- 写作每天最多 3 次成功批改，失败不扣额度
-- 首页四科快捷入口、真实学习指标、弱项提示、近期活动和下一步建议
-- IELTS Growth Dashboard：当前分、目标分、差距、四科趋势、Reading 汇总、
-  Writing 四项、学习连续天数、证据化弱项和七天建议摘要
-- 学习分析解释固定使用本地 Mock Provider，不调用真实 AI，也不把身份、作文、
-  答案、录音或原始数据库内容放入提示词
-- 桌面侧边栏、手机底部导航和统一路由结构
-- 手机、iPad 与桌面端的玻璃质感响应式界面
-- 听力 Demo 流程，明确不保存或声称分数
-- 写作实时字数、会话草稿、编辑计时和提交保护
-- 口语 Part 1/2/3、准备与回答计时、笔记及当前会话内录音
-- PWA Manifest 与本地图标，可添加到主屏幕，但不提供离线功能
-- 二次确认后清理当前用户自己的学习数据或AI内容
-- SQLite 每日在线备份，保留最近 7 份
-
-## 架构
-
-```text
-app.py
-  └── views/        中文界面和流程控制
-       └── services/  验证、诊断、计划、额度和AI流程
-            ├── database/  SQLAlchemy模型、Repository、备份
-            └── ai/        Qwen、Mock、Pydantic结构校验
-```
-
-页面不执行 SQL，不验证密码，也不直接调用模型。所有业务查询都通过当前
-登录用户的 `user_id` 隔离。学习计划和总分由确定性 Python 规则生成，即使
-没有 AI API，核心学习功能仍然可用。
+- 使用 Argon2id 保存密码，并按已登录用户严格隔离数据。
+- 四步新手设置与可编辑学习档案；成绩可以留空，系统不会编造成绩。
+- 确定性的成绩诊断和七天学习计划。
+- 8 篇原创 Academic 阅读文章：答题、确定性评分、证据解析与历史记录。
+- 2 套原创本地听力小测，含离线音频、确定性答案解析。当前版本的听力结果只在
+  浏览器会话内保存。
+- 4 道原创写作题。未启用 AI 评分时，作文会保存，但不会伪造成绩或反馈。
+- 口语 Part 1/2/3 题目、计时、麦克风指引和文字替代；不提供自动评分。
+- 按当前用户隔离的首页、学习分析、历史记录和学习日志，以及本地 Mock AI 说明。
+- 手机、平板和桌面响应式界面；包含 PWA 元数据，但不承诺离线使用。
 
 ## 技术栈
 
 - Python 3.12
-- Streamlit 1.59
-- SQLAlchemy 2.0 与 SQLite
-- `argon2-cffi` 提供 Argon2id 密码哈希
-- Pydantic 2 校验 AI 返回结构
-- `requests` 通过 Provider 接口调用可选的 Qwen 服务
-- pytest 8
+- Streamlit
+- SQLAlchemy 2 与 SQLite
+- `argon2-cffi`（Argon2id）
+- Pydantic 2
+- pytest
 
-## 本地运行
-
-必须使用 Python 3.12.x：
+## 安装与本地启动
 
 ```powershell
 py -3.12 -m venv .venv
@@ -81,116 +35,66 @@ py -3.12 -m venv .venv
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-首次运行会创建 `data/ielts_ai_coach.db`，备份位于
-`data/backups/`。这些文件不会上传 GitHub。
+在浏览器打开 `http://127.0.0.1:8501`。
 
 ### 手机局域网访问
 
-让 Streamlit 监听本机所有局域网接口：
+在可信的家庭或教室 Wi-Fi 中运行：
 
 ```powershell
 .venv\Scripts\python.exe -m streamlit run app.py --server.address 0.0.0.0
 ```
 
-用 `ipconfig` 查看电脑的私有 IPv4 地址，再在连接同一可信 Wi-Fi 的手机上
-打开 `http://<私有IP>:8501`。Windows 防火墙可能会询问是否允许局域网访问。
-这是开发服务器，不应直接暴露到公网。
-
-### 添加到手机主屏幕
-
-电脑需要继续运行 Streamlit，手机也需要能够访问上面的局域网地址。
-
-- iPhone/iPad：使用 Safari 打开页面，点“分享”，选择“添加到主屏幕”，
-  再点“添加”。
-- Android：使用 Chrome 打开页面，打开浏览器菜单，选择“安装应用”或
-  “添加到主屏幕”，然后确认。普通局域网 HTTP 可能只提供主屏幕快捷方式；
-  浏览器的完整安装能力通常需要可信 HTTPS 来源。
-
-当前版本提供 Manifest、主题元数据和本地图标，不注册 Service Worker，
-也不支持离线访问。尚未提交的阅读、写作、听力和口语状态只保存在当前
-浏览器会话中，关闭会话后可能丢失。
+用 `ipconfig` 查看电脑的私有 IPv4 地址，再在同一 Wi-Fi 的手机上打开
+`http://<私有IPv4地址>:8501`。这是本地开发服务，不应直接暴露到公网。
 
 ## Mock 与 Qwen 模式
 
-默认无需配置 AI 服务。没有 API Key 时，AI 教练和写作反馈会清楚标记为
-Mock 演示模式；档案、诊断、计划、任务、阅读评分、历史和 Dashboard 仍可用。
+没有配置凭据时，应用使用本地、确定性的 Mock Provider，不会调用真实 AI API。
+如需使用 Qwen 兼容 Provider，只能通过环境变量或
+`.streamlit/secrets.toml` 提供私有配置，不能把真实密钥写入代码或 Git。
 
-复制私密配置模板：
+AI 反馈和任何写作预估分仅供学习参考，不是官方 IELTS 成绩，也不能替代官方考官。
 
-```powershell
-Copy-Item .streamlit\secrets.example.toml .streamlit\secrets.toml
-```
+## 数据库说明
 
-在 `.streamlit/secrets.toml` 中填写：
+默认数据库为 `data/ielts_ai_coach.db`，不会被 Git 跟踪。项目使用
+`create_all` 做本地的新增式建表。
 
-```toml
-QWEN_API_KEY = "你的私密API Key"
-QWEN_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-QWEN_MODEL = "qwen-plus"
-AI_TIMEOUT_SECONDS = "30"
-AI_MAX_RETRIES = "2"
-```
+`learner_profiles_v2` 是新增的学习档案表，包含唯一 `user_id`、昵称、年级、
+可空考试日期、每日学习时间、目标分、可空的四科基线分、完成状态和时间戳。
 
-不同阿里云区域或工作空间可能使用不同 Base URL，请按账号对应的官方文档
-配置。不要把真实 Key 写入代码、`.env.example`、截图或 GitHub。
+- 未知成绩使用 SQL `NULL` / Python `None` 表示；真实的 `0` 会保留为 `0`。
+- 读取时优先使用 `learner_profiles_v2`；没有 V2 记录才兼容读取旧
+  `student_profiles`。
+- 不会在启动时批量回填旧用户；旧用户只会在主动保存 Profile 后创建 V2 记录。
+- `score_records` 只保存真实且完整的考试或练习成绩，不保存新手设置基线分。
 
-配置真实 Key 后，只有自然语言教练和写作反馈走 Qwen 兼容 Provider。阅读
-客观题、成绩诊断和七天计划仍由本地确定性规则完成。AI 写作预估不能替代
-官方考官评分。
+数据库、WAL/SHM、备份、私有密钥、上传文件、日志和虚拟环境都不得提交到 Git。
+
+## 版权声明
+
+**原创IELTS风格练习，非官方IELTS或Cambridge试题。**
+
+仓库内的阅读、听力和写作材料均为项目原创练习材料，不是官方 IELTS 或
+Cambridge 真题。
 
 ## 测试
 
 ```powershell
-.venv\Scripts\python.exe -m pytest
+.venv\Scripts\python.exe -m pytest -q
+.venv\Scripts\python.exe -m compileall -q ielts_ai_coach
+.venv\Scripts\python.exe -m pip check
 ```
 
-测试使用临时 SQLite 数据库和本地假 Provider，不调用真实 AI API，也不会
-污染 `data/`。当前共 204 项测试，包含题库加载、确定性评分、漏答、重复
-提交、用户隔离、历史记录、四科交互页面、响应式导航、PWA 资源和真实
-Streamlit 页面流程，也覆盖学习分析、弱项、七天建议、Mock-only 解释和首页
-用户隔离。
+当前基线为 **247 项 pytest 测试通过**。测试使用独立临时 SQLite 数据库和
+Mock/fake Provider，不会调用真实 AI API。
 
-## 数据库说明
+## 当前限制
 
-本地开发使用 SQLite，默认文件为 `data/ielts_ai_coach.db`。应用通过
-SQLAlchemy `create_all` 补充缺失表，不删除旧表或旧字段。数据库、WAL/SHM、
-备份和测试临时数据都不应进入 Git；测试也不会读写默认运行数据库。
-
-## 数据安全
-
-- 密码只保存 Argon2id 哈希。
-- Session 不保存密码。
-- 所有业务表都包含 `user_id`。
-- 页面不接受用户自行填写 `user_id`。
-- API Key、数据库、备份、日志、`.env` 和私密 Secrets 均被 Git 忽略。
-- AI 上下文只使用当前用户必要的档案、成绩、计划和近期记录。
-- 普通日志不记录完整作文。
-- 删除功能只能清理当前账号的数据，并要求二次确认。
-
-## 阅读题库与评分
-
-题库保存在版本化项目内容文件中。v1 有3篇文章，v2 新增5篇；全部题目、正确
-答案、解析和原文证据均为项目原创，不复制官方 IELTS、Cambridge 或其他受
-版权保护的真题。
-
-**版权声明：原创IELTS风格练习，非官方IELTS或Cambridge试题。**
-
-客观题评分完全由本地 Python 规则完成，不调用 AI。比较答案时会统一 Unicode、
-大小写和连续空格。最终提交保存在 `task_question_attempts` 表中，并同时记录
-得分、正确率、错题编号和完整复盘快照。
-
-## 当前限制与下一步
-
-本地版本使用 SQLite。当前原创阅读库有8篇，每个任务只允许一次最终提交，
-尚未实现阅读重试。听力仍使用学生合法拥有的材料，没有内置
-原创音频闭环。口语录音只保存在当前会话，不会上传或自动评分；所有未提交草稿
-也不跨会话恢复。AI 调用仍为同步处理，也尚未做官方考官校准、图片输入、支付、
-教师/家长后台、账号自删除或密码修改。PWA 只是可安装外壳，不支持离线使用。
-Listening 和 Speaking 只有成绩记录中的最新分与趋势，没有细粒度练习分析，
-也不会推断具体弱项。学习分析只在请求时计算，不保存历史分析快照。
-
-下一步建议先测试阅读闭环的真实易用性，再评估是否需要受控重试；原创听力脚本和
-音频应作为单独批准阶段。PostgreSQL、生产 Secrets、HTTPS 和云部署仍不属于
-当前本地开发范围。
-
-完整英文工程说明见 [README.md](README.md)。
+- SQLite 适合本地单实例开发，不适合公网多实例部署。
+- 听力答案和得分只保存在当前会话，暂不进入学习分析历史。
+- 口语录音与文字替代只保存在当前会话；没有语音识别、发音分析或自动分数。
+- 无 Key/Mock 模式下保存的写作内容不会得到 AI 评分。
+- PWA 仅提供安装元数据，没有 Service Worker 或完整离线能力。
+- 当前不包含用户上传、原生 App、支付、云部署或数据库迁移。
