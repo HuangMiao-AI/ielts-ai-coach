@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from textwrap import dedent
 
+from ielts_ai_coach.ui.responsive_css import DESKTOP_AND_COMPACT_CSS
+
 
 DESIGN_TOKENS: dict[str, str | int] = {
     "color_ink": "#102A2E",
@@ -46,26 +48,22 @@ def build_app_css() -> str:
             color: var(--text);
             overflow-x: hidden;
         }}
-
         .stApp {{
             background:
                 radial-gradient(circle at 92% 2%, rgba(159, 226, 216, .42), transparent 30rem),
                 radial-gradient(circle at 8% 94%, rgba(247, 210, 164, .24), transparent 28rem),
                 linear-gradient(155deg, #f3faf8 0%, #f7fbfc 52%, #fffaf4 100%);
         }}
-
         .block-container {{
             width: min(100%, var(--content-max));
             padding: 2rem clamp(1rem, 3vw, 2.5rem) 5rem;
         }}
-
         [data-testid="stMarkdownContainer"],
         [data-testid="stVerticalBlock"],
         [data-testid="stForm"] {{
             min-width: 0;
             overflow-wrap: anywhere;
         }}
-
         .glass-card,
         .empty-card,
         .core-entry,
@@ -78,7 +76,6 @@ def build_app_css() -> str:
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
         }}
-
         .glass-card,
         .empty-card {{
             border-radius: var(--card-radius);
@@ -202,11 +199,6 @@ def build_app_css() -> str:
             }}
         }}
 
-        @media (min-width: 1366px) {{
-            .block-container {{ padding-top: 2.25rem; padding-bottom: 4rem; }}
-            .section-heading {{ margin-top: 2rem; }}
-        }}
-
         @media (max-width: 768px) {{
             :root {{ --glass-blur: 10px; }}
 
@@ -290,13 +282,7 @@ def build_app_css() -> str:
             [data-testid="stColumn"] {{ min-width: min(100%, 9rem) !important; }}
         }}
 
-        @media (max-width: 375px) {{
-            .block-container {{ padding-inline: .75rem; }}
-            .st-key-mobile_bottom_navigation {{ right: .4rem; left: .4rem; }}
-            .st-key-mobile_bottom_navigation [data-testid="stPageLink"] a {{
-                font-size: .7rem;
-            }}
-        }}
+        {DESKTOP_AND_COMPACT_CSS}
 
         @media (prefers-reduced-motion: reduce) {{
             *,

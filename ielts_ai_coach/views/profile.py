@@ -8,10 +8,10 @@ import streamlit as st
 
 from ielts_ai_coach.database.models import User
 from ielts_ai_coach.services.learner_profiles import get_learner_profile
-from ielts_ai_coach.views.learner_profile_form import (
+from ielts_ai_coach.views.learner_profile_editor import (
     render_learning_profile_editor,
-    render_onboarding,
 )
+from ielts_ai_coach.views.learner_profile_form import render_onboarding
 
 
 def render_profile_page(

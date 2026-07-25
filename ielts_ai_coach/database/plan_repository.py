@@ -48,42 +48,6 @@ def create_plan(
     return plan
 
 
-def get_library_plan(session: Session, user_id: int) -> StudyPlan | None:
-    """Return the internal Reading-library container owned by a user."""
-
-    statement = (
-        select(StudyPlan)
-        .where(
-            StudyPlan.user_id == user_id,
-            StudyPlan.status == "library",
-            StudyPlan.phase == "library",
-        )
-        .order_by(StudyPlan.created_at.desc(), StudyPlan.id.desc())
-        .limit(1)
-    )
-    return session.scalar(statement)
-
-
-def create_library_plan(
-    session: Session,
-    *,
-    user_id: int,
-    active_date: date,
-) -> StudyPlan:
-    """Create an internal task container without affecting active plans."""
-
-    plan = StudyPlan(
-        user_id=user_id,
-        start_date=active_date,
-        end_date=active_date,
-        phase="library",
-        status="library",
-    )
-    session.add(plan)
-    session.flush()
-    return plan
-
-
 def create_plan_task(
     session: Session,
     *,
@@ -143,27 +107,6 @@ def list_plans(
         )
         .order_by(StudyPlan.created_at.desc(), StudyPlan.id.desc())
         .limit(max(1, min(limit, 100)))
-    )
-    return list(session.scalars(statement))
-
-
-def list_user_tasks_by_subject(
-    session: Session,
-    *,
-    user_id: int,
-    subject: str,
-) -> list[PlanTask]:
-    """Return user-owned tasks for one subject, including library tasks."""
-
-    statement = (
-        select(PlanTask)
-        .join(StudyPlan, StudyPlan.id == PlanTask.plan_id)
-        .where(
-            PlanTask.user_id == user_id,
-            PlanTask.subject == subject,
-            StudyPlan.user_id == user_id,
-        )
-        .order_by(PlanTask.created_at.desc(), PlanTask.id.desc())
     )
     return list(session.scalars(statement))
 

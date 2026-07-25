@@ -111,10 +111,13 @@ def test_complete_student_flow_runs_in_mock_mode(
         "daily life. Practical lessons can also help learners connect theory "
         "with real experience and become more independent."
     )
-    _button(app, "提交AI批改").click().run(timeout=10)
-    assert any("提交后将占用一次成功额度" in item.value for item in app.warning)
-    _button(app, "确认提交AI批改").click().run(timeout=10)
+    _button(app, "保存作文").click().run(timeout=10)
+    assert any("不会生成AI评分" in item.value for item in app.warning)
+    _button(app, "确认保存作文").click().run(timeout=10)
 
     assert not app.exception
-    assert any(metric.label == "预估总分" for metric in app.metric)
-    assert any("AI预估" in item.value for item in app.error)
+    assert any(
+        item.value == "作文已保存。AI评分当前未启用。"
+        for item in app.success
+    )
+    assert not any(metric.label == "预估总分" for metric in app.metric)

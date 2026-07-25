@@ -10,25 +10,21 @@ import streamlit as st
 
 from ielts_ai_coach.database.models import User
 from ielts_ai_coach.services.learner_profiles import (
-    LearnerProfileSnapshot,
     LearnerProfileValidationError,
-    get_learner_profile,
     save_learner_profile,
 )
 from ielts_ai_coach.services.profiles import GRADE_OPTIONS
+from ielts_ai_coach.views.learner_profile_fields import (
+    BAND_OPTIONS,
+    BAND_VALUES,
+    ERROR_MESSAGES,
+    band_index,
+    band_value,
+    grade_index,
+)
 
 
-BAND_VALUES = tuple(value / 2 for value in range(19))
-BAND_OPTIONS: tuple[str | float, ...] = ("未填写", *BAND_VALUES)
 STEP_LABELS = ("基本信息", "当前成绩（可选）", "学习目标", "确认保存")
-ERROR_MESSAGES = {
-    "invalid_display_name": "姓名或昵称长度应为1–40个字符。",
-    "invalid_grade": "请选择有效的年级。",
-    "invalid_band": "成绩必须是0–9之间的0.5分档。",
-    "invalid_minutes": "每日学习时间应为15–480分钟。",
-    "exam_in_past": "考试日期不能早于今天。",
-    "exam_too_far": "考试日期不能超过三年。",
-}
 
 
 def _step_key(user_id: int) -> str:
@@ -71,30 +67,6 @@ def _render_step_header(step: int) -> None:
     st.caption(f"步骤 {step}/4 · {STEP_LABELS[step - 1]}")
 
 
-def _band_option(value: float | None) -> str | float:
-    """Map a nullable band to the select control's explicit empty option."""
-
-    return "未填写" if value is None else float(value)
-
-
-def _band_value(value: str | float) -> float | None:
-    """Map one select value to the persistent nullable band contract."""
-
-    return None if value == "未填写" else float(value)
-
-
-def _grade_index(value: str) -> int:
-    """Return a safe grade index."""
-
-    return GRADE_OPTIONS.index(value) if value in GRADE_OPTIONS else 0
-
-
-def _band_index(value: float | None) -> int:
-    """Return the index of a nullable band in the shared options."""
-
-    return BAND_OPTIONS.index(_band_option(value))
-
-
 def _render_basic_step(user: User, draft: dict[str, Any]) -> None:
     """Collect the student's display identity."""
 
@@ -107,7 +79,7 @@ def _render_basic_step(user: User, draft: dict[str, Any]) -> None:
     grade = st.selectbox(
         "当前年级或阶段",
         GRADE_OPTIONS,
-        index=_grade_index(str(draft["current_grade"])),
+        index=grade_index(str(draft["current_grade"])),
         key=f"onboarding_{user.id}_grade",
     )
     if st.button("下一步", type="primary", use_container_width=True):
@@ -137,10 +109,10 @@ def _render_score_step(user: User, draft: dict[str, Any]) -> None:
             selected = st.selectbox(
                 label,
                 BAND_OPTIONS,
-                index=_band_index(draft[f"current_{skill}_band"]),
+                index=band_index(draft[f"current_{skill}_band"]),
                 key=f"onboarding_{user.id}_{skill}_band",
             )
-            values[skill] = _band_value(selected)
+            values[skill] = band_value(selected)
     back, next_column = st.columns(2)
     if back.button("上一步", use_container_width=True):
         st.session_state[_step_key(user.id)] = 1
@@ -284,97 +256,3 @@ def render_onboarding(
         _render_goal_step(user, draft)
     else:
         _render_review_step(user, draft, page_refs)
-
-
-def render_learning_profile_editor(
-    user: User,
-    *,
-    source_key: str,
-) -> None:
-    """Render one shared editable V2/legacy learning-settings form."""
-
-    profile = get_learner_profile(user.id)
-    if profile is None:
-        st.info("请先完成学习档案设置。")
-        return
-    no_date_default = profile.exam_date is None
-    with st.form(f"learner_profile_editor_{source_key}_{user.id}"):
-        display_name = st.text_input(
-            "姓名或昵称",
-            value=profile.display_name,
-            max_chars=40,
-        )
-        grade = st.selectbox(
-            "当前年级或阶段",
-            GRADE_OPTIONS,
-            index=_grade_index(profile.current_grade),
-        )
-        columns = st.columns(2)
-        selected_bands: dict[str, str | float] = {}
-        for index, (skill, label) in enumerate(
-            (
-                ("listening", "当前听力成绩"),
-                ("reading", "当前阅读成绩"),
-                ("writing", "当前写作成绩"),
-                ("speaking", "当前口语成绩"),
-            )
-        ):
-            with columns[index % 2]:
-                selected_bands[skill] = st.selectbox(
-                    label,
-                    BAND_OPTIONS,
-                    index=_band_index(profile.current_band(skill)),
-                )
-        target = st.selectbox(
-            "目标总分",
-            BAND_VALUES,
-            index=BAND_VALUES.index(profile.target_overall_band),
-        )
-        no_exam_date = st.checkbox(
-            "暂未确定考试日期",
-            value=no_date_default,
-        )
-        exam_date: date | None = None
-        if not no_exam_date:
-            exam_date = st.date_input(
-                "计划考试日期",
-                value=profile.exam_date
-                or date.today() + timedelta(days=120),
-                min_value=date.today(),
-                max_value=date.today() + timedelta(days=366 * 3),
-            )
-        minutes = st.slider(
-            "每天可学习时间",
-            min_value=15,
-            max_value=480,
-            value=profile.daily_study_minutes,
-            step=15,
-            format="%d 分钟",
-        )
-        label = "保存档案" if source_key == "profile" else "保存学习设置"
-        submitted = st.form_submit_button(
-            label,
-            type="primary",
-            use_container_width=True,
-        )
-    if not submitted:
-        return
-    try:
-        save_learner_profile(
-            user_id=user.id,
-            display_name=display_name,
-            current_grade=grade,
-            exam_date=exam_date,
-            daily_study_minutes=minutes,
-            target_overall_band=float(target),
-            current_reading_band=_band_value(selected_bands["reading"]),
-            current_listening_band=_band_value(selected_bands["listening"]),
-            current_writing_band=_band_value(selected_bands["writing"]),
-            current_speaking_band=_band_value(selected_bands["speaking"]),
-            onboarding_completed=True,
-        )
-    except LearnerProfileValidationError as error:
-        st.error(ERROR_MESSAGES.get(str(error), "资料无效，请检查后重试。"))
-    else:
-        st.success("学习设置已保存。")
-

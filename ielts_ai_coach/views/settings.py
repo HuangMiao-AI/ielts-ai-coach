@@ -13,7 +13,7 @@ from ielts_ai_coach.services.data_management import (
     clear_ai_content,
     clear_learning_records,
 )
-from ielts_ai_coach.views.learner_profile_form import (
+from ielts_ai_coach.views.learner_profile_editor import (
     render_learning_profile_editor,
 )
 

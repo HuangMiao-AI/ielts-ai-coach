@@ -12,9 +12,9 @@ from ielts_ai_coach.database.connection import (
     get_session_factory,
     session_scope,
 )
-from ielts_ai_coach.database.plan_repository import (
+from ielts_ai_coach.database.plan_repository import create_plan_task
+from ielts_ai_coach.database.reading_library_repository import (
     create_library_plan,
-    create_plan_task,
     get_library_plan,
     list_user_tasks_by_subject,
 )

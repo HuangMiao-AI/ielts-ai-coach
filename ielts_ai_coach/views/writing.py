@@ -5,7 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from ielts_ai_coach.ai.factory import get_ai_provider
-from ielts_ai_coach.database.models import User, WritingFeedback
+from ielts_ai_coach.database.models import User
 from ielts_ai_coach.services.skill_sessions import (
     claim_submission,
     draft_key,
@@ -29,6 +29,7 @@ from ielts_ai_coach.services.writing_tasks import (
     get_writing_task,
     inspect_writing_locally,
 )
+from ielts_ai_coach.views.writing_feedback_view import render_feedback
 
 
 WRITING_ERRORS = {
@@ -64,39 +65,6 @@ def _apply_writing_task_prefill() -> bool:
     st.session_state["writing_task_type"] = task_type
     st.session_state["writing_pending_prompt"] = prompt[:2000]
     return True
-
-
-def render_feedback(feedback: WritingFeedback) -> None:
-    """Render one validated structured writing report."""
-
-    if feedback.provider.casefold() == "mock":
-        st.warning("Demo feedback · 固定示例，不代表真实AI评分或官方成绩。")
-    st.error(WRITING_DISCLAIMER)
-    columns = st.columns(5)
-    labels = (
-        ("任务回应", feedback.task_response_or_achievement),
-        ("连贯衔接", feedback.coherence_and_cohesion),
-        ("词汇资源", feedback.lexical_resource),
-        ("语法准确", feedback.grammatical_range_and_accuracy),
-        ("预估总分", feedback.estimated_overall),
-    )
-    for column, (label, score) in zip(columns, labels):
-        column.metric(label, f"{score:.1f}")
-
-    first, second = st.columns(2)
-    with first:
-        st.subheader("做得好的地方")
-        for item in feedback.strengths:
-            st.write(f"- {item}")
-    with second:
-        st.subheader("主要问题")
-        for item in feedback.main_issues:
-            st.write(f"- {item}")
-    st.subheader("具体修改建议")
-    for item in feedback.actionable_suggestions:
-        st.write(f"- {item}")
-    st.subheader("单段改写示例")
-    st.info(feedback.rewrite_example)
 
 
 def _render_recent_history(user: User) -> None:

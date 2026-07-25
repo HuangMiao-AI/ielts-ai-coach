@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections import Counter
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 
@@ -17,7 +16,10 @@ from ielts_ai_coach.database.plan_repository import list_study_logs
 from ielts_ai_coach.database.writing_repository import (
     list_user_writing_feedback,
 )
-from ielts_ai_coach.services.reading_scoring import deserialize_reading_score
+from ielts_ai_coach.services.analytics_reading import (
+    ReadingAnalytics,
+    build_reading_analytics,
+)
 from ielts_ai_coach.services.learner_profiles import get_learner_profile
 from ielts_ai_coach.services.scoring import calculate_overall
 
@@ -49,19 +51,6 @@ class SkillScoreAnalytics:
     latest_band: float | None
     trend: tuple[ScorePoint, ...]
     detail_status: str
-
-
-@dataclass(frozen=True)
-class ReadingAnalytics:
-    """Aggregate deterministic Reading-practice evidence."""
-
-    attempt_count: int
-    correct: int
-    total: int
-    accuracy: float | None
-    error_counts: tuple[tuple[str, int], ...]
-    frequent_error_types: tuple[str, ...]
-    warnings: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -161,46 +150,6 @@ def _calculate_streak(study_dates: list[date], *, today: date) -> int:
         streak += 1
         cursor -= timedelta(days=1)
     return streak
-
-
-def _build_reading_analytics(attempts: list[object]) -> ReadingAnalytics:
-    """Aggregate persisted Reading totals and safe snapshot metadata."""
-
-    correct = sum(int(attempt.score) for attempt in attempts)  # type: ignore[attr-defined]
-    total = sum(int(attempt.total_questions) for attempt in attempts)  # type: ignore[attr-defined]
-    errors: Counter[str] = Counter()
-    warnings: set[str] = set()
-    for attempt in attempts:
-        try:
-            snapshot = deserialize_reading_score(attempt.results_json)  # type: ignore[attr-defined]
-        except (AttributeError, KeyError, TypeError, ValueError):
-            warnings.add("invalid_reading_snapshot")
-            continue
-        errors.update(
-            result.question_type
-            for result in snapshot.results
-            if not result.is_correct
-        )
-    error_counts = tuple(sorted(errors.items(), key=lambda item: (-item[1], item[0])))
-    highest_error_count = error_counts[0][1] if error_counts else 0
-    frequent_error_types = (
-        tuple(
-            question_type
-            for question_type, count in error_counts
-            if count == highest_error_count
-        )
-        if highest_error_count >= 2
-        else ()
-    )
-    return ReadingAnalytics(
-        attempt_count=len(attempts),
-        correct=correct,
-        total=total,
-        accuracy=correct / total if total else None,
-        error_counts=error_counts,
-        frequent_error_types=frequent_error_types,
-        warnings=tuple(sorted(warnings)),
-    )
 
 
 def _build_writing_analytics(feedback_records: list[object]) -> WritingAnalytics:
@@ -305,7 +254,7 @@ def build_analytics_result(
         ),
         overall_trend=_trend(score_records, "overall", "recorded_at"),
         skills=skills,
-        reading=_build_reading_analytics(attempts),
+        reading=build_reading_analytics(attempts),
         writing=_build_writing_analytics(feedback_records),
         behavior=LearningBehavior(
             streak_days=_calculate_streak(
