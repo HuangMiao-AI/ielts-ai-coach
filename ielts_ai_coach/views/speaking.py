@@ -67,6 +67,34 @@ def _render_timer(
     st.metric(label, f"{seconds // 60:02d}:{seconds % 60:02d}")
 
 
+def _microphone_failure_key(user_id: int) -> str:
+    """Return the current user's session-only microphone failure state."""
+
+    return f"speaking_microphone_unavailable_{user_id}"
+
+
+def _render_microphone_guidance(user: User) -> bool:
+    """Render first-use permission guidance and return fallback activation."""
+
+    st.subheader("麦克风测试")
+    st.caption("首次使用请先测试麦克风；浏览器会在开始录制时请求权限。")
+    guidance_key = f"speaking_microphone_guidance_{user.id}"
+    if st.button("麦克风测试", use_container_width=True):
+        st.session_state[guidance_key] = True
+    if st.session_state.get(guidance_key, False):
+        st.info("请点击下方“录制回答”，并在浏览器权限提示中选择允许。")
+    failure_key = _microphone_failure_key(user.id)
+    if st.button("麦克风无法使用", use_container_width=True):
+        st.session_state[failure_key] = True
+    if st.session_state.get(failure_key, False):
+        st.warning(
+            "请在浏览器设置中允许此网站使用麦克风；"
+            "也可以使用下方文字回答替代完成练习。"
+        )
+        return True
+    return False
+
+
 def render_speaking_page(user: User) -> None:
     """Render guided prompts, notes, local recording, and honest completion."""
 
@@ -94,6 +122,7 @@ def render_speaking_page(user: User) -> None:
             "response",
             int(config["response"]),
         )
+    use_text_fallback = _render_microphone_guidance(user)
 
     notes_key = draft_key(user.id, "speaking", f"{part}-notes")
     st.text_area(
@@ -109,13 +138,26 @@ def render_speaking_page(user: User) -> None:
     if recording is not None:
         st.audio(recording)
         st.caption("录音可在本页回放，离开当前会话后不保证保留。")
+    text_response = ""
+    if use_text_fallback:
+        text_response = st.text_area(
+            "文字回答替代",
+            key=draft_key(user.id, "speaking", f"{part}-text-response"),
+            placeholder="无法录音时，可在这里输入本次回答。",
+            height=160,
+        )
     completed_key = f"speaking_completed_{user.id}_{part}"
     if st.button(
         "完成本次练习",
         type="primary",
-        disabled=recording is None,
+        disabled=recording is None and not text_response.strip(),
         use_container_width=True,
     ):
-        st.session_state[completed_key] = True
-    if st.session_state.get(completed_key, False):
+        st.session_state[completed_key] = (
+            "text" if recording is None else "recording"
+        )
+    completion = st.session_state.get(completed_key)
+    if completion == "text":
+        st.success("文字回答已完成本次本地练习。未生成分数或能力判断。")
+    elif completion == "recording":
         st.success("已完成本地录音与回听。未生成分数或能力判断。")

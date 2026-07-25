@@ -32,7 +32,7 @@ Updated: 2026-07-25
 - [x] Phase 4: plan-independent Reading library
 - [x] Phase 5: original Listening mini tests and offline audio
 - [x] Phase 6: Writing save-only fallback
-- [ ] Phase 7: Speaking microphone recovery and text fallback
+- [x] Phase 7: Speaking microphone recovery and text fallback
 - [ ] Phase 8: desktop UI and responsive contracts
 - [ ] Phase 9: browser flows and full verification
 - [ ] Phase 10: real database additive apply and final handover
@@ -70,6 +70,12 @@ Updated: 2026-07-25
   `WritingFeedback`, provider calls, or `AIUsageDaily` quota changes
 - Local word/paragraph/structure observations are explicitly non-scoring;
   any separately rendered Mock feedback is labeled `Demo feedback`
+- Phase 7 microphone fallback, Speaking page, and shared-session regression:
+  7 passed
+- Speaking provides first-use microphone guidance, a browser-permission
+  recovery path, and a session-only text-answer alternative
+- Completion accepts a local recording or a non-empty text answer and never
+  claims recognition, pronunciation analysis, or an IELTS score
 - Complete, partial, and empty baselines generate deterministic plans without
   creating synthetic `score_records`
 - Partial baselines appear as latest values without fabricated trends or an

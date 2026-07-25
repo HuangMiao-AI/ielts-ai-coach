@@ -43,4 +43,8 @@ def test_speaking_page_starts_stable_timers_without_fake_completion(
         button for button in app.button if button.label == "开始准备时间"
     ).click().run(timeout=10)
     assert any(metric.label == "准备时间" for metric in app.metric)
+    next(
+        button for button in app.button if button.label == "开始回答时间"
+    ).click().run(timeout=10)
+    assert any(metric.label == "回答时间" for metric in app.metric)
     assert not app.success
