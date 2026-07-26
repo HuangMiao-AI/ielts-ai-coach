@@ -101,12 +101,12 @@ def test_reading_exam_hides_answers_until_confirmed_submission(
     assert any(item.value == "考试说明" for item in app.subheader)
     _button(app, "开始计时练习").click().run(timeout=10)
 
+    assert len(app.radio) == len(practice.passage.questions)
     for index, question in enumerate(practice.passage.questions):
-        assert len(app.radio) == 1
-        app.radio[0].set_value(question.correct_answer).run(timeout=10)
+        assert any(question.question in item.value for item in app.markdown)
+        app.radio[index].set_value(question.correct_answer).run(timeout=10)
+        assert app.radio[index].value == question.correct_answer
         assert not any("正确答案：" in item.value for item in app.markdown)
-        if index < len(practice.passage.questions) - 1:
-            _button(app, "下一题").click().run(timeout=10)
 
     _button(app, "检查并提交").click().run(timeout=10)
     assert any("提交后无法修改" in item.value for item in app.warning)

@@ -34,6 +34,16 @@ from ielts_ai_coach.views.task_cards import (
     render_reading_result,
     render_reading_result_summary,
 )
+from ielts_ai_coach.views.reading_workspace_resizer import (
+    render_workspace_resizer,
+)
+
+
+QUESTION_TYPE_LABELS = {
+    "multiple_choice": "Multiple Choice",
+    "true_false_not_given": "True / False / Not Given",
+    "matching_heading": "Matching Heading",
+}
 
 
 def _question_ids(state: ReadingPracticeState) -> tuple[str, ...]:
@@ -67,47 +77,68 @@ def _render_instructions(user: User, state: ReadingPracticeState, selected_key: 
         st.rerun()
 
 
-def _render_question_strip(state: ReadingPracticeState, session) -> None:
-    """Render compact numbered question navigation."""
+def _render_question_navigation(state: ReadingPracticeState, session) -> None:
+    """Render in-page links with answered, current, and pending states."""
 
-    st.caption("题目导航")
-    for offset in range(0, len(session.question_ids), 5):
-        columns = st.columns(5)
-        indexes = range(offset, min(offset + 5, len(session.question_ids)))
-        for column, index in zip(columns, indexes):
-            question_id = session.question_ids[index]
-            label = f"{index + 1}{' ✓' if question_id in session.answers else ''}"
-            if column.button(
-                label,
-                key=f"reading_jump_{state.task.id}_{question_id}",
-                type="primary" if index == session.current_index else "secondary",
-                use_container_width=True,
-            ):
-                save_exam_session(
-                    st.session_state,
-                    jump_to_question(session, question_id),
-                )
-                st.rerun()
-
-
-def _save_visible_answer(user: User, state: ReadingPracticeState, session):
-    """Render and save the current answer without exposing review data."""
-
-    question = state.passage.questions[session.current_index]
-    answer = render_reading_exam_question(
-        question,
-        index=session.current_index + 1,
-        total=len(session.question_ids),
-        widget_key=(
-            f"reading_exam_answer_{user.id}_{state.task.id}_"
-            f"{question.question_id}"
-        ),
-        saved_answer=session.answers.get(question.question_id, ""),
+    links: list[str] = []
+    for index, question_id in enumerate(session.question_ids, start=1):
+        status = "answered" if question_id in session.answers else "unanswered"
+        current = " current" if index - 1 == session.current_index else ""
+        links.append(
+            f'<a class="reading-question-link {status}{current}" '
+            f'href="#reading-question-{question_id}" '
+            f'aria-current="{"true" if current else "false"}">{index}</a>'
+        )
+    st.markdown(
+        '<nav class="reading-question-navigation" '
+        'aria-label="题目导航">' + "".join(links) + "</nav>",
+        unsafe_allow_html=True,
     )
-    if answer and session.answers.get(question.question_id) != answer:
-        session = answer_question(session, question.question_id, answer)
-        save_exam_session(st.session_state, session)
+
+
+def _save_all_answers(user: User, state: ReadingPracticeState, session):
+    """Render grouped editable questions and retain every scoped draft answer."""
+
+    current_type = ""
+    for index, question in enumerate(state.passage.questions, start=1):
+        if question.question_type != current_type:
+            current_type = question.question_type
+            st.markdown(
+                f"### {QUESTION_TYPE_LABELS.get(current_type, current_type)}"
+            )
+        st.markdown(
+            f'<div id="reading-question-{question.question_id}" '
+            'class="reading-question-anchor"></div>',
+            unsafe_allow_html=True,
+        )
+        answer = render_reading_exam_question(
+            question,
+            index=index,
+            total=len(session.question_ids),
+            widget_key=(
+                f"reading_exam_answer_{user.id}_{state.task.id}_"
+                f"{question.question_id}"
+            ),
+            saved_answer=session.answers.get(question.question_id, ""),
+        )
+        if answer and session.answers.get(question.question_id) != answer:
+            session = answer_question(session, question.question_id, answer)
+            session = jump_to_question(session, question.question_id)
     return session
+
+
+def _request_submission(session):
+    """Open confirmation only when the complete workspace is answered."""
+
+    missing = len(unanswered_question_ids(session))
+    st.caption(f"提交前检查：还有 {missing} 题未完成。")
+    if not st.button("检查并提交", type="primary", use_container_width=True):
+        return session
+    try:
+        return request_submission(session)
+    except ReadingExamError:
+        st.error(f"还有 {missing} 题未完成，请先补充答案。")
+        return session
 
 
 def _render_confirmation(user: User, state: ReadingPracticeState, session) -> None:
@@ -137,13 +168,17 @@ def _render_confirmation(user: User, state: ReadingPracticeState, session) -> No
 
 
 def _render_workspace(user: User, state: ReadingPracticeState, session) -> None:
-    """Render article, one question, timer, navigation, and submit action."""
+    """Render an all-question article and answer workspace without answers."""
 
     minutes, seconds = divmod(remaining_seconds(session), 60)
     st.title(state.passage.title)
-    st.caption(
+    st.markdown(
+        '<div class="reading-workspace-status">'
         f"剩余时间 {minutes:02d}:{seconds:02d} · "
-        f"已答 {len(session.answers)}/{len(session.question_ids)}"
+        f"已答 {len(session.answers)}/{len(session.question_ids)} · "
+        f"未答 {len(unanswered_question_ids(session))}"
+        "</div>",
+        unsafe_allow_html=True,
     )
     mode = st.segmented_control(
         "阅读区域",
@@ -151,39 +186,35 @@ def _render_workspace(user: User, state: ReadingPracticeState, session) -> None:
         default="双栏",
         key=f"reading_layout_{user.id}_{state.task.id}",
     )
-    if mode == "文章":
-        render_reading_passage(state.passage)
-    elif mode == "题目":
-        session = _save_visible_answer(user, state, session)
-    else:
-        article_column, question_column = st.columns([3, 2])
-        with article_column:
-            render_reading_passage(state.passage)
-        with question_column:
-            session = _save_visible_answer(user, state, session)
-    _render_question_strip(state, session)
-    previous, next_column = st.columns(2)
-    if previous.button(
-        "上一题",
-        disabled=session.current_index == 0,
-        use_container_width=True,
-    ):
-        save_exam_session(st.session_state, move_question(session, -1))
-        st.rerun()
-    if session.current_index < len(session.question_ids) - 1:
-        if next_column.button("下一题", use_container_width=True):
-            save_exam_session(st.session_state, move_question(session, 1))
-            st.rerun()
-        return
-    if next_column.button("检查并提交", type="primary", use_container_width=True):
-        try:
-            confirmation = request_submission(session)
-        except ReadingExamError:
-            missing = len(unanswered_question_ids(session))
-            st.error(f"还有 {missing} 题未完成，请先补充答案。")
+    if mode == "双栏":
+        render_workspace_resizer(user_id=user.id, task_id=state.task.id)
+    with st.container(key=f"reading_workspace_{user.id}_{state.task.id}"):
+        st.markdown('<div class="reading-workspace"></div>', unsafe_allow_html=True)
+        if mode == "双栏":
+            article_column, question_column = st.columns([11, 9], gap="small")
+            with article_column:
+                st.markdown("#### 文章 · 原创练习材料")
+                with st.container(height=620, border=True):
+                    render_reading_passage(state.passage)
+            with question_column:
+                st.markdown("#### 题目 · 全部 {0} 题".format(len(session.question_ids)))
+                _render_question_navigation(state, session)
+                with st.container(height=620, border=True):
+                    session = _save_all_answers(user, state, session)
+                    session = _request_submission(session)
+        elif mode == "文章":
+            st.markdown("#### 文章 · 原创练习材料")
+            with st.container(height=620, border=True):
+                render_reading_passage(state.passage)
         else:
-            save_exam_session(st.session_state, confirmation)
-            _render_confirmation(user, state, confirmation)
+            st.markdown("#### 题目 · 全部 {0} 题".format(len(session.question_ids)))
+            _render_question_navigation(state, session)
+            with st.container(height=620, border=True):
+                session = _save_all_answers(user, state, session)
+                session = _request_submission(session)
+    save_exam_session(st.session_state, session)
+    if session.phase is ReadingExamPhase.SUBMIT_CONFIRMATION:
+        _render_confirmation(user, state, session)
 
 
 def _render_result(

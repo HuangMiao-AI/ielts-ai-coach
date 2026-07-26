@@ -175,6 +175,18 @@ def test_mobile_css_uses_safe_responsive_navigation_and_overflow() -> None:
         / "ui"
         / "navigation.py"
     ).read_text(encoding="utf-8")
+    workspace_source = (
+        PROJECT_ROOT
+        / "ielts_ai_coach"
+        / "views"
+        / "reading_workspace.py"
+    ).read_text(encoding="utf-8")
+    resizer_source = (
+        PROJECT_ROOT
+        / "ielts_ai_coach"
+        / "views"
+        / "reading_workspace_resizer.py"
+    ).read_text(encoding="utf-8")
 
     assert 'position="hidden"' in navigation_source
     assert "st.sidebar" in navigation_source
@@ -200,6 +212,17 @@ def test_mobile_css_uses_safe_responsive_navigation_and_overflow() -> None:
     assert "min-width: 0" in APP_CSS
     assert "calc(5.5rem + env(safe-area-inset-bottom))" in APP_CSS
     assert "min-height: 44px" in APP_CSS
+    assert ".reading-workspace-status" in APP_CSS
+    assert ".reading-question-navigation" in APP_CSS
+    assert ".reading-question-link.answered" in APP_CSS
+    assert ".reading-question-link.current" in APP_CSS
+    assert ".reading-workspace" in APP_CSS
+    assert "overflow-y: auto" in APP_CSS
+    assert "render_workspace_resizer" in workspace_source
+    assert "localStorage" in resizer_source
+    assert "pointermove" in resizer_source
+    assert "0.35" in resizer_source
+    assert "0.65" in resizer_source
     assert APP_CSS.count("overflow-x:") == 2
     assert "userAgent" not in APP_CSS
     assert "iPhone" not in APP_CSS
