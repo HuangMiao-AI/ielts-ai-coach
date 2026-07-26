@@ -121,6 +121,7 @@ def submit_reading_practice(
     user_id: int,
     task_id: int,
     answers: Mapping[str, str],
+    allow_incomplete: bool = False,
     session_factory: sessionmaker[Session] | None = None,
 ) -> ReadingPracticeState:
     """Score and persist one final submission, task completion, and study log."""
@@ -144,9 +145,13 @@ def submit_reading_practice(
         expected_ids = {
             question.question_id for question in passage.questions
         }
-        if set(answers) != expected_ids or any(
+        if (
+            set(answers) - expected_ids
+            or (not allow_incomplete and set(answers) != expected_ids)
+            or any(
             not isinstance(answer, str) or not normalize_answer(answer)
             for answer in answers.values()
+            )
         ):
             raise ReadingPracticeError("incomplete_answers")
 

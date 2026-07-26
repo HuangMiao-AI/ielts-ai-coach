@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -18,6 +18,7 @@ from ielts_ai_coach.database.connection import (
 from ielts_ai_coach.database.models import TaskQuestionAttempt
 from ielts_ai_coach.services.planning import generate_plan
 from ielts_ai_coach.services.profiles import save_profile
+from ielts_ai_coach.services.exam_controls import exam_control_key
 from ielts_ai_coach.services.reading_practice import get_reading_practice_state
 from ielts_ai_coach.services.scores import save_score_record
 
@@ -136,3 +137,40 @@ def test_reading_exam_hides_answers_until_confirmed_submission(
     assert not any("正确答案：" in item.value for item in app.markdown)
     _button(app, "查看完整解析").click().run(timeout=10)
     assert any("正确答案：" in item.value for item in app.markdown)
+
+
+def test_reading_shared_controls_pause_resume_and_submit_after_timeout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The shared controller freezes answers and locks them at zero."""
+
+    app, practice, task_id = _prepare_reading_app(tmp_path, monkeypatch)
+    _button(app, "开始练习").click().run(timeout=10)
+    app = _button(app, "开始计时练习").click().run(timeout=10)
+
+    app = _button(app, "暂停计时").click().run(timeout=10)
+    assert all(item.disabled for item in app.radio)
+    assert any("计时已暂停" in item.value for item in app.info)
+
+    app = _button(app, "恢复计时").click().run(timeout=10)
+    assert all(not item.disabled for item in app.radio)
+
+    key = exam_control_key(
+        practice.task.user_id,
+        "reading",
+        str(task_id),
+    )
+    payload = dict(app.session_state[key])
+    payload["deadline"] = (
+        datetime.now(timezone.utc) - timedelta(seconds=1)
+    ).isoformat()
+    app.session_state[key] = payload
+    app = app.run(timeout=10)
+
+    assert all(item.disabled for item in app.radio)
+    assert any("时间已到" in item.value for item in app.warning)
+    app = _button(app, "检查并提交").click().run(timeout=10)
+    assert any("未作答题目将计为错误" in item.value for item in app.warning)
+    app = _button(app, "确认提交").click().run(timeout=10)
+    assert any(metric.label == "总分" for metric in app.metric)

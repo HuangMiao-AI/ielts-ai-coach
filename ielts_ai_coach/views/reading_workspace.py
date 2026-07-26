@@ -5,34 +5,29 @@ from __future__ import annotations
 import streamlit as st
 
 from ielts_ai_coach.database.models import User
+from ielts_ai_coach.services.exam_controls import (
+    ExamSession,
+    ExamStatus,
+    load_exam_control,
+    save_exam_control,
+)
 from ielts_ai_coach.services.exam_state import (
-    ReadingExamError,
     ReadingExamPhase,
     answer_question,
-    cancel_submission,
     jump_to_question,
-    mark_submitted,
-    move_question,
-    remaining_seconds,
-    request_submission,
     start_exam,
     unanswered_question_ids,
 )
 from ielts_ai_coach.services.reading_exam import (
-    clear_exam_session,
     load_exam_session,
     save_exam_session,
 )
 from ielts_ai_coach.services.reading_practice import (
-    ReadingPracticeError,
     ReadingPracticeState,
-    submit_reading_practice,
 )
 from ielts_ai_coach.views.task_cards import (
     render_reading_exam_question,
     render_reading_passage,
-    render_reading_result,
-    render_reading_result_summary,
 )
 from ielts_ai_coach.views.reading_workspace_resizer import (
     render_workspace_resizer,
@@ -40,7 +35,18 @@ from ielts_ai_coach.views.reading_workspace_resizer import (
 from ielts_ai_coach.views.reading_workspace_client import (
     reading_workspace_client_key,
     render_reading_navigation_client,
-    render_reading_workspace_client,
+)
+from ielts_ai_coach.views.exam_control_panel import (
+    ExamControlAction,
+    render_exam_control_panel,
+)
+from ielts_ai_coach.views.reading_submission import (
+    render_reading_confirmation,
+    request_reading_submission,
+    sync_reading_session,
+)
+from ielts_ai_coach.views.reading_result_view import (
+    render_reading_session_result,
 )
 
 
@@ -79,7 +85,16 @@ def _render_instructions(user: User, state: ReadingPracticeState, selected_key: 
             question_ids=_question_ids(state),
             duration_seconds=state.passage.recommended_minutes * 60,
         )
-        save_exam_session(st.session_state, start_exam(session))
+        session = start_exam(session)
+        save_exam_session(st.session_state, session)
+        load_exam_control(
+            st.session_state,
+            user_id=user.id,
+            skill="reading",
+            task_key=str(state.task.id),
+            duration_seconds=session.duration_seconds,
+            now=session.started_at,
+        )
         st.rerun()
 
 
@@ -104,7 +119,13 @@ def _render_question_navigation(state: ReadingPracticeState, session) -> None:
     )
 
 
-def _save_all_answers(user: User, state: ReadingPracticeState, session):
+def _save_all_answers(
+    user: User,
+    state: ReadingPracticeState,
+    session,
+    *,
+    editable: bool,
+):
     """Render grouped editable questions and retain every scoped draft answer."""
 
     current_type = ""
@@ -128,79 +149,32 @@ def _save_all_answers(user: User, state: ReadingPracticeState, session):
                 f"{question.question_id}"
             ),
             saved_answer=session.answers.get(question.question_id, ""),
+            disabled=not editable,
         )
-        if answer and session.answers.get(question.question_id) != answer:
+        if (
+            editable
+            and answer
+            and session.answers.get(question.question_id) != answer
+        ):
             session = answer_question(session, question.question_id, answer)
             session = jump_to_question(session, question.question_id)
     return session
 
 
-def _request_submission(session):
-    """Open confirmation only when the complete workspace is answered."""
-
-    missing = len(unanswered_question_ids(session))
-    st.caption(f"提交前检查：还有 {missing} 题未完成。")
-    if not st.button("检查并提交", type="primary", use_container_width=True):
-        return session
-    try:
-        return request_submission(session)
-    except ReadingExamError:
-        st.error(f"还有 {missing} 题未完成，请先补充答案。")
-        return session
-
-
-def _render_confirmation(user: User, state: ReadingPracticeState, session) -> None:
-    """Require an explicit irreversible submission confirmation."""
-
-    st.subheader("确认提交")
-    st.warning("提交后无法修改答案，系统将立即进行确定性评分。")
-    st.write(f"已完成 {len(session.answers)}/{len(session.question_ids)} 题。")
-    back, confirm = st.columns(2)
-    if back.button("返回检查", use_container_width=True):
-        save_exam_session(st.session_state, cancel_submission(session))
-        st.rerun()
-    if not confirm.button("确认提交", type="primary", use_container_width=True):
-        return
-    try:
-        submit_reading_practice(
-            user_id=user.id,
-            task_id=state.task.id,
-            answers=session.answers,
-        )
-    except ReadingPracticeError as error:
-        if str(error) != "already_submitted":
-            st.error("答案提交失败，请刷新后重试。")
-            return
-    save_exam_session(st.session_state, mark_submitted(session))
-    st.rerun()
-
-
-def _render_workspace(user: User, state: ReadingPracticeState, session) -> None:
+def _render_workspace(
+    user: User,
+    state: ReadingPracticeState,
+    session,
+    control: ExamSession,
+) -> None:
     """Render an all-question article and answer workspace without answers."""
 
-    minutes, seconds = divmod(remaining_seconds(session), 60)
-    assert session.started_at is not None
-    client_key = reading_workspace_client_key(
-        user_id=user.id,
-        task_id=state.task.id,
-    )
     st.title(state.passage.title)
-    st.markdown(
-        f'<div class="reading-workspace-status" data-reading-timer="{client_key}">'
-        "剩余时间 <span data-reading-timer-display>"
-        f"{minutes:02d}:{seconds:02d}</span> · "
+    st.caption(
         f"已答 {len(session.answers)}/{len(session.question_ids)} · "
         f"未答 {len(unanswered_question_ids(session))}"
-        " <span class=\"reading-timer-notice\" data-reading-timer-notice></span>"
-        "</div>",
-        unsafe_allow_html=True,
     )
-    render_reading_workspace_client(
-        user_id=user.id,
-        task_id=state.task.id,
-        started_at=session.started_at,
-        duration_seconds=session.duration_seconds,
-    )
+    editable = control.status is ExamStatus.RUNNING
     mode = st.segmented_control(
         "阅读区域",
         ["双栏", "文章", "题目"],
@@ -221,8 +195,16 @@ def _render_workspace(user: User, state: ReadingPracticeState, session) -> None:
                 st.markdown("#### 题目 · 全部 {0} 题".format(len(session.question_ids)))
                 _render_question_navigation(state, session)
                 with st.container(height=620, border=True):
-                    session = _save_all_answers(user, state, session)
-                    session = _request_submission(session)
+                    session = _save_all_answers(
+                        user,
+                        state,
+                        session,
+                        editable=editable,
+                    )
+                    session, control = request_reading_submission(
+                        session,
+                        control,
+                    )
         elif mode == "文章":
             st.markdown("#### 文章 · 原创练习材料")
             with st.container(height=620, border=True):
@@ -231,41 +213,27 @@ def _render_workspace(user: User, state: ReadingPracticeState, session) -> None:
             st.markdown("#### 题目 · 全部 {0} 题".format(len(session.question_ids)))
             _render_question_navigation(state, session)
             with st.container(height=620, border=True):
-                session = _save_all_answers(user, state, session)
-                session = _request_submission(session)
+                session = _save_all_answers(
+                    user,
+                    state,
+                    session,
+                    editable=editable,
+                )
+                session, control = request_reading_submission(
+                    session,
+                    control,
+                )
     if mode != "文章":
         render_reading_navigation_client(user_id=user.id, task_id=state.task.id)
     save_exam_session(st.session_state, session)
+    save_exam_control(
+        st.session_state,
+        user_id=user.id,
+        task_key=str(state.task.id),
+        session=control,
+    )
     if session.phase is ReadingExamPhase.SUBMIT_CONFIRMATION:
-        _render_confirmation(user, state, session)
-
-
-def _render_result(
-    user: User,
-    state: ReadingPracticeState,
-    selected_key: str,
-) -> None:
-    """Render persisted result summary and opt-in complete review."""
-
-    assert state.score is not None
-    st.title("阅读练习结果")
-    st.success("评分、任务完成状态和学习日志已同步保存。")
-    render_reading_result_summary(state.score)
-    review_key = f"reading_review_open_{user.id}_{state.task.id}"
-    if not st.session_state.get(review_key, False):
-        if st.button("查看逐题解析", type="primary", use_container_width=True):
-            st.session_state[review_key] = True
-            st.rerun()
-    else:
-        render_reading_result(state.score)
-    if st.button("返回题库", key="reading_result_back"):
-        st.session_state.pop(selected_key, None)
-        clear_exam_session(
-            st.session_state,
-            user_id=user.id,
-            task_id=state.task.id,
-        )
-        st.rerun()
+        render_reading_confirmation(user, state, session, control)
 
 
 def render_reading_session(
@@ -277,7 +245,7 @@ def render_reading_session(
     """Render the correct stage for one selected Reading practice."""
 
     if state.score is not None:
-        _render_result(user, state, selected_key)
+        render_reading_session_result(user, state, selected_key)
         return
     session = load_exam_session(
         st.session_state,
@@ -288,7 +256,30 @@ def render_reading_session(
     )
     if session.phase is ReadingExamPhase.INSTRUCTIONS:
         _render_instructions(user, state, selected_key)
-    elif session.phase is ReadingExamPhase.SUBMIT_CONFIRMATION:
-        _render_confirmation(user, state, session)
+        return
+    control = load_exam_control(
+        st.session_state,
+        user_id=user.id,
+        skill="reading",
+        task_key=str(state.task.id),
+        duration_seconds=session.duration_seconds,
+        now=session.started_at,
+    )
+    control, action = render_exam_control_panel(control)
+    session = sync_reading_session(session, control)
+    save_exam_session(st.session_state, session)
+    save_exam_control(
+        st.session_state,
+        user_id=user.id,
+        task_key=str(state.task.id),
+        session=control,
+    )
+    if action in {
+        ExamControlAction.PAUSED,
+        ExamControlAction.RESUMED,
+    }:
+        st.rerun()
+    if session.phase is ReadingExamPhase.SUBMIT_CONFIRMATION:
+        render_reading_confirmation(user, state, session, control)
     else:
-        _render_workspace(user, state, session)
+        _render_workspace(user, state, session, control)

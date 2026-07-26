@@ -18,9 +18,12 @@ from ielts_ai_coach.services.exam_state import (
     mark_submitted,
     move_question,
     open_review,
+    pause_exam_session,
     remaining_seconds,
     request_submission,
+    resume_exam_session,
     start_exam,
+    timeout_exam_session,
     unanswered_question_ids,
 )
 from ielts_ai_coach.services.reading_exam import (
@@ -159,3 +162,33 @@ def test_session_adapter_recovers_only_the_matching_user_task_draft() -> None:
         task_id=12,
         question_ids=QUESTION_IDS,
     ).answers == {}
+
+
+def test_reading_session_uses_shared_control_for_pause_and_timeout() -> None:
+    """Reading answer state must be locked by the shared controller."""
+
+    session = start_exam(
+        create_exam_session(
+            user_id=7,
+            task_id=11,
+            question_ids=QUESTION_IDS,
+            duration_seconds=60,
+        ),
+        now=STARTED_AT,
+    )
+
+    paused = pause_exam_session(session, now=STARTED_AT + timedelta(seconds=5))
+    with pytest.raises(ReadingExamError, match="answers_not_editable"):
+        answer_question(paused, "Q1", "A")
+
+    resumed = resume_exam_session(paused)
+    assert answer_question(resumed, "Q1", "A").answers == {"Q1": "A"}
+
+    timed_out = timeout_exam_session(resumed)
+    with pytest.raises(ReadingExamError, match="answers_not_editable"):
+        answer_question(timed_out, "Q2", "B")
+    confirmation = request_submission(timed_out, allow_incomplete=True)
+    assert confirmation.phase is ReadingExamPhase.SUBMIT_CONFIRMATION
+    assert timeout_exam_session(cancel_submission(confirmation)).phase is (
+        ReadingExamPhase.TIMED_OUT
+    )

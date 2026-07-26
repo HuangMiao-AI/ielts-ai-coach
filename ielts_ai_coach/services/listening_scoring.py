@@ -43,23 +43,31 @@ def normalize_listening_answer(value: str) -> str:
 def score_listening_answers(
     test: ListeningTest,
     answers: Mapping[str, str],
+    *,
+    allow_incomplete: bool = False,
 ) -> ListeningScore:
     """Require all answers and return deterministic per-question results."""
 
     expected_ids = {question.question_id for question in test.questions}
-    if set(answers) != expected_ids or any(
+    if (
+        set(answers) - expected_ids
+        or (not allow_incomplete and set(answers) != expected_ids)
+        or any(
         not isinstance(answer, str) or not normalize_listening_answer(answer)
         for answer in answers.values()
+        )
     ):
         raise ValueError("incomplete_answers")
     results = tuple(
         ListeningQuestionResult(
             question_id=question.question_id,
             question=question.question,
-            user_answer=answers[question.question_id].strip(),
+            user_answer=answers.get(question.question_id, "").strip(),
             correct_answer=question.correct_answer,
             is_correct=(
-                normalize_listening_answer(answers[question.question_id])
+                normalize_listening_answer(
+                    answers.get(question.question_id, "")
+                )
                 == normalize_listening_answer(question.correct_answer)
             ),
             explanation=question.explanation,

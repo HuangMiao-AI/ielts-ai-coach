@@ -18,6 +18,8 @@ class ReadingExamPhase(str, Enum):
 
     INSTRUCTIONS = "instructions"
     IN_PROGRESS = "in_progress"
+    PAUSED = "paused"
+    TIMED_OUT = "timed_out"
     SUBMIT_CONFIRMATION = "submit_confirmation"
     SUBMITTED = "submitted"
     REVIEW = "review"
@@ -121,6 +123,35 @@ def answer_question(
     return replace(session, answers=_frozen_answers(answers))
 
 
+def pause_exam_session(
+    session: ReadingExamSession,
+    *,
+    now: datetime | None = None,
+) -> ReadingExamSession:
+    """Freeze Reading edits; shared controls own the timed UI integration."""
+
+    del now
+    if session.phase is not ReadingExamPhase.IN_PROGRESS:
+        raise ReadingExamError("exam_cannot_pause")
+    return replace(session, phase=ReadingExamPhase.PAUSED)
+
+
+def resume_exam_session(session: ReadingExamSession) -> ReadingExamSession:
+    """Restore Reading edits after the shared controller resumes."""
+
+    if session.phase is not ReadingExamPhase.PAUSED:
+        raise ReadingExamError("exam_cannot_resume")
+    return replace(session, phase=ReadingExamPhase.IN_PROGRESS)
+
+
+def timeout_exam_session(session: ReadingExamSession) -> ReadingExamSession:
+    """Lock Reading edits after the shared controller reaches zero."""
+
+    if session.phase is not ReadingExamPhase.IN_PROGRESS:
+        raise ReadingExamError("exam_cannot_timeout")
+    return replace(session, phase=ReadingExamPhase.TIMED_OUT)
+
+
 def jump_to_question(
     session: ReadingExamSession,
     question_id: str,
@@ -159,13 +190,23 @@ def unanswered_question_ids(
     )
 
 
-def request_submission(session: ReadingExamSession) -> ReadingExamSession:
+def request_submission(
+    session: ReadingExamSession,
+    *,
+    allow_incomplete: bool = False,
+) -> ReadingExamSession:
     """Enter confirmation only when every question is answered."""
 
-    if session.phase is not ReadingExamPhase.IN_PROGRESS:
+    if session.phase not in {
+        ReadingExamPhase.IN_PROGRESS,
+        ReadingExamPhase.TIMED_OUT,
+    }:
         raise ReadingExamError("submission_not_available")
     missing = unanswered_question_ids(session)
-    if missing:
+    if missing and not (
+        allow_incomplete
+        and session.phase is ReadingExamPhase.TIMED_OUT
+    ):
         raise ReadingExamError(f"incomplete_answers:{len(missing)}")
     return replace(
         session,

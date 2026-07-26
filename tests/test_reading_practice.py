@@ -207,3 +207,30 @@ def test_incomplete_duplicate_and_cross_user_submissions_are_rejected(
         )
     assert attempt_count == 1
     assert log_count == 1
+
+
+def test_timed_out_submission_scores_unanswered_items_as_incorrect(
+    session_factory: sessionmaker[Session],
+) -> None:
+    """Only the explicit timeout path may persist an incomplete final attempt."""
+
+    today = date(2026, 7, 16)
+    user_id, task_id = _prepare_reader(
+        "ReadingTimeout",
+        session_factory,
+        today,
+    )
+    answers = _correct_answers(user_id, task_id, session_factory)
+    answers.pop(next(iter(answers)))
+
+    state = submit_reading_practice(
+        user_id=user_id,
+        task_id=task_id,
+        answers=answers,
+        allow_incomplete=True,
+        session_factory=session_factory,
+    )
+
+    assert state.score is not None
+    assert state.score.correct_count == state.score.total_questions - 1
+    assert sum(not result.user_answer for result in state.score.results) == 1

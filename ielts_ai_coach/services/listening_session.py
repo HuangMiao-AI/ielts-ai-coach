@@ -33,3 +33,11 @@ def listening_result_key(user_id: int, test_id: str) -> str:
     """Return the session-only deterministic result key."""
 
     return f"{_base_key(user_id, test_id)}_result"
+
+
+def selected_test_key(user_id: int) -> str:
+    """Return the selected Listening test key for one user."""
+
+    if user_id <= 0:
+        raise ValueError("invalid_user")
+    return f"listening_selected_test_{user_id}"

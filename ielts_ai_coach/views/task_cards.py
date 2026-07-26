@@ -157,6 +157,7 @@ def render_reading_exam_question(
     total: int,
     widget_key: str,
     saved_answer: str = "",
+    disabled: bool = False,
 ) -> str:
     """Render one exam question without exposing answer material."""
 
@@ -169,6 +170,7 @@ def render_reading_exam_question(
         options=question.options,
         index=None,
         key=widget_key,
+        disabled=disabled,
     )
     return answer or ""
 

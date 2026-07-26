@@ -11,6 +11,16 @@ DESKTOP_AND_COMPACT_CSS = """
             background: var(--surface-strong); box-shadow: var(--shadow-soft);
             backdrop-filter: blur(var(--glass-blur));
         }
+        .exam-control-status {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: .75rem; margin: .35rem 0 .65rem; padding: .7rem .9rem;
+            border: 1px solid var(--border); border-radius: 14px;
+            color: var(--primary-dark); background: var(--surface-strong);
+            font-weight: 800;
+        }
+        .exam-control-status [data-exam-timer] {
+            font-size: 1.25rem; font-variant-numeric: tabular-nums;
+        }
         .reading-workspace { min-width: 0; }
         .st-key-auth_form_shell {
             width: 100%; max-width: 420px; margin-inline: auto;
@@ -32,7 +42,10 @@ DESKTOP_AND_COMPACT_CSS = """
             text-decoration: none;
         }
         .reading-question-link.answered { color: #0B5F59; background: rgba(159, 226, 216, .34); }
-        .reading-question-link.current { outline: 2px solid var(--accent); outline-offset: 1px; }
+        .reading-question-link.current {
+            color: white; border-color: var(--primary-dark);
+            background: var(--primary);
+        }
         .reading-question-anchor { scroll-margin-top: 8rem; }
         .reading-pane-divider {
             position: absolute; z-index: 8; top: 3.25rem; bottom: .5rem;

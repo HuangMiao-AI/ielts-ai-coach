@@ -31,6 +31,9 @@ WORKSPACE_CLIENT_SOURCE = (
     / "views"
     / "reading_workspace_client.py"
 )
+EXAM_CONTROL_PANEL_SOURCE = (
+    PROJECT_ROOT / "ielts_ai_coach" / "views" / "exam_control_panel.py"
+)
 LOGIN_SOURCE = PROJECT_ROOT / "ielts_ai_coach" / "views" / "login.py"
 
 
@@ -223,9 +226,16 @@ def test_mobile_css_uses_safe_responsive_navigation_and_overflow() -> None:
     assert "calc(5.5rem + env(safe-area-inset-bottom))" in APP_CSS
     assert "min-height: 44px" in APP_CSS
     assert ".reading-workspace-status" in APP_CSS
+    assert ".exam-control-status" in APP_CSS
     assert ".reading-question-navigation" in APP_CSS
     assert ".reading-question-link.answered" in APP_CSS
     assert ".reading-question-link.current" in APP_CSS
+    current_rule = APP_CSS.split(
+        ".reading-question-link.current",
+        maxsplit=1,
+    )[1].split("}", maxsplit=1)[0]
+    assert "outline" not in current_rule
+    assert "box-shadow" not in current_rule
     assert ".reading-workspace" in APP_CSS
     assert "overflow-y: auto" in APP_CSS
     assert "render_workspace_resizer" in workspace_source
@@ -243,14 +253,15 @@ def test_reading_workspace_declares_a_wall_clock_client_timer() -> None:
     """The visible clock must not wait for a Streamlit rerun to change."""
 
     workspace_source = WORKSPACE_SOURCE.read_text(encoding="utf-8")
-    client_source = WORKSPACE_CLIENT_SOURCE.read_text(encoding="utf-8")
+    client_source = EXAM_CONTROL_PANEL_SOURCE.read_text(encoding="utf-8")
 
-    assert "render_reading_workspace_client" in workspace_source
-    assert "data-reading-timer" in workspace_source
+    assert "render_exam_control_panel" in workspace_source
+    assert "data-exam-control" in client_source
     assert "Date.now()" in client_source
     assert "visibilitychange" in client_source
     assert "Math.max(0" in client_source
     assert "setInterval" in client_source
+    assert 'window.addEventListener(\n            "pagehide"' in client_source
 
 
 def test_question_navigation_declares_client_click_and_scroll_sync() -> None:

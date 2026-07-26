@@ -35,7 +35,9 @@ def test_skill_cards_expose_actionable_honest_metadata() -> None:
     """Each skill exposes its actual practice scope without fake claims."""
 
     reading = _source("ielts_ai_coach/views/reading.py")
-    listening = _source("ielts_ai_coach/views/listening.py")
+    listening = _source("ielts_ai_coach/views/listening.py") + _source(
+        "ielts_ai_coach/views/listening_sections.py"
+    )
     writing = _source("ielts_ai_coach/views/writing.py")
     speaking = _source("ielts_ai_coach/views/speaking.py")
 

@@ -58,6 +58,26 @@ def test_listening_scoring_requires_every_answer_and_reports_errors() -> None:
     assert first.evidence
 
 
+def test_listening_timeout_scores_unanswered_items_as_incorrect() -> None:
+    """The explicit timeout path may score missing answers as blank."""
+
+    test = load_listening_bank().tests[0]
+    answers = {
+        question.question_id: question.correct_answer
+        for question in test.questions[1:]
+    }
+
+    score = score_listening_answers(
+        test,
+        answers,
+        allow_incomplete=True,
+    )
+
+    assert score.correct_count == score.total_questions - 1
+    assert score.results[0].user_answer == ""
+    assert score.results[0].is_correct is False
+
+
 def test_listening_session_keys_are_user_and_test_scoped() -> None:
     """Transient Listening answers and results never share a user's namespace."""
 
