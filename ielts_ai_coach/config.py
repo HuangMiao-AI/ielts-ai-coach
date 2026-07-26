@@ -7,6 +7,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from sqlalchemy.engine import make_url
+
 
 APP_TITLE = "IELTS AI Coach"
 APP_SUBTITLE = "你的智能雅思学习助手"
@@ -62,9 +64,20 @@ def get_setting(name: str, default: str) -> str:
 
 
 def get_database_url() -> str:
-    """Return the configured SQLAlchemy database URL."""
+    """Return a stable SQLAlchemy URL for the active application database."""
 
-    return get_setting("DATABASE_URL", DEFAULT_DATABASE_URL)
+    configured_url = get_setting("DATABASE_URL", DEFAULT_DATABASE_URL)
+    parsed_url = make_url(configured_url)
+    if not parsed_url.drivername.startswith("sqlite"):
+        return configured_url
+    if parsed_url.database in (None, "", ":memory:"):
+        return configured_url
+
+    database_path = Path(parsed_url.database).expanduser()
+    if database_path.is_absolute():
+        return configured_url
+    resolved_path = (BASE_DIR / database_path).resolve().as_posix()
+    return str(parsed_url.set(database=resolved_path))
 
 
 def get_backup_dir() -> Path:

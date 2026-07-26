@@ -46,6 +46,14 @@ class InvalidCredentialsError(AuthenticationError):
     """Raised when a login attempt cannot be authenticated."""
 
 
+class AccountNotFoundError(InvalidCredentialsError):
+    """Raised when the requested normalized account is not registered."""
+
+
+class IncorrectPasswordError(InvalidCredentialsError):
+    """Raised when a registered account receives a mismatched password."""
+
+
 class InactiveUserError(AuthenticationError):
     """Raised when a disabled account attempts to log in."""
 
@@ -155,8 +163,10 @@ def login_user(
     factory = session_factory or get_session_factory()
     with factory() as session:
         user = get_user_by_normalized_username(session, normalized_username)
-        if user is None or not verify_password(password, user.password_hash):
-            raise InvalidCredentialsError
+        if user is None:
+            raise AccountNotFoundError
+        if not verify_password(password, user.password_hash):
+            raise IncorrectPasswordError
         if not user.is_active:
             raise InactiveUserError
 

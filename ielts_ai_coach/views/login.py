@@ -5,6 +5,8 @@ from __future__ import annotations
 import streamlit as st
 
 from ielts_ai_coach.auth import (
+    AccountNotFoundError,
+    IncorrectPasswordError,
     InactiveUserError,
     InvalidCredentialsError,
     InvalidPasswordError,
@@ -43,6 +45,10 @@ def _render_login_form() -> None:
 
     try:
         login_user(username, password)
+    except AccountNotFoundError:
+        st.error("未找到该账号，请检查用户名或先注册。")
+    except IncorrectPasswordError:
+        st.error("密码不正确，请重新输入。")
     except InvalidCredentialsError:
         st.error("用户名或密码不正确。")
     except InactiveUserError:
