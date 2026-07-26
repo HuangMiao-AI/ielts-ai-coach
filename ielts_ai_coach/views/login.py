@@ -119,9 +119,7 @@ def render_auth_page() -> None:
         unsafe_allow_html=True,
     )
 
-    left_space, content, right_space = st.columns([1, 1.35, 1])
-    del left_space, right_space
-    with content:
+    with st.container(key="auth_form_shell"):
         login_tab, registration_tab = st.tabs(["登录", "注册"])
         with login_tab:
             _render_login_form()

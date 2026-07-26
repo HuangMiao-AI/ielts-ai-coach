@@ -54,6 +54,7 @@ def _open_task(user: User, item: ReadingExamLibraryItem) -> None:
             question_ids=tuple(
                 question.question_id for question in state.passage.questions
             ),
+            duration_seconds=state.passage.recommended_minutes * 60,
         )
     st.rerun()
 
@@ -84,6 +85,7 @@ def _render_library(
                 else "最近成绩：暂无"
             )
             st.markdown(f"### {passage.title}")
+            st.caption(f"推荐时间：{passage.recommended_minutes} 分钟")
             st.caption(
                 f"{passage.topic} · 版本 {passage.version} · 难度：{difficulty} · "
                 f"约 {passage.word_count} 词 · {len(passage.questions)} 题 · "

@@ -22,6 +22,16 @@ from ielts_ai_coach.views.navigation import NAVIGATION_STRUCTURE
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+WORKSPACE_SOURCE = (
+    PROJECT_ROOT / "ielts_ai_coach" / "views" / "reading_workspace.py"
+)
+WORKSPACE_CLIENT_SOURCE = (
+    PROJECT_ROOT
+    / "ielts_ai_coach"
+    / "views"
+    / "reading_workspace_client.py"
+)
+LOGIN_SOURCE = PROJECT_ROOT / "ielts_ai_coach" / "views" / "login.py"
 
 
 def _configure_app(
@@ -227,3 +237,42 @@ def test_mobile_css_uses_safe_responsive_navigation_and_overflow() -> None:
     assert "userAgent" not in APP_CSS
     assert "iPhone" not in APP_CSS
     assert "Android" not in APP_CSS
+
+
+def test_reading_workspace_declares_a_wall_clock_client_timer() -> None:
+    """The visible clock must not wait for a Streamlit rerun to change."""
+
+    workspace_source = WORKSPACE_SOURCE.read_text(encoding="utf-8")
+    client_source = WORKSPACE_CLIENT_SOURCE.read_text(encoding="utf-8")
+
+    assert "render_reading_workspace_client" in workspace_source
+    assert "data-reading-timer" in workspace_source
+    assert "Date.now()" in client_source
+    assert "visibilitychange" in client_source
+    assert "Math.max(0" in client_source
+    assert "setInterval" in client_source
+
+
+def test_question_navigation_declares_client_click_and_scroll_sync() -> None:
+    """Question links must track visible questions without scroll reruns."""
+
+    workspace_source = WORKSPACE_SOURCE.read_text(encoding="utf-8")
+    client_source = WORKSPACE_CLIENT_SOURCE.read_text(encoding="utf-8")
+
+    assert "data-reading-question-id" in workspace_source
+    assert "render_reading_navigation_client" in workspace_source
+    assert "IntersectionObserver" in client_source
+    assert "scrollIntoView" in client_source
+    assert "aria-current" in client_source
+    assert "localStorage" in client_source
+
+
+def test_auth_page_uses_one_centered_mobile_form_shell() -> None:
+    """Mobile authentication must not inherit desktop spacer columns."""
+
+    login_source = LOGIN_SOURCE.read_text(encoding="utf-8")
+
+    assert 'key="auth_form_shell"' in login_source
+    assert "st.columns([1, 1.35, 1])" not in login_source
+    assert ".st-key-auth_form_shell" in APP_CSS
+    assert "max-width: 420px" in APP_CSS

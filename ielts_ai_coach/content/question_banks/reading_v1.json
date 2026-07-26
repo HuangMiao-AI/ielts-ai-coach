@@ -10,6 +10,7 @@
   "passages": [
     {
       "passage_id": "AR-V1-001",
+      "recommended_minutes": 24,
       "title": "Cooling Cities from the Rooftop",
       "sections": [
         {
@@ -159,6 +160,7 @@
     },
     {
       "passage_id": "AR-V1-002",
+      "recommended_minutes": 24,
       "title": "When Museums Invite Visitors to Touch",
       "sections": [
         {
@@ -308,6 +310,7 @@
     },
     {
       "passage_id": "AR-V1-003",
+      "recommended_minutes": 24,
       "title": "The Last Kilometre of Urban Freight",
       "sections": [
         {

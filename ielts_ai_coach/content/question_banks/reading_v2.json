@@ -10,6 +10,7 @@
   "passages": [
     {
       "passage_id": "AR-V2-001",
+      "recommended_minutes": 26,
       "topic": "Cities and Environment",
       "title": "Mapping Shade as Urban Infrastructure",
       "sections": [
@@ -137,6 +138,7 @@
     },
     {
       "passage_id": "AR-V2-002",
+      "recommended_minutes": 26,
       "topic": "Technology and Business",
       "title": "Designing Electronics for a Second Life",
       "sections": [
@@ -264,6 +266,7 @@
     },
     {
       "passage_id": "AR-V2-003",
+      "recommended_minutes": 26,
       "topic": "Education and Psychology",
       "title": "The Productive Use of Uncertainty in Classrooms",
       "sections": [
@@ -391,6 +394,7 @@
     },
     {
       "passage_id": "AR-V2-004",
+      "recommended_minutes": 26,
       "topic": "Engineering and Materials Science",
       "title": "Growing Quieter Rooms with Mycelium",
       "sections": [
@@ -518,6 +522,7 @@
     },
     {
       "passage_id": "AR-V2-005",
+      "recommended_minutes": 26,
       "topic": "Psychology and Engineering",
       "title": "Lighting the Human Night Shift",
       "sections": [

@@ -12,6 +12,9 @@ DESKTOP_AND_COMPACT_CSS = """
             backdrop-filter: blur(var(--glass-blur));
         }
         .reading-workspace { min-width: 0; }
+        .st-key-auth_form_shell {
+            width: 100%; max-width: 420px; margin-inline: auto;
+        }
         [class*="st-key-reading_workspace_"] [data-testid="stHorizontalBlock"] {
             align-items: flex-start;
         }
@@ -62,6 +65,7 @@ DESKTOP_AND_COMPACT_CSS = """
                 width: 100% !important; min-width: 0 !important; flex: 1 1 100% !important;
             }
             .reading-question-link { width: 2rem; min-height: 2rem; }
+            .st-key-auth_form_shell { width: min(100%, calc(100vw - 2rem)); }
             .reading-pane-divider { display: none; }
         }
 """.strip()

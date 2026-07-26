@@ -53,6 +53,7 @@ class ReadingPassage:
     passage_id: str
     version: str
     title: str
+    recommended_minutes: int
     sections: tuple[ReadingSection, ...]
     questions: tuple[ReadingQuestion, ...]
     topic: str
@@ -155,6 +156,7 @@ def _build_passage(
         passage_id=_required_text(payload, "passage_id"),
         version=version,
         title=_required_text(payload, "title"),
+        recommended_minutes=_required_recommended_minutes(payload),
         sections=sections,
         questions=questions,
         topic=str(payload.get("topic", "Academic Skills")).strip()
@@ -169,6 +171,15 @@ def _build_passage(
     if {question.question_type for question in questions} != VALID_QUESTION_TYPES:
         raise ValueError("missing_question_type")
     return passage
+
+
+def _required_recommended_minutes(payload: dict[str, Any]) -> int:
+    """Read the author-set, bounded duration for one original passage."""
+
+    value = payload.get("recommended_minutes")
+    if not isinstance(value, int) or isinstance(value, bool) or not 10 <= value <= 40:
+        raise ValueError("invalid_recommended_minutes")
+    return value
 
 
 def load_reading_bank(path: Path | None = None) -> ReadingBank:

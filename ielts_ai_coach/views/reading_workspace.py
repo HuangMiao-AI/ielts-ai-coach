@@ -37,6 +37,11 @@ from ielts_ai_coach.views.task_cards import (
 from ielts_ai_coach.views.reading_workspace_resizer import (
     render_workspace_resizer,
 )
+from ielts_ai_coach.views.reading_workspace_client import (
+    reading_workspace_client_key,
+    render_reading_navigation_client,
+    render_reading_workspace_client,
+)
 
 
 QUESTION_TYPE_LABELS = {
@@ -58,7 +63,7 @@ def _render_instructions(user: User, state: ReadingPracticeState, selected_key: 
     st.title(state.passage.title)
     st.subheader("考试说明")
     st.write(
-        f"本练习共 {len(state.passage.questions)} 题，建议在 60 分钟内完成。"
+        f"本练习共 {len(state.passage.questions)} 题，推荐时间：{state.passage.recommended_minutes} 分钟。"
     )
     st.write("提交前不会显示正确答案或解析；确认提交后答案将无法修改。")
     st.caption("草稿只保存在当前浏览器会话中，关闭会话后可能无法恢复。")
@@ -72,6 +77,7 @@ def _render_instructions(user: User, state: ReadingPracticeState, selected_key: 
             user_id=user.id,
             task_id=state.task.id,
             question_ids=_question_ids(state),
+            duration_seconds=state.passage.recommended_minutes * 60,
         )
         save_exam_session(st.session_state, start_exam(session))
         st.rerun()
@@ -87,10 +93,12 @@ def _render_question_navigation(state: ReadingPracticeState, session) -> None:
         links.append(
             f'<a class="reading-question-link {status}{current}" '
             f'href="#reading-question-{question_id}" '
+            f'data-reading-question-id="{question_id}" '
             f'aria-current="{"true" if current else "false"}">{index}</a>'
         )
     st.markdown(
         '<nav class="reading-question-navigation" '
+        f'data-reading-question-navigation="{reading_workspace_client_key(user_id=session.user_id, task_id=session.task_id)}" '
         'aria-label="题目导航">' + "".join(links) + "</nav>",
         unsafe_allow_html=True,
     )
@@ -108,7 +116,7 @@ def _save_all_answers(user: User, state: ReadingPracticeState, session):
             )
         st.markdown(
             f'<div id="reading-question-{question.question_id}" '
-            'class="reading-question-anchor"></div>',
+            f'class="reading-question-anchor" data-reading-question-id="{question.question_id}"></div>',
             unsafe_allow_html=True,
         )
         answer = render_reading_exam_question(
@@ -171,14 +179,27 @@ def _render_workspace(user: User, state: ReadingPracticeState, session) -> None:
     """Render an all-question article and answer workspace without answers."""
 
     minutes, seconds = divmod(remaining_seconds(session), 60)
+    assert session.started_at is not None
+    client_key = reading_workspace_client_key(
+        user_id=user.id,
+        task_id=state.task.id,
+    )
     st.title(state.passage.title)
     st.markdown(
-        '<div class="reading-workspace-status">'
-        f"剩余时间 {minutes:02d}:{seconds:02d} · "
+        f'<div class="reading-workspace-status" data-reading-timer="{client_key}">'
+        "剩余时间 <span data-reading-timer-display>"
+        f"{minutes:02d}:{seconds:02d}</span> · "
         f"已答 {len(session.answers)}/{len(session.question_ids)} · "
         f"未答 {len(unanswered_question_ids(session))}"
+        " <span class=\"reading-timer-notice\" data-reading-timer-notice></span>"
         "</div>",
         unsafe_allow_html=True,
+    )
+    render_reading_workspace_client(
+        user_id=user.id,
+        task_id=state.task.id,
+        started_at=session.started_at,
+        duration_seconds=session.duration_seconds,
     )
     mode = st.segmented_control(
         "阅读区域",
@@ -212,6 +233,8 @@ def _render_workspace(user: User, state: ReadingPracticeState, session) -> None:
             with st.container(height=620, border=True):
                 session = _save_all_answers(user, state, session)
                 session = _request_submission(session)
+    if mode != "文章":
+        render_reading_navigation_client(user_id=user.id, task_id=state.task.id)
     save_exam_session(st.session_state, session)
     if session.phase is ReadingExamPhase.SUBMIT_CONFIRMATION:
         _render_confirmation(user, state, session)
@@ -261,6 +284,7 @@ def render_reading_session(
         user_id=user.id,
         task_id=state.task.id,
         question_ids=_question_ids(state),
+        duration_seconds=state.passage.recommended_minutes * 60,
     )
     if session.phase is ReadingExamPhase.INSTRUCTIONS:
         _render_instructions(user, state, selected_key)

@@ -99,3 +99,14 @@ def test_multi_bank_catalog_keeps_v1_lookup_compatible() -> None:
     assert tuple(catalog[:3]) == v1.passages
     assert get_reading_passage("AR-V1-002") == v1.passages[1]
     assert get_reading_passage("AR-V2-005").version == "2.0.0"
+
+
+def test_every_original_passage_declares_a_practice_specific_duration() -> None:
+    """Passage authors, not a global 60-minute default, set the timer."""
+
+    catalog = load_reading_catalog()
+
+    assert len(catalog) == 8
+    assert all(10 <= passage.recommended_minutes <= 40 for passage in catalog)
+    assert get_reading_passage("AR-V1-001").recommended_minutes == 24
+    assert get_reading_passage("AR-V2-005").recommended_minutes == 26

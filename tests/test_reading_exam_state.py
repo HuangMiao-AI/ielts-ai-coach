@@ -111,6 +111,23 @@ def test_timer_and_session_keys_are_deterministic_and_user_scoped() -> None:
     assert exam_session_key(8, 11) != exam_session_key(7, 11)
 
 
+def test_passage_specific_duration_reaches_zero_without_going_negative() -> None:
+    """A 24-minute passage must not inherit the old 60-minute duration."""
+
+    session = start_exam(
+        create_exam_session(
+            user_id=7,
+            task_id=11,
+            question_ids=QUESTION_IDS,
+            duration_seconds=24 * 60,
+        ),
+        now=STARTED_AT,
+    )
+
+    assert remaining_seconds(session, now=STARTED_AT + timedelta(minutes=23)) == 60
+    assert remaining_seconds(session, now=STARTED_AT + timedelta(minutes=25)) == 0
+
+
 def test_session_adapter_recovers_only_the_matching_user_task_draft() -> None:
     """Session drafts must never be reused for another user or task."""
 
