@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="utf-8" /><title>考试暂停控制</title></head>
+  <body>
+    <script>
+      (() => {
+        const post = (type, payload = {}) => window.parent.postMessage(
+          { isStreamlitMessage: true, type, ...payload }, "*"
+        );
+        const cleanup = (config) => {
+          const page = window.parent;
+          const doc = page.document;
+          const key = config.overlay_id + "-state";
+          const state = page[key];
+          doc.getElementById(config.overlay_id)?.remove();
+          doc.getElementById(config.overlay_id + "-style")?.remove();
+          if (!state) return;
+          state.root.removeAttribute("inert");
+          if ("inert" in state.root) state.root.inert = false;
+          state.root.removeAttribute("aria-hidden");
+          state.root.style.pointerEvents = state.pointer_events;
+          doc.body.style.overflow = state.body_overflow;
+          doc.body.style.touchAction = state.body_touch_action;
+          state.panes.forEach((pane) => {
+            pane.element.style.overflow = pane.overflow;
+            pane.element.style.overflowY = pane.overflow_y;
+            pane.element.scrollTop = pane.scroll_top;
+            pane.element.scrollLeft = pane.scroll_left;
+          });
+          doc.removeEventListener("wheel", state.block_scroll, true);
+          doc.removeEventListener("touchmove", state.block_scroll, true);
+          doc.removeEventListener("keydown", state.block_keyboard, true);
+          page.scrollTo(state.scroll_x, state.scroll_y);
+          delete page[key];
+        };
+        const render = (config) => {
+          cleanup(config);
+          if (!config.active) return;
+          const page = window.parent;
+          const doc = page.document;
+          const root = (config.root_class ? doc.querySelector("." + config.root_class) : null) ||
+            doc.querySelector('[data-testid="stMain"]');
+          if (!root) return;
+          const panes = Array.from(root.querySelectorAll(
+            '[data-testid="stVerticalBlock"]'
+          )).map((element) => ({
+            element, overflow: element.style.overflow,
+            overflow_y: element.style.overflowY,
+            scroll_top: element.scrollTop, scroll_left: element.scrollLeft,
+          }));
+          let overlay;
+          const block_scroll = (event) => event.preventDefault();
+          const block_keyboard = (event) => {
+            if (["Tab", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) {
+              event.preventDefault();
+              overlay?.querySelector("button")?.focus();
+            }
+          };
+          const state = {
+            root, panes, block_scroll, block_keyboard,
+            pointer_events: root.style.pointerEvents,
+            body_overflow: doc.body.style.overflow,
+            body_touch_action: doc.body.style.touchAction,
+            scroll_x: page.scrollX, scroll_y: page.scrollY,
+          };
+          page[config.overlay_id + "-state"] = state;
+          root.setAttribute("inert", "");
+          if ("inert" in root) root.inert = true;
+          root.setAttribute("aria-hidden", "true");
+          root.style.pointerEvents = "none";
+          panes.forEach((pane) => {
+            pane.element.style.overflow = "hidden";
+            pane.element.style.overflowY = "hidden";
+          });
+          doc.body.style.overflow = "hidden";
+          doc.body.style.touchAction = "none";
+          doc.addEventListener("wheel", block_scroll, { capture: true, passive: false });
+          doc.addEventListener("touchmove", block_scroll, { capture: true, passive: false });
+          doc.addEventListener("keydown", block_keyboard, true);
+          overlay = doc.createElement("section");
+          overlay.id = config.overlay_id;
+          overlay.setAttribute("role", "dialog");
+          overlay.setAttribute("aria-modal", "true");
+          overlay.innerHTML = '<div><p>' + config.subject + '</p><h1>考试已暂停</h1><p>剩余时间 <strong>' + config.remaining + '</strong></p><button type="button">恢复考试</button></div>';
+          doc.body.appendChild(overlay);
+          const style = doc.createElement("style");
+          style.id = config.overlay_id + "-style";
+          style.textContent = '#' + config.overlay_id + '{position:fixed;inset:0;z-index:99998;display:grid;place-items:center;background:rgba(8,17,28,.97);color:#fff;text-align:center}' +
+            '#' + config.overlay_id + ' div{width:min(28rem,calc(100vw - 2rem));padding:2rem;border-radius:1rem;background:#132638}' +
+            '#' + config.overlay_id + ' button{min-height:48px;width:min(22rem,100%);border:0;border-radius:.65rem;background:#58d3bd;color:#09231f;font-weight:800;font-size:1rem}' +
+            '.' + config.resume_class + '{display:none!important}';
+          doc.head.appendChild(style);
+          overlay.querySelector("button").addEventListener("click", () => {
+            cleanup(config);
+            doc.querySelector("." + config.resume_class + " button")?.click();
+            post("streamlit:setComponentValue", {
+              value: { action: "resume" }, dataType: "json"
+            });
+          });
+          page.addEventListener("pagehide", () => cleanup(config), { once: true });
+        };
+        window.addEventListener("message", (event) => {
+          if (event.data?.type === "streamlit:render") render(event.data.args || {});
+        });
+        post("streamlit:componentReady", { apiVersion: 1 });
+        post("streamlit:setFrameHeight", { height: 0 });
+      })();
+    </script>
+  </body>
+</html>

@@ -83,12 +83,23 @@ def test_writing_shared_controls_lock_editor_and_submit_after_timeout(
         button for button in app.button if button.label == "暂停计时"
     ).click().run(timeout=10)
     assert all(area.disabled for area in app.text_area)
-    assert any("计时已暂停" in item.value for item in app.info)
-
     app = next(
-        button for button in app.button if button.label == "恢复计时"
+        button for button in app.button if button.label == "恢复考试"
     ).click().run(timeout=10)
     assert all(not area.disabled for area in app.text_area)
+    resumed_content = next(
+        area for area in app.text_area if area.label == "作文正文"
+    )
+    resume_value_key = (
+        f"{draft_key(app.session_state['user_id'], 'writing', 'Academic-Task 1')}"
+        "_content_value"
+    )
+    resume_value = (
+        app.session_state[resume_value_key]
+        if resume_value_key in app.session_state
+        else None
+    )
+    assert "Public classes" in resumed_content.value, resume_value
 
     key = exam_control_key(
         app.session_state["user_id"],

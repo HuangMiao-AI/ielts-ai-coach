@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import lru_cache
 import json
 from pathlib import Path
-import re
 from typing import Any
+
+from ielts_ai_coach.services.question_models import (
+    ReadingBank,
+    ReadingPassage,
+    ReadingQuestion,
+    ReadingSection,
+)
+from ielts_ai_coach.services.review_content import build_question_review, build_vocabulary_items
 
 
 BANK_PATH = (
@@ -25,60 +31,6 @@ VALID_QUESTION_TYPES = {
 READING_PASSAGE_IDS = ("AR-V1-001", "AR-V1-002", "AR-V1-003")
 
 
-@dataclass(frozen=True)
-class ReadingSection:
-    """One labelled section of an original academic reading passage."""
-
-    label: str
-    text: str
-
-
-@dataclass(frozen=True)
-class ReadingQuestion:
-    """One deterministically scored question with review evidence."""
-
-    question_id: str
-    question_type: str
-    question: str
-    options: tuple[str, ...]
-    correct_answer: str
-    explanation: str
-    evidence: str
-
-
-@dataclass(frozen=True)
-class ReadingPassage:
-    """One versioned original passage and its complete question set."""
-
-    passage_id: str
-    version: str
-    title: str
-    recommended_minutes: int
-    sections: tuple[ReadingSection, ...]
-    questions: tuple[ReadingQuestion, ...]
-    topic: str
-    source_type: str
-    source_name: str
-    copyright_notice: str
-    is_official_ielts_content: bool
-
-    @property
-    def word_count(self) -> int:
-        """Return an English word count for source-quality checks."""
-
-        text = " ".join(section.text for section in self.sections)
-        return len(re.findall(r"\b[A-Za-z]+(?:[-'][A-Za-z]+)*\b", text))
-
-
-@dataclass(frozen=True)
-class ReadingBank:
-    """A validated immutable collection of original reading passages."""
-
-    bank_id: str
-    version: str
-    passages: tuple[ReadingPassage, ...]
-
-
 def _required_text(payload: dict[str, Any], field: str) -> str:
     """Read one required non-empty string from untrusted JSON."""
 
@@ -88,7 +40,11 @@ def _required_text(payload: dict[str, Any], field: str) -> str:
     return value.strip()
 
 
-def _build_question(payload: dict[str, Any]) -> ReadingQuestion:
+def _build_question(
+    payload: dict[str, Any],
+    *,
+    source_text: str,
+) -> ReadingQuestion:
     """Validate and construct one question."""
 
     question_type = _required_text(payload, "question_type")
@@ -107,14 +63,27 @@ def _build_question(payload: dict[str, Any]) -> ReadingQuestion:
     correct_answer = _required_text(payload, "correct_answer")
     if correct_answer not in clean_options:
         raise ValueError("answer_not_in_options")
+    question_id = _required_text(payload, "question_id")
+    question = _required_text(payload, "question")
+    explanation = _required_text(payload, "explanation")
+    evidence = _required_text(payload, "evidence")
     return ReadingQuestion(
-        question_id=_required_text(payload, "question_id"),
+        question_id=question_id,
         question_type=question_type,
-        question=_required_text(payload, "question"),
+        question=question,
         options=clean_options,
         correct_answer=correct_answer,
-        explanation=_required_text(payload, "explanation"),
-        evidence=_required_text(payload, "evidence"),
+        explanation=explanation,
+        evidence=evidence,
+        review=build_question_review(
+            question_id=question_id,
+            question_type=question_type,
+            question=question,
+            correct_answer=correct_answer,
+            explanation=explanation,
+            evidence=evidence,
+            source_text=source_text,
+        ),
     )
 
 
@@ -145,20 +114,34 @@ def _build_passage(
         for section in raw_sections
         if isinstance(section, dict)
     )
+    source_text = " ".join(section.text for section in sections)
     questions = tuple(
-        _build_question(question)
+        _build_question(question, source_text=source_text)
         for question in raw_questions
         if isinstance(question, dict)
     )
     if len(sections) != len(raw_sections) or len(questions) != len(raw_questions):
         raise ValueError("invalid_passage_items")
+    passage_id = _required_text(payload, "passage_id")
     passage = ReadingPassage(
-        passage_id=_required_text(payload, "passage_id"),
+        passage_id=passage_id,
         version=version,
         title=_required_text(payload, "title"),
         recommended_minutes=_required_recommended_minutes(payload),
         sections=sections,
         questions=questions,
+        vocabulary_items=build_vocabulary_items(
+            source_id=passage_id,
+            source_text=" ".join(
+                (
+                    source_text,
+                    *(question.question for question in questions),
+                    *(option for question in questions for option in question.options),
+                    *(question.explanation for question in questions),
+                    *(question.evidence for question in questions),
+                )
+            ),
+        ),
         topic=str(payload.get("topic", "Academic Skills")).strip()
         or "Academic Skills",
         source_type=_required_text(source, "source_type"),

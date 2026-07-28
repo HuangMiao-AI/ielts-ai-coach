@@ -1,8 +1,6 @@
-"""Original offline Listening mini tests with deterministic session scoring."""
+"""Original offline Listening practice with controller-owned audio and timing."""
 
 from __future__ import annotations
-
-from pathlib import Path
 
 import streamlit as st
 
@@ -14,13 +12,13 @@ from ielts_ai_coach.services.exam_controls import (
     load_exam_control,
     mark_submitted as mark_control_submitted,
     request_submission as request_control_submission,
+    resume_exam,
     save_exam_control,
 )
 from ielts_ai_coach.services.listening_bank import (
     ListeningQuestion,
     ListeningTest,
     get_listening_test,
-    load_listening_bank,
 )
 from ielts_ai_coach.services.listening_scoring import (
     ListeningScore,
@@ -31,23 +29,26 @@ from ielts_ai_coach.services.listening_session import (
     listening_confirmation_key,
     listening_result_key,
     listening_session_key,
+    request_listening_audio_command,
     selected_test_key,
 )
-from ielts_ai_coach.services.skill_sessions import (
-    SkillSession,
-    move_item,
-)
+from ielts_ai_coach.services.skill_sessions import SkillSession, move_item
 from ielts_ai_coach.views.exam_control_panel import (
     ExamControlAction,
     render_exam_control_panel,
 )
+from ielts_ai_coach.views.exam_hard_pause import (
+    render_hard_pause_overlay,
+)
+from ielts_ai_coach.views.listening_audio import (
+    render_controlled_listening_audio,
+    render_listening_toolbar,
+)
+from ielts_ai_coach.views.listening_start import render_listening_formal_start
 from ielts_ai_coach.views.listening_sections import (
     render_listening_library,
     render_listening_result,
 )
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _save_current_answer(
@@ -57,17 +58,14 @@ def _save_current_answer(
     *,
     editable: bool,
 ) -> None:
-    """Render and retain one answer without exposing its key."""
+    """Render and retain one answer without exposing its answer key."""
 
     key = listening_answer_key(user.id, test.test_id)
     answers = st.session_state.get(key)
     if not isinstance(answers, dict):
         answers = {}
     saved = str(answers.get(question.question_id, ""))
-    widget_key = (
-        f"listening_question_{user.id}_{test.test_id}_"
-        f"{question.question_id}"
-    )
+    widget_key = f"listening_question_{user.id}_{test.test_id}_{question.question_id}"
     if question.question_type == "multiple_choice":
         index = question.options.index(saved) if saved in question.options else None
         answer = st.radio(
@@ -93,12 +91,8 @@ def _save_current_answer(
     st.session_state[key] = answers
 
 
-def _render_question_navigation(
-    user: User,
-    test: ListeningTest,
-    session: SkillSession,
-) -> None:
-    """Render numbered and sequential question navigation."""
+def _render_question_navigation(user: User, test: ListeningTest, session: SkillSession) -> None:
+    """Render numbered question navigation without persistent bright highlighting."""
 
     st.caption("题号导航")
     columns = st.columns(8)
@@ -107,13 +101,10 @@ def _render_question_navigation(
         if columns[index % 8].button(
             str(index + 1),
             key=f"listening_jump_{user.id}_{test.test_id}_{index}",
-            type="primary" if index == session.current_index else "secondary",
+            type="secondary",
             use_container_width=True,
         ):
-            st.session_state[session_key] = move_item(
-                session,
-                index - session.current_index,
-            )
+            st.session_state[session_key] = move_item(session, index - session.current_index)
             st.rerun()
 
 
@@ -123,7 +114,7 @@ def _render_submit_controls(
     session: SkillSession,
     control: ExamSession,
 ) -> None:
-    """Render previous/next actions and explicit final confirmation."""
+    """Render navigation and explicit final confirmation without duplicate scoring."""
 
     session_key = listening_session_key(user.id, test.test_id)
     answers_key = listening_answer_key(user.id, test.test_id)
@@ -131,13 +122,8 @@ def _render_submit_controls(
     answered = len(answers) if isinstance(answers, dict) else 0
     remaining = len(test.questions) - answered
     st.caption(f"已答 {answered}/{len(test.questions)} · 未答 {remaining}")
-
     previous, next_column = st.columns(2)
-    if previous.button(
-        "上一题",
-        disabled=session.current_index == 0,
-        use_container_width=True,
-    ):
+    if previous.button("上一题", disabled=session.current_index == 0, use_container_width=True):
         st.session_state[session_key] = move_item(session, -1)
         st.rerun()
     if session.current_index < len(test.questions) - 1:
@@ -147,81 +133,57 @@ def _render_submit_controls(
     elif next_column.button(
         "检查并提交",
         type="primary",
-        disabled=control.status
-        not in {ExamStatus.RUNNING, ExamStatus.TIMED_OUT},
+        disabled=control.status not in {ExamStatus.RUNNING, ExamStatus.TIMED_OUT},
         use_container_width=True,
     ):
         if remaining and not control.timed_out:
             st.session_state[f"{session_key}_incomplete"] = remaining
         else:
             control = request_control_submission(control)
-            save_exam_control(
-                st.session_state,
-                user_id=user.id,
-                task_key=test.test_id,
-                session=control,
-            )
-            st.session_state[
-                listening_confirmation_key(user.id, test.test_id)
-            ] = True
+            request_listening_audio_command(st.session_state, user.id, test.test_id, "stop")
+            save_exam_control(st.session_state, user_id=user.id, task_key=test.test_id, session=control)
+            st.session_state[listening_confirmation_key(user.id, test.test_id)] = True
         st.rerun()
-
     incomplete = st.session_state.pop(f"{session_key}_incomplete", None)
     if isinstance(incomplete, int):
         st.error(f"还有 {incomplete} 题未作答，请完成后再提交。")
     confirm_key = listening_confirmation_key(user.id, test.test_id)
-    if st.session_state.get(confirm_key) is True:
-        if control.status is ExamStatus.TIMED_OUT:
-            control = request_control_submission(control)
-            save_exam_control(
-                st.session_state,
-                user_id=user.id,
-                task_key=test.test_id,
-                session=control,
-            )
-        warning = "提交后无法修改答案。请确认提交本次听力练习。"
-        if control.timed_out:
-            warning += " 未作答题目将在交卷后计为错误。"
-        st.warning(warning)
-        confirm, cancel = st.columns(2)
-        if confirm.button(
-            "确认提交",
-            type="primary",
-            use_container_width=True,
-        ):
-            score = score_listening_answers(
-                test,
-                answers,
-                allow_incomplete=control.timed_out,
-            )
-            st.session_state[
-                listening_result_key(user.id, test.test_id)
-            ] = score
-            save_exam_control(
-                st.session_state,
-                user_id=user.id,
-                task_key=test.test_id,
-                session=mark_control_submitted(control),
-            )
-            st.session_state[confirm_key] = False
-            st.rerun()
-        if cancel.button("返回检查", use_container_width=True):
-            save_exam_control(
-                st.session_state,
-                user_id=user.id,
-                task_key=test.test_id,
-                session=cancel_control_submission(control),
-            )
-            st.session_state[confirm_key] = False
-            st.rerun()
+    if st.session_state.get(confirm_key) is not True:
+        return
+    if control.status is ExamStatus.TIMED_OUT:
+        control = request_control_submission(control)
+        save_exam_control(st.session_state, user_id=user.id, task_key=test.test_id, session=control)
+    warning = "提交后无法修改答案。请确认提交本次听力练习。"
+    if control.timed_out:
+        warning += " 未作答题目将在交卷后计为错误。"
+    st.warning(warning)
+    confirm, cancel = st.columns(2)
+    if confirm.button("确认提交", type="primary", use_container_width=True):
+        score = score_listening_answers(test, answers, allow_incomplete=control.timed_out)
+        st.session_state[listening_result_key(user.id, test.test_id)] = score
+        save_exam_control(
+            st.session_state,
+            user_id=user.id,
+            task_key=test.test_id,
+            session=mark_control_submitted(control),
+        )
+        st.session_state[confirm_key] = False
+        st.rerun()
+    if cancel.button("返回检查", use_container_width=True):
+        save_exam_control(
+            st.session_state,
+            user_id=user.id,
+            task_key=test.test_id,
+            session=cancel_control_submission(control),
+        )
+        st.session_state[confirm_key] = False
+        st.rerun()
 
 
 def _render_test(user: User, test: ListeningTest, session: SkillSession) -> None:
-    """Render audio, current question, navigation, and submission."""
+    """Render one official session, audio state, questions, and submission flow."""
 
-    result = st.session_state.get(
-        listening_result_key(user.id, test.test_id)
-    )
+    result = st.session_state.get(listening_result_key(user.id, test.test_id))
     if isinstance(result, ListeningScore):
         render_listening_result(user, test, result)
         return
@@ -233,43 +195,44 @@ def _render_test(user: User, test: ListeningTest, session: SkillSession) -> None
         duration_seconds=session.duration_seconds,
         now=session.started_at,
     )
-    control, action = render_exam_control_panel(control)
-    save_exam_control(
-        st.session_state,
-        user_id=user.id,
-        task_key=test.test_id,
-        session=control,
+    root_key = f"exam_root_listening_{user.id}_{test.test_id}"
+    control, action = render_exam_control_panel(
+        control,
+        pause_root_key=root_key,
     )
-    if action in {
-        ExamControlAction.PAUSED,
-        ExamControlAction.RESUMED,
-    }:
-        st.rerun()
+    if action is ExamControlAction.PAUSED:
+        request_listening_audio_command(st.session_state, user.id, test.test_id, "pause")
+    elif action is ExamControlAction.TIMED_OUT:
+        request_listening_audio_command(st.session_state, user.id, test.test_id, "stop")
+    save_exam_control(st.session_state, user_id=user.id, task_key=test.test_id, session=control)
     st.title(test.title)
-    st.caption("原创本地音频 · 提交前不显示答案或解析")
-    audio_path = PROJECT_ROOT / test.audio_path
-    st.audio(audio_path.read_bytes(), format="audio/wav")
+    st.caption("原创本地音频 · 仅在正式开始后计时 · 提交前不显示答案或解析")
+    audio_state = render_controlled_listening_audio(user, test, control)
+    if control.status is ExamStatus.PAUSED:
+        if render_hard_pause_overlay(control, subject="听力", root_key=root_key):
+            control = resume_exam(control)
+            request_listening_audio_command(st.session_state, user.id, test.test_id, "resume")
+            save_exam_control(st.session_state, user_id=user.id, task_key=test.test_id, session=control)
+            st.rerun()
+        return
     question = test.questions[session.current_index]
-    section = next(
-        item for item in test.sections if question in item.questions
-    )
-    st.caption(
-        f"{section.title} · "
-        f"第 {session.current_index + 1}/{len(test.questions)} 题"
+    section = next(item for item in test.sections if question in item.questions)
+    answers = st.session_state.get(listening_answer_key(user.id, test.test_id), {})
+    render_listening_toolbar(
+        test,
+        question_number=session.current_index + 1,
+        section_title=section.title,
+        answered=len(answers) if isinstance(answers, dict) else 0,
+        state=audio_state,
     )
     st.progress(session.progress)
-    _save_current_answer(
-        user,
-        test,
-        question,
-        editable=control.status is ExamStatus.RUNNING,
-    )
+    _save_current_answer(user, test, question, editable=control.status is ExamStatus.RUNNING)
     _render_question_navigation(user, test, session)
     _render_submit_controls(user, test, session, control)
 
 
 def render_listening_page(user: User) -> None:
-    """Render the independent original Listening practice flow."""
+    """Render the independent original Listening formal-start and exam flow."""
 
     selected = st.session_state.get(selected_test_key(user.id))
     if not isinstance(selected, str):
@@ -283,7 +246,6 @@ def render_listening_page(user: User) -> None:
         return
     session = st.session_state.get(listening_session_key(user.id, test.test_id))
     if not isinstance(session, SkillSession) or session.user_id != user.id:
-        st.session_state.pop(selected_test_key(user.id), None)
-        st.rerun()
+        render_listening_formal_start(user, test)
         return
     _render_test(user, test, session)

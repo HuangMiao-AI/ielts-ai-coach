@@ -8,6 +8,7 @@ import unicodedata
 from typing import Mapping
 
 from ielts_ai_coach.services.question_bank import ReadingPassage
+from ielts_ai_coach.services.review_content import QuestionReview, build_question_review
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,12 @@ class ReadingQuestionResult:
     is_correct: bool
     explanation: str
     evidence: str
+    explanation_zh: str
+    evidence_text: str
+    evidence_translation_zh: str
+    tested_skill: str
+    common_mistake_zh: str
+    synonym_pairs: tuple[tuple[str, str], ...]
 
 
 @dataclass(frozen=True)
@@ -79,6 +86,12 @@ def score_reading_answers(
                 is_correct=is_correct,
                 explanation=question.explanation,
                 evidence=question.evidence,
+                explanation_zh=question.explanation_zh,
+                evidence_text=question.evidence_text,
+                evidence_translation_zh=question.evidence_translation_zh,
+                tested_skill=question.tested_skill,
+                common_mistake_zh=question.common_mistake_zh,
+                synonym_pairs=question.synonym_pairs,
             )
         )
     correct_count = sum(result.is_correct for result in results)
@@ -109,20 +122,7 @@ def deserialize_reading_score(payload: str) -> ReadingScore:
 
     data = json.loads(payload)
     raw_results = data.get("results", [])
-    results = tuple(
-        ReadingQuestionResult(
-            question_id=str(item["question_id"]),
-            question_type=str(item["question_type"]),
-            question=str(item["question"]),
-            options=tuple(str(option) for option in item["options"]),
-            user_answer=str(item["user_answer"]),
-            correct_answer=str(item["correct_answer"]),
-            is_correct=item["is_correct"] is True,
-            explanation=str(item["explanation"]),
-            evidence=str(item["evidence"]),
-        )
-        for item in raw_results
-    )
+    results = tuple(_deserialize_result(item) for item in raw_results)
     return ReadingScore(
         passage_id=str(data["passage_id"]),
         passage_version=str(data["passage_version"]),
@@ -131,4 +131,72 @@ def deserialize_reading_score(payload: str) -> ReadingScore:
         total_questions=int(data["total_questions"]),
         accuracy=float(data["accuracy"]),
         results=results,
+    )
+
+
+def _deserialize_result(item: object) -> ReadingQuestionResult:
+    """Restore new fields or safely enrich an older stored result snapshot."""
+
+    if not isinstance(item, dict):
+        raise ValueError("invalid_reading_result")
+    question_id = str(item["question_id"])
+    question_type = str(item["question_type"])
+    question = str(item["question"])
+    correct_answer = str(item["correct_answer"])
+    explanation = str(item["explanation"])
+    evidence = str(item["evidence"])
+    try:
+        review = build_question_review(
+            question_id=question_id,
+            question_type=question_type,
+            question=question,
+            correct_answer=correct_answer,
+            explanation=explanation,
+            evidence=evidence,
+            source_text=str(item.get("evidence_text", evidence)),
+        )
+    except ValueError:
+        review = _legacy_review(question, correct_answer, explanation, evidence)
+    return ReadingQuestionResult(
+        question_id=question_id,
+        question_type=question_type,
+        question=question,
+        options=tuple(str(option) for option in item["options"]),
+        user_answer=str(item["user_answer"]),
+        correct_answer=correct_answer,
+        is_correct=item["is_correct"] is True,
+        explanation=explanation,
+        evidence=evidence,
+        explanation_zh=str(item.get("explanation_zh", review.explanation_zh)),
+        evidence_text=str(item.get("evidence_text", review.evidence_text)),
+        evidence_translation_zh=str(
+            item.get("evidence_translation_zh", review.evidence_translation_zh)
+        ),
+        tested_skill=str(item.get("tested_skill", review.tested_skill)),
+        common_mistake_zh=str(
+            item.get("common_mistake_zh", review.common_mistake_zh)
+        ),
+        synonym_pairs=tuple(
+            tuple(str(value) for value in pair)
+            for pair in item.get("synonym_pairs", review.synonym_pairs)
+        ),
+    )
+
+
+def _legacy_review(
+    question: str,
+    correct_answer: str,
+    explanation: str,
+    evidence: str,
+) -> QuestionReview:
+    """Keep pre-review snapshots readable when they are not current bank items."""
+
+    return QuestionReview(
+        explanation_zh=f"历史记录的正确答案为“{correct_answer}”。{explanation}",
+        explanation_en_optional=explanation,
+        evidence_text=evidence,
+        evidence_translation_zh="该历史记录未保存中文证据译文。",
+        tested_skill="历史记录未保存可还原的考点标签。",
+        common_mistake_zh="请结合题目与保存的原始证据复核本次作答。",
+        synonym_pairs=((question, evidence),),
     )

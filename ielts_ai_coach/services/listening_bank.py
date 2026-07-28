@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import lru_cache
 import json
 from pathlib import Path
 from typing import Any
+
+from ielts_ai_coach.services.listening_models import (
+    ListeningBank,
+    ListeningQuestion,
+    ListeningScriptTurn,
+    ListeningSection,
+    ListeningTest,
+)
+from ielts_ai_coach.services.review_content import build_question_review, build_vocabulary_items
 
 
 BANK_PATH = (
@@ -23,73 +31,6 @@ VALID_QUESTION_TYPES = {
 VALID_SPEAKERS = {"Speaker A", "Speaker B", "Narrator"}
 
 
-@dataclass(frozen=True)
-class ListeningScriptTurn:
-    """One voiced turn in an original Listening script."""
-
-    speaker: str
-    text: str
-    pause_ms: int
-
-
-@dataclass(frozen=True)
-class ListeningQuestion:
-    """One deterministically scored Listening question."""
-
-    question_id: str
-    question_type: str
-    question: str
-    options: tuple[str, ...]
-    correct_answer: str
-    explanation: str
-    evidence: str
-
-
-@dataclass(frozen=True)
-class ListeningSection:
-    """One scenario, script, and ordered question group."""
-
-    section_id: str
-    title: str
-    scenario: str
-    script: tuple[ListeningScriptTurn, ...]
-    questions: tuple[ListeningQuestion, ...]
-
-
-@dataclass(frozen=True)
-class ListeningTest:
-    """One complete two-section original mini test."""
-
-    test_id: str
-    title: str
-    audio_path: str
-    estimated_minutes: int
-    sections: tuple[ListeningSection, ...]
-
-    @property
-    def questions(self) -> tuple[ListeningQuestion, ...]:
-        """Return all questions in playback order."""
-
-        return tuple(
-            question
-            for section in self.sections
-            for question in section.questions
-        )
-
-
-@dataclass(frozen=True)
-class ListeningBank:
-    """Immutable validated collection of Listening mini tests."""
-
-    bank_id: str
-    version: str
-    source_type: str
-    source_name: str
-    copyright_notice: str
-    is_official_ielts_content: bool
-    tests: tuple[ListeningTest, ...]
-
-
 def _text(payload: dict[str, Any], field: str) -> str:
     """Read one required non-empty text value."""
 
@@ -99,7 +40,11 @@ def _text(payload: dict[str, Any], field: str) -> str:
     return value.strip()
 
 
-def _question(payload: dict[str, Any]) -> ListeningQuestion:
+def _question(
+    payload: dict[str, Any],
+    *,
+    source_text: str,
+) -> ListeningQuestion:
     """Validate one question and its scoring contract."""
 
     question_type = _text(payload, "question_type")
@@ -118,14 +63,27 @@ def _question(payload: dict[str, Any]) -> ListeningQuestion:
     answer = _text(payload, "correct_answer")
     if options and answer not in options:
         raise ValueError("answer_not_in_options")
+    question_id = _text(payload, "question_id")
+    question = _text(payload, "question")
+    explanation = _text(payload, "explanation")
+    evidence = _text(payload, "evidence")
     return ListeningQuestion(
-        question_id=_text(payload, "question_id"),
+        question_id=question_id,
         question_type=question_type,
-        question=_text(payload, "question"),
+        question=question,
         options=options,
         correct_answer=answer,
-        explanation=_text(payload, "explanation"),
-        evidence=_text(payload, "evidence"),
+        explanation=explanation,
+        evidence=evidence,
+        review=build_question_review(
+            question_id=question_id,
+            question_type=question_type,
+            question=question,
+            correct_answer=answer,
+            explanation=explanation,
+            evidence=evidence,
+            source_text=source_text,
+        ),
     )
 
 
@@ -153,17 +111,37 @@ def _section(payload: dict[str, Any]) -> ListeningSection:
         for turn in script
     ):
         raise ValueError("invalid_script")
+    source_text = " ".join(turn.text for turn in script)
     questions = tuple(
-        _question(item) for item in raw_questions if isinstance(item, dict)
+        _question(item, source_text=source_text)
+        for item in raw_questions
+        if isinstance(item, dict)
     )
     if len(questions) != len(raw_questions):
         raise ValueError("invalid_questions")
+    section_id = _text(payload, "section_id")
+    title = _text(payload, "title")
+    scenario = _text(payload, "scenario")
     return ListeningSection(
-        section_id=_text(payload, "section_id"),
-        title=_text(payload, "title"),
-        scenario=_text(payload, "scenario"),
+        section_id=section_id,
+        title=title,
+        scenario=scenario,
         script=script,
         questions=questions,
+        vocabulary_items=build_vocabulary_items(
+            source_id=section_id,
+            source_text=" ".join(
+                (
+                    title,
+                    scenario,
+                    source_text,
+                    *(question.question for question in questions),
+                    *(option for question in questions for option in question.options),
+                    *(question.explanation for question in questions),
+                    *(question.evidence for question in questions),
+                )
+            ),
+        ),
     )
 
 

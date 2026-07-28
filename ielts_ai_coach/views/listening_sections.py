@@ -5,7 +5,6 @@ from __future__ import annotations
 import streamlit as st
 
 from ielts_ai_coach.database.models import User
-from ielts_ai_coach.services.exam_controls import load_exam_control
 from ielts_ai_coach.services.listening_bank import (
     ListeningTest,
     load_listening_bank,
@@ -13,10 +12,9 @@ from ielts_ai_coach.services.listening_bank import (
 from ielts_ai_coach.services.listening_scoring import ListeningScore
 from ielts_ai_coach.services.listening_session import (
     listening_result_key,
-    listening_session_key,
     selected_test_key,
 )
-from ielts_ai_coach.services.skill_sessions import SkillSession, start_session
+from ielts_ai_coach.views.review_components import render_listening_review
 
 
 def render_listening_library(user: User) -> None:
@@ -49,25 +47,6 @@ def render_listening_library(user: User) -> None:
             ):
                 continue
             st.session_state[selected_test_key(user.id)] = test.test_id
-            session_key = listening_session_key(user.id, test.test_id)
-            saved = st.session_state.get(session_key)
-            session = start_session(
-                session=saved if isinstance(saved, SkillSession) else None,
-                user_id=user.id,
-                skill="listening",
-                task_key=test.test_id,
-                item_count=len(test.questions),
-                duration_seconds=test.estimated_minutes * 60,
-            )
-            st.session_state[session_key] = session
-            load_exam_control(
-                st.session_state,
-                user_id=user.id,
-                skill="listening",
-                task_key=test.test_id,
-                duration_seconds=session.duration_seconds,
-                now=session.started_at,
-            )
             st.rerun()
 
 
@@ -80,18 +59,7 @@ def render_listening_result(
 
     st.title("听力练习结果")
     st.caption("结果仅保存在当前会话，不写入数据库或学习分析。")
-    total, accuracy = st.columns(2)
-    total.metric("总分", f"{score.correct_count}/{score.total_questions}")
-    accuracy.metric("正确率", f"{score.accuracy:.0%}")
-    for index, result in enumerate(score.results, start=1):
-        marker = "✅" if result.is_correct else "❌"
-        with st.container(border=True):
-            st.markdown(f"### {marker} 第 {index} 题")
-            st.write(result.question)
-            st.markdown(f"**你的答案：** {result.user_answer or '未作答'}")
-            st.markdown(f"**正确答案：** {result.correct_answer}")
-            st.markdown(f"**解析：** {result.explanation}")
-            st.markdown(f"**音频证据：** {result.evidence}")
+    render_listening_review(score, test)
     if st.button("返回听力题库", use_container_width=True):
         st.session_state.pop(selected_test_key(user.id), None)
         st.rerun()

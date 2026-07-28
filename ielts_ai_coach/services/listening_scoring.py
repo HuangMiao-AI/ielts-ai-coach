@@ -14,12 +14,19 @@ class ListeningQuestionResult:
     """One answer outcome with review evidence."""
 
     question_id: str
+    question_type: str
     question: str
     user_answer: str
     correct_answer: str
     is_correct: bool
     explanation: str
     evidence: str
+    explanation_zh: str
+    evidence_text: str
+    evidence_translation_zh: str
+    tested_skill: str
+    common_mistake_zh: str
+    synonym_pairs: tuple[tuple[str, str], ...]
 
 
 @dataclass(frozen=True)
@@ -61,6 +68,7 @@ def score_listening_answers(
     results = tuple(
         ListeningQuestionResult(
             question_id=question.question_id,
+            question_type=question.question_type,
             question=question.question,
             user_answer=answers.get(question.question_id, "").strip(),
             correct_answer=question.correct_answer,
@@ -72,6 +80,12 @@ def score_listening_answers(
             ),
             explanation=question.explanation,
             evidence=question.evidence,
+            explanation_zh=question.explanation_zh,
+            evidence_text=question.evidence_text,
+            evidence_translation_zh=question.evidence_translation_zh,
+            tested_skill=question.tested_skill,
+            common_mistake_zh=question.common_mistake_zh,
+            synonym_pairs=question.synonym_pairs,
         )
         for question in test.questions
     )

@@ -1,7 +1,5 @@
 """Simplified Chinese IELTS Level 2 writing-feedback page."""
-
 from __future__ import annotations
-
 import streamlit as st
 
 from ielts_ai_coach.ai.factory import get_ai_provider
@@ -11,6 +9,7 @@ from ielts_ai_coach.services.exam_controls import (
     ExamStatus,
     exam_control_key,
     load_exam_control,
+    resume_exam,
     save_exam_control,
 )
 from ielts_ai_coach.services.skill_sessions import draft_key
@@ -28,6 +27,9 @@ from ielts_ai_coach.views.exam_control_panel import (
     ExamControlAction,
     render_exam_control_panel,
 )
+from ielts_ai_coach.views.exam_hard_pause import (
+    render_hard_pause_overlay,
+)
 from ielts_ai_coach.views.writing_actions import (
     WritingDraftKeys,
     render_recent_history,
@@ -38,7 +40,6 @@ from ielts_ai_coach.views.writing_feedback_view import render_feedback
 
 def _apply_writing_task_prefill() -> bool:
     """Load a trusted writing-plan prompt into stable form widget keys."""
-
     prefill = st.session_state.pop("writing_task_prefill", None)
     if not isinstance(prefill, dict):
         return False
@@ -57,10 +58,8 @@ def _apply_writing_task_prefill() -> bool:
     st.session_state["writing_pending_prompt"] = prompt[:2000]
     return True
 
-
 def render_writing_page(user: User) -> None:
     """Render essay submission, structured feedback, and recent history."""
-
     provider = get_ai_provider()
     remaining = get_writing_remaining(user.id)
     was_prefilled = _apply_writing_task_prefill()
@@ -103,6 +102,8 @@ def render_writing_page(user: User) -> None:
     content_key = f"{active_draft_key}_content"
     prompt_value_key = f"{prompt_key}_value"
     content_value_key = f"{content_key}_value"
+    revision_key = f"{content_key}_editor_revision"
+    content_editor_key = f"{content_key}_editor_{st.session_state.get(revision_key, 0)}"
     control_task_key = f"{test_type}-{task_type}"
     control_key = exam_control_key(
         user.id,
@@ -111,9 +112,10 @@ def render_writing_page(user: User) -> None:
     )
     control_status_key = f"{control_key}_last_status"
     control: ExamSession | None = None
-    existing_content = st.session_state.get(
-        content_key,
-        st.session_state.get(content_value_key),
+    existing_content = (
+        st.session_state.get(content_editor_key)
+        or st.session_state.get(content_key)
+        or st.session_state.get(content_value_key)
     )
     if (
         isinstance(existing_content, str)
@@ -126,13 +128,45 @@ def render_writing_page(user: User) -> None:
             task_key=control_task_key,
             duration_seconds=original_task.suggested_minutes * 60,
         )
-        control, action = render_exam_control_panel(control)
+        root_key = f"exam_root_writing_{user.id}_{control_task_key}"
+        control, action = render_exam_control_panel(
+            control,
+            pause_root_key=root_key,
+        )
         save_exam_control(
             st.session_state,
             user_id=user.id,
             task_key=control_task_key,
             session=control,
         )
+        if control.status is ExamStatus.PAUSED:
+            for widget_key, value_key in (
+                (prompt_key, prompt_value_key),
+                (content_key, content_value_key),
+            ):
+                current_value = st.session_state.get(widget_key)
+                saved_value = st.session_state.get(value_key)
+                if isinstance(current_value, str) and (
+                    current_value.strip()
+                    or not isinstance(saved_value, str)
+                    or not saved_value.strip()
+                ):
+                    st.session_state[value_key] = current_value
+            if render_hard_pause_overlay(
+                control,
+                subject="写作",
+                root_key=root_key,
+            ):
+                control = resume_exam(control)
+                save_exam_control(
+                    st.session_state,
+                    user_id=user.id,
+                    task_key=control_task_key,
+                    session=control,
+                )
+                st.rerun()
+            st.session_state[control_status_key] = control.status.value
+            return
         if action in {
             ExamControlAction.PAUSED,
             ExamControlAction.RESUMED,
@@ -145,18 +179,44 @@ def render_writing_page(user: User) -> None:
     current_control_status = (
         control.status.value if control is not None else "not_started"
     )
+    if (
+        st.session_state.get(control_status_key) == ExamStatus.PAUSED.value
+        and current_control_status == ExamStatus.RUNNING.value
+    ):
+        st.session_state[revision_key] = int(st.session_state.get(revision_key, 0)) + 1
+    content_editor_key = f"{content_key}_editor_{st.session_state.get(revision_key, 0)}"
     status_changed = (
         st.session_state.get(control_status_key)
         != current_control_status
     )
     for widget_key, value_key in (
         (prompt_key, prompt_value_key),
-        (content_key, content_value_key),
+        (content_editor_key, content_value_key),
     ):
         current_value = st.session_state.get(widget_key)
-        if status_changed and value_key in st.session_state:
+        saved_value = st.session_state.get(value_key)
+        has_new_edit = editable and isinstance(current_value, str) and bool(
+            current_value.strip()
+        )
+        if (
+            editable
+            and isinstance(current_value, str)
+            and not current_value.strip()
+            and isinstance(saved_value, str)
+            and saved_value.strip()
+        ):
+            st.session_state[widget_key] = saved_value
+        elif (
+            status_changed
+            and value_key in st.session_state
+            and not has_new_edit
+        ):
             st.session_state[widget_key] = st.session_state[value_key]
-        elif editable and isinstance(current_value, str):
+        elif (
+            editable
+            and isinstance(current_value, str)
+            and (current_value or not st.session_state.get(value_key))
+        ):
             st.session_state[value_key] = current_value
         elif not editable and value_key in st.session_state:
             st.session_state[widget_key] = st.session_state[value_key]
@@ -179,12 +239,13 @@ def render_writing_page(user: User) -> None:
         max_chars=12000,
         height=320,
         placeholder="在这里输入或粘贴你的英文作文",
-        key=content_key,
+        key=content_editor_key,
         disabled=not editable,
     )
     if editable and not status_changed:
         st.session_state[prompt_value_key] = prompt
-        st.session_state[content_value_key] = content
+        if content or not st.session_state.get(content_value_key):
+            st.session_state[content_value_key] = content
     else:
         prompt = str(st.session_state.get(prompt_value_key, prompt))
         content = str(st.session_state.get(content_value_key, content))
@@ -216,7 +277,7 @@ def render_writing_page(user: User) -> None:
 
     keys = WritingDraftKeys(
         prompt=prompt_key,
-        content=content_key,
+        content=content_editor_key,
         prompt_value=prompt_value_key,
         content_value=content_value_key,
         clear=f"{active_draft_key}_clear",

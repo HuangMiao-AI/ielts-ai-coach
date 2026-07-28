@@ -151,9 +151,7 @@ def test_reading_shared_controls_pause_resume_and_submit_after_timeout(
 
     app = _button(app, "暂停计时").click().run(timeout=10)
     assert all(item.disabled for item in app.radio)
-    assert any("计时已暂停" in item.value for item in app.info)
-
-    app = _button(app, "恢复计时").click().run(timeout=10)
+    app = _button(app, "恢复考试").click().run(timeout=10)
     assert all(not item.disabled for item in app.radio)
 
     key = exam_control_key(

@@ -9,13 +9,13 @@ from ielts_ai_coach.services.exam_controls import (
     ExamSession,
     ExamStatus,
     load_exam_control,
+    resume_exam,
     save_exam_control,
 )
 from ielts_ai_coach.services.exam_state import (
     ReadingExamPhase,
     answer_question,
     jump_to_question,
-    start_exam,
     unanswered_question_ids,
 )
 from ielts_ai_coach.services.reading_exam import (
@@ -40,6 +40,13 @@ from ielts_ai_coach.views.exam_control_panel import (
     ExamControlAction,
     render_exam_control_panel,
 )
+from ielts_ai_coach.views.exam_hard_pause import (
+    render_hard_pause_overlay,
+)
+from ielts_ai_coach.views.reading_instructions import (
+    reading_question_ids,
+    render_reading_instructions,
+)
 from ielts_ai_coach.views.reading_submission import (
     render_reading_confirmation,
     request_reading_submission,
@@ -55,47 +62,6 @@ QUESTION_TYPE_LABELS = {
     "true_false_not_given": "True / False / Not Given",
     "matching_heading": "Matching Heading",
 }
-
-
-def _question_ids(state: ReadingPracticeState) -> tuple[str, ...]:
-    """Return stable question identifiers for one practice."""
-
-    return tuple(question.question_id for question in state.passage.questions)
-
-
-def _render_instructions(user: User, state: ReadingPracticeState, selected_key: str) -> None:
-    """Render rules before starting the stable exam timer."""
-
-    st.title(state.passage.title)
-    st.subheader("考试说明")
-    st.write(
-        f"本练习共 {len(state.passage.questions)} 题，推荐时间：{state.passage.recommended_minutes} 分钟。"
-    )
-    st.write("提交前不会显示正确答案或解析；确认提交后答案将无法修改。")
-    st.caption("草稿只保存在当前浏览器会话中，关闭会话后可能无法恢复。")
-    back, start = st.columns(2)
-    if back.button("返回题库", use_container_width=True):
-        st.session_state.pop(selected_key, None)
-        st.rerun()
-    if start.button("开始计时练习", type="primary", use_container_width=True):
-        session = load_exam_session(
-            st.session_state,
-            user_id=user.id,
-            task_id=state.task.id,
-            question_ids=_question_ids(state),
-            duration_seconds=state.passage.recommended_minutes * 60,
-        )
-        session = start_exam(session)
-        save_exam_session(st.session_state, session)
-        load_exam_control(
-            st.session_state,
-            user_id=user.id,
-            skill="reading",
-            task_key=str(state.task.id),
-            duration_seconds=session.duration_seconds,
-            now=session.started_at,
-        )
-        st.rerun()
 
 
 def _render_question_navigation(state: ReadingPracticeState, session) -> None:
@@ -251,11 +217,11 @@ def render_reading_session(
         st.session_state,
         user_id=user.id,
         task_id=state.task.id,
-        question_ids=_question_ids(state),
+        question_ids=reading_question_ids(state),
         duration_seconds=state.passage.recommended_minutes * 60,
     )
     if session.phase is ReadingExamPhase.INSTRUCTIONS:
-        _render_instructions(user, state, selected_key)
+        render_reading_instructions(user, state, selected_key)
         return
     control = load_exam_control(
         st.session_state,
@@ -265,7 +231,11 @@ def render_reading_session(
         duration_seconds=session.duration_seconds,
         now=session.started_at,
     )
-    control, action = render_exam_control_panel(control)
+    root_key = f"exam_root_reading_{user.id}_{state.task.id}"
+    control, action = render_exam_control_panel(
+        control,
+        pause_root_key=root_key,
+    )
     session = sync_reading_session(session, control)
     save_exam_session(st.session_state, session)
     save_exam_control(
@@ -274,6 +244,23 @@ def render_reading_session(
         task_key=str(state.task.id),
         session=control,
     )
+    if control.status is ExamStatus.PAUSED:
+        if render_hard_pause_overlay(
+            control,
+            subject="阅读",
+            root_key=root_key,
+        ):
+            control = resume_exam(control)
+            session = sync_reading_session(session, control)
+            save_exam_session(st.session_state, session)
+            save_exam_control(
+                st.session_state,
+                user_id=user.id,
+                task_key=str(state.task.id),
+                session=control,
+            )
+            st.rerun()
+        return
     if action in {
         ExamControlAction.PAUSED,
         ExamControlAction.RESUMED,

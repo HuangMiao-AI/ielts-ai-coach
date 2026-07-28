@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; }
+      body { margin: 0; background: transparent; }
+      .player { display: grid; grid-template-columns: auto 1fr auto; gap: .65rem; align-items: center; min-height: 52px; padding: .45rem .65rem; border: 1px solid #b9d9d5; border-radius: .7rem; background: #f5fbfa; color: #12343b; }
+      button { min-height: 38px; border: 0; border-radius: .45rem; padding: 0 .8rem; background: #0f766e; color: white; font-weight: 700; cursor: pointer; }
+      button:disabled { background: #8ca4a2; cursor: not-allowed; }
+      .details { display: grid; gap: .28rem; min-width: 0; }
+      input[type="range"] { width: 100%; accent-color: #0f766e; }
+      .line { display: flex; justify-content: space-between; gap: .5rem; font-size: .8rem; }
+      #status { color: #426764; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      @media (max-width: 420px) { .player { grid-template-columns: auto 1fr; } #time { grid-column: 2; } }
+    </style>
+  </head>
+  <body>
+    <main class="player" aria-label="听力音频播放器">
+      <button id="toggle" type="button">播放</button>
+      <div class="details">
+        <input id="seek" type="range" min="0" max="0" value="0" step="0.1" aria-label="音频进度" />
+        <div class="line"><span id="status">正在载入音频</span><span id="time">00:00 / 00:00</span></div>
+      </div>
+      <span id="lock" hidden>已锁定</span>
+    </main>
+    <audio id="audio" preload="metadata"></audio>
+    <script>
+      (() => {
+        const audio = document.getElementById("audio");
+        const toggle = document.getElementById("toggle");
+        const seek = document.getElementById("seek");
+        const status = document.getElementById("status");
+        const time = document.getElementById("time");
+        const lock = document.getElementById("lock");
+        let locked = false;
+        let lastCommandId = -1;
+        let sourceUrl = "";
+        let playbackState = "idle";
+        let lastSentSecond = -1;
+        let pendingSeek = null;
+
+        const post = (type, payload) => {
+          window.parent.postMessage({ isStreamlitMessage: true, type, ...payload }, "*");
+        };
+        const setReady = () => post("streamlit:componentReady", { apiVersion: 1 });
+        const seconds = (value) => {
+          const safe = Number.isFinite(value) && value >= 0 ? value : 0;
+          return String(Math.floor(safe / 60)).padStart(2, "0") + ":" + String(Math.floor(safe % 60)).padStart(2, "0");
+        };
+        const label = () => ({
+          idle: "等待播放", loading: "正在载入音频", playing: "正在播放", paused: "音频已暂停", ended: "播放结束", error: "音频无法播放"
+        }[playbackState] || "等待播放");
+        const refresh = () => {
+          const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+          seek.max = String(duration);
+          seek.value = String(Math.min(audio.currentTime || 0, duration));
+          time.textContent = seconds(audio.currentTime) + " / " + seconds(duration);
+          status.textContent = locked ? "考试已锁定，音频已停止" : label();
+          toggle.textContent = playbackState === "playing" ? "暂停音频" : "播放音频";
+          toggle.disabled = locked || !sourceUrl || playbackState === "loading";
+          seek.disabled = locked || !sourceUrl || !duration;
+          lock.hidden = !locked;
+        };
+        const emit = () => {
+          post("streamlit:setComponentValue", {
+            value: {
+              current_time: Number(audio.currentTime || 0),
+              duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+              playback_state: playbackState,
+              ended: audio.ended,
+              ready: audio.readyState >= HTMLMediaElement.HAVE_METADATA,
+              error: audio.error ? "浏览器未能加载或播放此音频。" : ""
+            },
+            dataType: "json"
+          });
+        };
+        const pause = () => {
+          audio.pause();
+          if (playbackState !== "ended") playbackState = "paused";
+          refresh();
+          emit();
+        };
+        const play = async () => {
+          if (locked || !sourceUrl) return;
+          try {
+            await audio.play();
+            playbackState = "playing";
+          } catch (error) {
+            playbackState = "error";
+            status.textContent = "浏览器阻止了自动播放，请点击播放音频。";
+            emit();
+          }
+          refresh();
+        };
+        const stop = () => {
+          audio.pause();
+          try { audio.currentTime = 0; } catch (_) { /* media is not ready yet */ }
+          playbackState = "paused";
+          refresh();
+          emit();
+        };
+        const applyPendingSeek = () => {
+          if (pendingSeek === null || audio.readyState < HTMLMediaElement.HAVE_METADATA) return;
+          try {
+            audio.currentTime = pendingSeek;
+            pendingSeek = null;
+          } catch (_) { /* wait for the next media readiness event */ }
+        };
+        const seekTo = (target) => {
+          if (!Number.isFinite(target)) return;
+          pendingSeek = Math.max(0, target);
+          applyPendingSeek();
+        };
+        const setSource = (url) => {
+          if (!url || url === sourceUrl) return;
+          sourceUrl = url;
+          pendingSeek = null;
+          playbackState = "loading";
+          audio.src = url;
+          audio.load();
+          refresh();
+        };
+        const runCommand = (args) => {
+          const command = args.command || "load";
+          const commandId = Number(args.command_id || 0);
+          locked = args.locked === true;
+          setSource(args.audio_url || "");
+          if (locked && !audio.paused) pause();
+          if (commandId === lastCommandId) { refresh(); return; }
+          lastCommandId = commandId;
+          if (command === "load") { refresh(); }
+          else if (command === "play" || command === "resume") {
+            if (command === "resume") seekTo(Number(args.seek_seconds));
+            play();
+          }
+          else if (command === "pause") { pause(); }
+          else if (command === "stop") { stop(); }
+          else if (command === "seek_to") {
+            if (!locked) seekTo(Number(args.seek_seconds));
+            refresh(); emit();
+          } else if (command === "set_locked") { refresh(); emit(); }
+        };
+
+        toggle.addEventListener("click", () => playbackState === "playing" ? pause() : play());
+        seek.addEventListener("input", () => { if (!locked) { audio.currentTime = Number(seek.value); refresh(); } });
+        seek.addEventListener("change", emit);
+        audio.addEventListener("loadedmetadata", () => {
+          applyPendingSeek();
+          if (playbackState !== "playing") playbackState = "paused";
+          refresh(); emit();
+        });
+        audio.addEventListener("canplay", () => { applyPendingSeek(); refresh(); emit(); });
+        audio.addEventListener("play", () => { playbackState = "playing"; refresh(); emit(); });
+        audio.addEventListener("pause", () => { if (!audio.ended) playbackState = "paused"; refresh(); emit(); });
+        audio.addEventListener("ended", () => { playbackState = "ended"; refresh(); emit(); });
+        audio.addEventListener("error", () => { playbackState = "error"; refresh(); emit(); });
+        audio.addEventListener("timeupdate", () => {
+          refresh();
+          const whole = Math.floor(audio.currentTime || 0);
+          if (whole !== lastSentSecond && whole % 5 === 0) { lastSentSecond = whole; emit(); }
+        });
+        window.addEventListener("message", (event) => {
+          if (event.data?.type === "streamlit:render") runCommand(event.data.args || {});
+        });
+        setReady();
+        post("streamlit:setFrameHeight", { height: 74 });
+      })();
+    </script>
+  </body>
+</html>

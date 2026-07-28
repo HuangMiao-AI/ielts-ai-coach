@@ -14,7 +14,6 @@ from ielts_ai_coach.services.exam_controls import (
     ExamStatus,
     pause_exam,
     reconcile_exam,
-    resume_exam,
 )
 
 
@@ -33,7 +32,11 @@ def _client_key(session: ExamSession) -> str:
     return hashlib.sha256(session.session_id.encode("utf-8")).hexdigest()[:16]
 
 
-def _render_live_timer(session: ExamSession) -> None:
+def _render_live_timer(
+    session: ExamSession,
+    *,
+    pause_root_key: str | None = None,
+) -> None:
     """Keep the visible countdown current without forcing server reruns."""
 
     client_key = _client_key(session)
@@ -52,6 +55,10 @@ def _render_live_timer(session: ExamSession) -> None:
             "deadline": session.deadline.isoformat(),
             "status": session.status.value,
             "remaining": remaining,
+            "pauseOverlayId": (
+                f"exam-hard-pause-{pause_root_key}" if pause_root_key else ""
+            ),
+            "pauseRootClass": "",
         }
     )
     script = """
@@ -69,6 +76,39 @@ def _render_live_timer(session: ExamSession) -> None:
         }
         const display = root.querySelector("[data-exam-timer]");
         const status = root.querySelector("[data-exam-status]");
+        const clearPauseLock = () => {
+          if (!config.pauseOverlayId) return;
+          const stateKey = config.pauseOverlayId + "-state";
+          const state = parentWindow[stateKey];
+          document.getElementById(config.pauseOverlayId)?.remove();
+          document.getElementById(config.pauseOverlayId + "-style")?.remove();
+          const pausedRoot = state?.root ||
+            document.querySelector("." + config.pauseRootClass) ||
+            document.querySelector('[data-testid="stMain"]');
+          if (!pausedRoot) return;
+          if (state?.hadInertAttribute) pausedRoot.setAttribute("inert", state.inertAttribute);
+          else pausedRoot.removeAttribute("inert");
+          if ("inert" in pausedRoot) pausedRoot.inert = Boolean(state?.wasInert);
+          if (state?.hadAriaHidden) pausedRoot.setAttribute("aria-hidden", state.ariaHidden);
+          else pausedRoot.removeAttribute("aria-hidden");
+          pausedRoot.style.pointerEvents = state?.pointerEvents || "";
+          document.body.style.overflow = state?.bodyOverflow || "";
+          document.body.style.touchAction = state?.bodyTouchAction || "";
+          state?.panes?.forEach((pane) => {
+            pane.element.style.overflow = pane.overflow;
+            pane.element.style.overflowY = pane.overflowY;
+            pane.element.scrollTop = pane.scrollTop;
+            pane.element.scrollLeft = pane.scrollLeft;
+          });
+          if (state) {
+            document.removeEventListener("wheel", state.blockScroll, true);
+            document.removeEventListener("touchmove", state.blockScroll, true);
+            document.removeEventListener("keydown", state.blockKeyboard, true);
+            parentWindow.scrollTo(state.scrollX, state.scrollY);
+            delete parentWindow[stateKey];
+          }
+        };
+        clearPauseLock();
         const frozen = ["paused", "timed_out", "submitted"].includes(
           config.status
         );
@@ -124,6 +164,8 @@ def _status_label(status: ExamStatus) -> str:
 
 def render_exam_control_panel(
     session: ExamSession,
+    *,
+    pause_root_key: str | None = None,
 ) -> tuple[ExamSession, ExamControlAction]:
     """Render a live timer and the transitions shared by all skill pages."""
 
@@ -135,7 +177,9 @@ def render_exam_control_panel(
         else ExamControlAction.NONE
     )
     session = reconciled
-    _render_live_timer(session)
+    _render_live_timer(session, pause_root_key=pause_root_key)
+    if session.status is ExamStatus.PAUSED:
+        return session, action
 
     if session.status is ExamStatus.RUNNING:
         if st.button(
@@ -145,16 +189,6 @@ def render_exam_control_panel(
         ):
             session = pause_exam(session)
             action = ExamControlAction.PAUSED
-    elif session.status is ExamStatus.PAUSED:
-        st.info("计时已暂停，答案已锁定。恢复后可以继续作答。")
-        if st.button(
-            "恢复计时",
-            key=f"exam_resume_{_client_key(session)}",
-            type="primary",
-            use_container_width=True,
-        ):
-            session = resume_exam(session)
-            action = ExamControlAction.RESUMED
     elif session.status is ExamStatus.TIMED_OUT:
         st.warning("时间已到，答案已锁定。未作答题目将在交卷后计为错误。")
     return session, action

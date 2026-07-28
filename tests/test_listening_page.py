@@ -58,9 +58,11 @@ def test_listening_submission_scores_and_reveals_review_only_after_confirm(
         username="ListeningSubmit",
     )
     app = _button(app, "开始 Test 1").click().run(timeout=10)
+    assert any("声音测试" in item.value for item in app.subheader)
+    app = _button(app, "开始正式练习").click().run(timeout=10)
 
     assert not app.exception
-    assert len(app.get("audio")) == 1
+    assert len(app.get("audio")) == 0
     assert not any("正确答案" in item.value for item in app.markdown)
     for index, question in enumerate(test.questions):
         if question.question_type == "multiple_choice":
@@ -95,15 +97,14 @@ def test_listening_shared_controls_pause_resume_and_submit_after_timeout(
         username="ListeningControls",
     )
     app = _button(app, "开始 Test 1").click().run(timeout=10)
+    app = _button(app, "开始正式练习").click().run(timeout=10)
 
     assert not any("剩余" in item.value for item in app.caption)
     app = _button(app, "暂停计时").click().run(timeout=10)
-    answer_widgets = [*app.radio, *app.text_input]
-    assert answer_widgets
-    assert all(item.disabled for item in answer_widgets)
-    assert any("计时已暂停" in item.value for item in app.info)
+    assert _button(app, "恢复考试")
+    assert not [*app.radio, *app.text_input]
 
-    app = _button(app, "恢复计时").click().run(timeout=10)
+    app = _button(app, "恢复考试").click().run(timeout=10)
     assert all(not item.disabled for item in [*app.radio, *app.text_input])
 
     key = exam_control_key(
