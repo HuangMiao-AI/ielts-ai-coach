@@ -34,6 +34,14 @@ WORKSPACE_CLIENT_SOURCE = (
 EXAM_CONTROL_PANEL_SOURCE = (
     PROJECT_ROOT / "ielts_ai_coach" / "views" / "exam_control_panel.py"
 )
+EXAM_TIMER_CLIENT_SOURCE = (
+    PROJECT_ROOT
+    / "ielts_ai_coach"
+    / "components"
+    / "exam_timer"
+    / "frontend"
+    / "index.html"
+)
 LOGIN_SOURCE = PROJECT_ROOT / "ielts_ai_coach" / "views" / "login.py"
 
 
@@ -253,15 +261,17 @@ def test_reading_workspace_declares_a_wall_clock_client_timer() -> None:
     """The visible clock must not wait for a Streamlit rerun to change."""
 
     workspace_source = WORKSPACE_SOURCE.read_text(encoding="utf-8")
-    client_source = EXAM_CONTROL_PANEL_SOURCE.read_text(encoding="utf-8")
+    panel_source = EXAM_CONTROL_PANEL_SOURCE.read_text(encoding="utf-8")
+    client_source = EXAM_TIMER_CLIENT_SOURCE.read_text(encoding="utf-8")
 
     assert "render_exam_control_panel" in workspace_source
-    assert "data-exam-control" in client_source
+    assert "data-exam-control" in panel_source
+    assert "render_exam_timer" in panel_source
     assert "Date.now()" in client_source
     assert "visibilitychange" in client_source
     assert "Math.max(0" in client_source
     assert "setInterval" in client_source
-    assert 'window.addEventListener(\n            "pagehide"' in client_source
+    assert 'addEventListener("pagehide", teardown' in client_source
 
 
 def test_question_navigation_declares_client_click_and_scroll_sync() -> None:

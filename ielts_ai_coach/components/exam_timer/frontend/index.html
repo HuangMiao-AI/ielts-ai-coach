@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="utf-8" /><title>考试倒计时</title></head>
+  <body>
+    <script>
+      (() => {
+        const post = (type, payload = {}) => window.parent.postMessage(
+          { isStreamlitMessage: true, type, ...payload }, "*"
+        );
+        let intervalId = null;
+        let retryId = null;
+        let update = () => {};
+        let timeoutSent = false;
+        let activeClientKey = "";
+
+        const stopTicking = () => {
+          if (intervalId !== null) window.clearInterval(intervalId);
+          intervalId = null;
+          window.parent.document.removeEventListener("visibilitychange", update);
+        };
+        const teardown = () => {
+          stopTicking();
+          if (retryId !== null) window.clearTimeout(retryId);
+          retryId = null;
+          window.removeEventListener("pagehide", teardown);
+          window.removeEventListener("beforeunload", teardown);
+        };
+        const formatSeconds = (value) => {
+          const seconds = Math.max(0, Number.isFinite(value) ? value : 0);
+          return String(Math.floor(seconds / 60)).padStart(2, "0") + ":" +
+            String(seconds % 60).padStart(2, "0");
+        };
+        const render = (config) => {
+          teardown();
+          if (activeClientKey !== config.clientKey) {
+            activeClientKey = config.clientKey;
+            timeoutSent = false;
+          }
+          const attach = () => {
+            const root = window.parent.document.querySelector(
+              `[data-exam-control="${config.clientKey}"]`
+            );
+            if (!root) {
+              retryId = window.setTimeout(attach, 100);
+              return;
+            }
+            retryId = null;
+            const display = root.querySelector("[data-exam-timer]");
+            const status = root.querySelector("[data-exam-status]");
+            if (!display || !status) return;
+            const frozen = config.status === "paused" ||
+              config.status === "timed_out" || config.status === "submitted";
+            const active = config.status === "running" ||
+              config.status === "submit_confirm";
+            update = () => {
+              const seconds = frozen
+                ? Math.max(0, config.remaining)
+                : Math.max(0, Math.floor(
+                    (Date.parse(config.deadline) - Date.now()) / 1000
+                  ));
+              display.textContent = formatSeconds(seconds);
+              if (seconds === 0 && active) {
+                status.textContent = "时间已到";
+                stopTicking();
+                if (!timeoutSent) {
+                  timeoutSent = true;
+                  post("streamlit:setComponentValue", {
+                    value: { action: "timeout" }, dataType: "json"
+                  });
+                }
+              }
+            };
+            update();
+            if (!frozen && !timeoutSent) {
+              intervalId = window.setInterval(update, 1000);
+              window.parent.document.addEventListener("visibilitychange", update);
+            }
+          };
+          window.addEventListener("pagehide", teardown, { once: true });
+          window.addEventListener("beforeunload", teardown, { once: true });
+          attach();
+        };
+        window.addEventListener("message", (event) => {
+          if (event.data?.type === "streamlit:render") {
+            render(event.data.args || {});
+          }
+        });
+        post("streamlit:componentReady", { apiVersion: 1 });
+        post("streamlit:setFrameHeight", { height: 0 });
+      })();
+    </script>
+  </body>
+</html>
