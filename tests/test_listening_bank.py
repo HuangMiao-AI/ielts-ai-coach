@@ -16,12 +16,12 @@ QUESTION_TYPES = {
 }
 
 
-def test_listening_bank_has_two_original_complete_tests() -> None:
+def test_listening_bank_has_two_original_mini_practices() -> None:
     """The bundled release has the approved shape and copyright metadata."""
 
     bank = load_listening_bank()
 
-    assert bank.version == "1.0"
+    assert bank.version == "1.1"
     assert bank.source_type == "project_original"
     assert bank.is_official_ielts_content is False
     assert "非官方 IELTS 或 Cambridge" in bank.copyright_notice
@@ -31,7 +31,9 @@ def test_listening_bank_has_two_original_complete_tests() -> None:
     for test in bank.tests:
         assert len(test.sections) == 2
         questions = test.questions
-        assert len(questions) == 16
+        assert len(questions) == 6
+        assert test.estimated_minutes == 4
+        assert "Listening Mini Practice" in test.title
         assert {question.question_type for question in questions} == QUESTION_TYPES
         assert all(question.explanation for question in questions)
         assert all(question.evidence for question in questions)
@@ -42,7 +44,7 @@ def test_listening_bank_has_two_original_complete_tests() -> None:
             for turn in section.script
         )
         question_ids.extend(question.question_id for question in questions)
-    assert len(question_ids) == len(set(question_ids)) == 32
+    assert len(question_ids) == len(set(question_ids)) == 12
 
 
 def test_listening_audio_assets_are_valid_audible_wav_files() -> None:
@@ -57,3 +59,6 @@ def test_listening_audio_assets_are_valid_audible_wav_files() -> None:
             assert audio.getnframes() > audio.getframerate()
             frames = audio.readframes(audio.getnframes())
             assert any(byte != 0 for byte in frames)
+            duration_seconds = audio.getnframes() / audio.getframerate()
+            assert 120 <= duration_seconds <= 140
+            assert 60 <= test.estimated_minutes * 60 - duration_seconds <= 120

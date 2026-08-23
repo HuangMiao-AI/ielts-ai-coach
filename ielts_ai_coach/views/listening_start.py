@@ -24,9 +24,12 @@ from ielts_ai_coach.views.listening_audio import render_sound_check
 def render_listening_formal_start(user: User, test: ListeningTest) -> None:
     """Require a sound check and explicit confirmation before official timing."""
 
-    st.title("正式开始听力练习")
+    st.title("开始 Listening Mini Practice")
     st.caption(f"{test.title} · {len(test.questions)} 题 · 约 {test.estimated_minutes} 分钟")
-    st.info("请先完成声音测试。正式开始后，计时器和正式音频将同时启用。")
+    st.info(
+        "这是原创短练习，使用开发用合成音频，并非官方 IELTS 试题。"
+        "请先完成声音测试；开始后计时器和音频将同时启用。"
+    )
     render_sound_check(user, test)
     back, start = st.columns(2)
     if back.button("返回听力题库", use_container_width=True):

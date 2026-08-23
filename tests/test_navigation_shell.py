@@ -44,7 +44,13 @@ def test_primary_navigation_matches_the_student_information_architecture() -> No
         "学习": ("学习计划", "历史记录"),
         "账户": ("个人资料",),
     }
-    assert CONTEXTUAL_ROUTE_KEYS == ("scores", "today", "coach", "settings")
+    assert CONTEXTUAL_ROUTE_KEYS == (
+        "arena",
+        "scores",
+        "today",
+        "coach",
+        "settings",
+    )
 
 
 def test_streamlit_router_is_hidden_behind_one_custom_navigation() -> None:

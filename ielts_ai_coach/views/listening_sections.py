@@ -26,10 +26,11 @@ def render_listening_library(user: User) -> None:
     st.info("音频、题目和评分均在本地运行；本阶段结果仅保存在当前会话。")
     for index, test in enumerate(bank.tests, start=1):
         with st.container(border=True):
-            st.markdown(f"### Test {index} · {test.title}")
+            st.markdown(f"### {test.title}")
             st.caption(
-                f"2 Sections · {len(test.questions)} 题 · "
-                f"约 {test.estimated_minutes} 分钟 · 本地 WAV 音频"
+                f"原创 Listening Mini Practice · 2 个短场景 · "
+                f"{len(test.questions)} 题 · 建议 {test.estimated_minutes} 分钟 · "
+                "本地 WAV 开发用合成音频"
             )
             result = st.session_state.get(
                 listening_result_key(user.id, test.test_id)
@@ -40,7 +41,7 @@ def render_listening_library(user: User) -> None:
                     f"{result.total_questions}"
                 )
             if not st.button(
-                f"开始 Test {index}",
+                f"开始 Mini Practice {index}",
                 key=f"listening_start_{user.id}_{test.test_id}",
                 type="primary",
                 use_container_width=True,

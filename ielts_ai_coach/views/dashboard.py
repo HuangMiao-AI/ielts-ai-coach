@@ -39,7 +39,7 @@ def _render_core_entries(page_refs: Mapping[str, object] | None) -> None:
     _section("快捷开始")
     entries = (
         ("reading", "阅读", "📖", "8 篇原创文章 · 约 30 分钟"),
-        ("listening", "听力", "🎧", "2 套 Test · 本地音频 · 16 题"),
+        ("listening", "听力", "🎧", "2 套 Mini Practice · 本地音频 · 每套 6 题"),
         ("writing", "写作", "✍️", "Task 1 / Task 2 · 20–40 分钟"),
         ("speaking", "口语", "🎙️", "Part 1 / 2 / 3 · 准备与回答计时"),
     )
@@ -57,6 +57,22 @@ def _render_core_entries(page_refs: Mapping[str, object] | None) -> None:
                     label=f"开始{label}练习",
                     use_container_width=True,
                 )
+
+
+def _render_training_arena_entry(page_refs: Mapping[str, object] | None) -> None:
+    """Place the five-question game prominently above longer practice."""
+
+    with st.container(key="training_arena_entry", border=True):
+        st.markdown("## 🎯 IELTS 训练场")
+        st.caption("IELTS Training Arena")
+        st.markdown("5题一局，快速练习雅思核心能力。")
+        if page_refs and "arena" in page_refs:
+            st.page_link(
+                page_refs["arena"],
+                label="开始一局",
+                icon=":material/play_arrow:",
+                use_container_width=True,
+            )
 
 
 def _render_snapshot_overview(
@@ -256,6 +272,7 @@ def render_dashboard(
     st.caption("今天也向目标前进一步。")
     if st.session_state.pop(f"onboarding_{user.id}_saved", False):
         st.success("资料已保存，欢迎开始学习。")
+    _render_training_arena_entry(page_refs)
     _render_core_entries(page_refs)
     render_growth_dashboard(user.id)
     _render_snapshot_overview(snapshot, page_refs)

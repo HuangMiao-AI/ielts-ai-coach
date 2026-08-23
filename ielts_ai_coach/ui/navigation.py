@@ -27,7 +27,7 @@ PRIMARY_ROUTE_TITLES = (
     "历史记录",
     "个人资料",
 )
-CONTEXTUAL_ROUTE_KEYS = ("scores", "today", "coach", "settings")
+CONTEXTUAL_ROUTE_KEYS = ("arena", "scores", "today", "coach", "settings")
 
 
 def _render_link(

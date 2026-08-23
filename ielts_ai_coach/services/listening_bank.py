@@ -88,13 +88,13 @@ def _question(
 
 
 def _section(payload: dict[str, Any]) -> ListeningSection:
-    """Validate one section with eight questions and voiced script."""
+    """Validate one source section and expose its active mini questions."""
 
     raw_script = payload.get("script")
     raw_questions = payload.get("questions")
     if not isinstance(raw_script, list) or not raw_script:
         raise ValueError("invalid_script")
-    if not isinstance(raw_questions, list) or len(raw_questions) != 8:
+    if not isinstance(raw_questions, list) or len(raw_questions) < 3:
         raise ValueError("invalid_question_count")
     script = tuple(
         ListeningScriptTurn(
@@ -152,10 +152,31 @@ def _test(payload: dict[str, Any]) -> ListeningTest:
     minutes = payload.get("estimated_minutes")
     if not isinstance(raw_sections, list) or len(raw_sections) != 2:
         raise ValueError("invalid_section_count")
-    if not isinstance(minutes, int) or not 10 <= minutes <= 30:
+    if not isinstance(minutes, int) or not 3 <= minutes <= 6:
         raise ValueError("invalid_estimated_minutes")
-    sections = tuple(
+    source_sections = tuple(
         _section(item) for item in raw_sections if isinstance(item, dict)
+    )
+    active_ids = payload.get("active_question_ids")
+    if (
+        not isinstance(active_ids, list)
+        or len(active_ids) != 6
+        or len(set(active_ids)) != 6
+        or not all(isinstance(item, str) for item in active_ids)
+    ):
+        raise ValueError("invalid_active_questions")
+    sections = tuple(
+        ListeningSection(
+            section_id=section.section_id,
+            title=section.title,
+            scenario=section.scenario,
+            script=section.script,
+            questions=tuple(
+                question for question in section.questions if question.question_id in active_ids
+            ),
+            vocabulary_items=section.vocabulary_items,
+        )
+        for section in source_sections
     )
     test = ListeningTest(
         test_id=_text(payload, "test_id"),
@@ -164,9 +185,14 @@ def _test(payload: dict[str, Any]) -> ListeningTest:
         estimated_minutes=minutes,
         sections=sections,
     )
-    if len(test.questions) != 16 or {
+    if (
+        len(test.questions) != 6
+        or any(len(section.questions) != 3 for section in test.sections)
+        or {question.question_id for question in test.questions} != set(active_ids)
+        or {
         question.question_type for question in test.questions
-    } != VALID_QUESTION_TYPES:
+        } != VALID_QUESTION_TYPES
+    ):
         raise ValueError("invalid_test_questions")
     return test
 

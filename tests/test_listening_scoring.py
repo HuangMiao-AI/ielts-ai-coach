@@ -26,8 +26,8 @@ def test_listening_scoring_normalizes_case_and_spaces() -> None:
 
     score = score_listening_answers(test, answers)
 
-    assert score.correct_count == 16
-    assert score.total_questions == 16
+    assert score.correct_count == 6
+    assert score.total_questions == 6
     assert score.accuracy == 1.0
     assert all(result.is_correct for result in score.results)
 
@@ -50,7 +50,7 @@ def test_listening_scoring_requires_every_answer_and_reports_errors() -> None:
     answers[test.questions[0].question_id] = "definitely wrong"
     score = score_listening_answers(test, answers)
 
-    assert score.correct_count == 15
+    assert score.correct_count == 5
     first = score.results[0]
     assert first.is_correct is False
     assert first.correct_answer == test.questions[0].correct_answer

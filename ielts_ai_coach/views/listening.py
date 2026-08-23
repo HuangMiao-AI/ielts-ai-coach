@@ -44,7 +44,10 @@ from ielts_ai_coach.views.listening_audio import (
     render_controlled_listening_audio,
     render_listening_toolbar,
 )
-from ielts_ai_coach.views.listening_start import render_listening_formal_start
+from ielts_ai_coach.views.listening_start import (
+    render_listening_formal_start,
+    reset_listening_attempt,
+)
 from ielts_ai_coach.views.listening_sections import (
     render_listening_library,
     render_listening_result,
@@ -206,7 +209,10 @@ def _render_test(user: User, test: ListeningTest, session: SkillSession) -> None
         request_listening_audio_command(st.session_state, user.id, test.test_id, "stop")
     save_exam_control(st.session_state, user_id=user.id, task_key=test.test_id, session=control)
     st.title(test.title)
-    st.caption("原创本地音频 · 仅在正式开始后计时 · 提交前不显示答案或解析")
+    st.caption(
+        "原创 Listening Mini Practice · 开发用合成音频 · 非官方 IELTS 试题 · "
+        "仅在开始后计时 · 提交前不显示答案或解析"
+    )
     audio_state = render_controlled_listening_audio(user, test, control)
     if control.status is ExamStatus.PAUSED:
         if render_hard_pause_overlay(control, subject="听力", root_key=root_key):
@@ -245,7 +251,27 @@ def render_listening_page(user: User) -> None:
         st.rerun()
         return
     session = st.session_state.get(listening_session_key(user.id, test.test_id))
-    if not isinstance(session, SkillSession) or session.user_id != user.id:
+    if not _is_current_listening_session(session, user, test):
+        if isinstance(session, SkillSession):
+            reset_listening_attempt(user, test)
         render_listening_formal_start(user, test)
         return
     _render_test(user, test, session)
+
+
+def _is_current_listening_session(
+    session: object,
+    user: User,
+    test: ListeningTest,
+) -> bool:
+    """Reject stale sessions created against an older bank shape."""
+
+    return (
+        isinstance(session, SkillSession)
+        and session.user_id == user.id
+        and session.skill == "listening"
+        and session.task_key == test.test_id.casefold()
+        and session.item_count == len(test.questions)
+        and session.duration_seconds == test.estimated_minutes * 60
+        and 0 <= session.current_index < len(test.questions)
+    )

@@ -4,6 +4,13 @@ from __future__ import annotations
 
 
 DESKTOP_AND_COMPACT_CSS = """
+        .st-key-training_arena_entry {
+            margin: 1rem 0 1.2rem;
+            background: linear-gradient(135deg, rgba(230, 161, 90, .18), rgba(159, 226, 216, .30));
+        }
+        .st-key-arena_answer_grid .stButton > button {
+            min-height: 56px; white-space: normal;
+        }
         .reading-workspace-status {
             position: sticky; top: .5rem; z-index: 4; margin: .35rem 0 .75rem;
             padding: .6rem .8rem; border: 1px solid var(--border);

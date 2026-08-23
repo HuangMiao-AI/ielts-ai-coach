@@ -25,7 +25,7 @@ def test_home_has_one_independent_skill_group_with_honest_empty_plan() -> None:
     for route in ("reading", "listening", "writing", "speaking"):
         assert f'("{route}",' in source
     assert "8 篇原创文章" in source
-    assert "2 套 Test" in source
+    assert "2 套 Mini Practice" in source
     assert "Task 1 / Task 2" in source
     assert "Part 1 / 2 / 3" in source
     assert "目前没有学习计划。你可以生成计划，也可以直接开始四科练习。" in source
@@ -42,7 +42,7 @@ def test_skill_cards_expose_actionable_honest_metadata() -> None:
     speaking = _source("ielts_ai_coach/views/speaking.py")
 
     assert "版本" in reading and "难度" in reading and "最近成绩" in reading
-    assert "2 Sections" in listening and "本地 WAV 音频" in listening
+    assert "2 个短场景" in listening and "本地 WAV 开发用合成音频" in listening
     assert "建议" in writing and "至少" in writing
     assert "准备时间" in speaking and "回答时间" in speaking
     assert "排行榜" not in "\n".join((reading, listening, writing, speaking))

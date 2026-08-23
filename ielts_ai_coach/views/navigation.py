@@ -26,6 +26,7 @@ from ielts_ai_coach.views.scores import render_scores_page
 from ielts_ai_coach.views.settings import render_settings_page
 from ielts_ai_coach.views.speaking import render_speaking_page
 from ielts_ai_coach.views.today import render_today_page
+from ielts_ai_coach.views.training_arena import render_training_arena_page
 from ielts_ai_coach.views.writing import render_writing_page
 
 
@@ -44,6 +45,7 @@ _ROUTE_META = {
     "plan": ("学习计划", ":material/calendar_month:"),
     "history": ("历史记录", ":material/history:"),
     "profile": ("个人资料", ":material/person:"),
+    "arena": ("IELTS 训练场", ":material/sports_esports:"),
     "scores": ("成绩诊断", ":material/monitoring:"),
     "today": ("今日任务", ":material/check_circle:"),
     "coach": ("AI 学习教练", ":material/forum:"),
@@ -100,6 +102,7 @@ def build_navigation_pages(
         "plan": partial(render_plan_page, user),
         "history": partial(render_history_page, user),
         "profile": partial(render_profile_page, user, refs),
+        "arena": partial(render_training_arena_page, user, refs),
         "scores": partial(render_scores_page, user),
         "today": partial(render_today_page, user, refs),
         "coach": partial(render_coach_page, user),

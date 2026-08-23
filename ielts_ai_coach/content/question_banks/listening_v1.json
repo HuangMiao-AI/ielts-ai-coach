@@ -1,6 +1,6 @@
 {
   "bank_id": "ielts-ai-coach-listening-original",
-  "version": "1.0",
+  "version": "1.1",
   "source": {
     "source_type": "project_original",
     "source_name": "IELTS AI Coach Original Listening Team",
@@ -10,9 +10,10 @@
   "tests": [
     {
       "test_id": "LISTEN-V1-001",
-      "title": "Community Learning and Library Services",
+      "title": "Listening Mini Practice 1 · Community Learning and Library Services",
       "audio_path": "static/audio/listening_v1_test_1.wav",
-      "estimated_minutes": 18,
+      "estimated_minutes": 4,
+      "active_question_ids": ["L1-Q01", "L1-Q05", "L1-Q07", "L1-Q09", "L1-Q12", "L1-Q16"],
       "sections": [
         {
           "section_id": "LISTEN-V1-001-S1",
@@ -199,9 +200,10 @@
     },
     {
       "test_id": "LISTEN-V1-002",
-      "title": "Field Research and Urban Ecology",
+      "title": "Listening Mini Practice 2 · Field Research and Urban Ecology",
       "audio_path": "static/audio/listening_v1_test_2.wav",
-      "estimated_minutes": 18,
+      "estimated_minutes": 4,
+      "active_question_ids": ["L2-Q01", "L2-Q03", "L2-Q05", "L2-Q09", "L2-Q12", "L2-Q16"],
       "sections": [
         {
           "section_id": "LISTEN-V1-002-S1",

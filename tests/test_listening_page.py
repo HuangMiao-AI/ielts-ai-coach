@@ -13,6 +13,8 @@ from ielts_ai_coach.services.exam_controls import (
     restore_exam_session,
 )
 from ielts_ai_coach.services.listening_bank import load_listening_bank
+from ielts_ai_coach.services.listening_session import listening_session_key
+from ielts_ai_coach.services.skill_sessions import start_session
 from tests.ui_page_helpers import open_authenticated_page
 
 
@@ -37,11 +39,12 @@ def test_listening_page_exposes_original_tests_and_audio(
 
     assert not app.exception
     assert app.title[0].value == "听力练习"
-    assert len([button for button in app.button if "开始 Test" in button.label]) == 2
+    assert len([button for button in app.button if "开始 Mini Practice" in button.label]) == 2
     assert "Demo 模式" not in "\n".join(item.value for item in app.caption)
     assert "原创 IELTS 风格练习" in "\n".join(
         item.value for item in app.caption
     )
+    assert "开发用合成音频" in "\n".join(item.value for item in app.caption)
 
 
 def test_listening_submission_scores_and_reveals_review_only_after_confirm(
@@ -57,7 +60,7 @@ def test_listening_submission_scores_and_reveals_review_only_after_confirm(
         route="listening",
         username="ListeningSubmit",
     )
-    app = _button(app, "开始 Test 1").click().run(timeout=10)
+    app = _button(app, "开始 Mini Practice 1").click().run(timeout=10)
     assert any("声音测试" in item.value for item in app.subheader)
     app = _button(app, "开始正式练习").click().run(timeout=10)
 
@@ -78,7 +81,7 @@ def test_listening_submission_scores_and_reveals_review_only_after_confirm(
     app = _button(app, "确认提交").click().run(timeout=10)
 
     assert not app.exception
-    assert any(metric.label == "总分" and metric.value == "16/16" for metric in app.metric)
+    assert any(metric.label == "总分" and metric.value == "6/6" for metric in app.metric)
     assert any("正确答案" in item.value for item in app.markdown)
     assert any("结果仅保存在当前会话" in item.value for item in app.caption)
 
@@ -96,7 +99,7 @@ def test_listening_shared_controls_pause_resume_and_submit_after_timeout(
         route="listening",
         username="ListeningControls",
     )
-    app = _button(app, "开始 Test 1").click().run(timeout=10)
+    app = _button(app, "开始 Mini Practice 1").click().run(timeout=10)
     app = _button(app, "开始正式练习").click().run(timeout=10)
 
     assert not any("剩余" in item.value for item in app.caption)
@@ -130,3 +133,27 @@ def test_listening_shared_controls_pause_resume_and_submit_after_timeout(
     assert restore_exam_session(app.session_state[key]).status is (
         ExamStatus.SUBMITTED
     )
+
+
+def test_listening_discards_session_from_the_old_sixteen_question_shape(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    test = load_listening_bank().tests[0]
+    app = open_authenticated_page(
+        tmp_path, monkeypatch, route="listening", username="ListeningLegacy"
+    )
+    app = _button(app, "开始 Mini Practice 1").click().run(timeout=10)
+    user_id = app.session_state["user_id"]
+    key = listening_session_key(user_id, test.test_id)
+    app.session_state[key] = start_session(
+        user_id=user_id,
+        skill="listening",
+        task_key=test.test_id,
+        item_count=16,
+        duration_seconds=18 * 60,
+    )
+    app = app.run(timeout=10)
+    assert not app.exception
+    assert app.title[0].value == "开始 Listening Mini Practice"
+    assert key not in app.session_state
