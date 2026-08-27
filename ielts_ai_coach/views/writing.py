@@ -1,5 +1,6 @@
 """Simplified Chinese IELTS Level 2 writing-feedback page."""
 from __future__ import annotations
+
 import streamlit as st
 
 from ielts_ai_coach.ai.factory import get_ai_provider
@@ -19,10 +20,7 @@ from ielts_ai_coach.services.writing import (
     count_words,
     get_writing_remaining,
 )
-from ielts_ai_coach.services.writing_tasks import (
-    get_writing_task,
-    inspect_writing_locally,
-)
+from ielts_ai_coach.services.writing_tasks import inspect_writing_locally
 from ielts_ai_coach.views.exam_control_panel import (
     ExamControlAction,
     render_exam_control_panel,
@@ -36,39 +34,30 @@ from ielts_ai_coach.views.writing_actions import (
     render_writing_actions,
 )
 from ielts_ai_coach.views.writing_feedback_view import render_feedback
+from ielts_ai_coach.views.guest_writing_actions import render_guest_writing_actions
+from ielts_ai_coach.views.writing_task_presentation import (
+    apply_writing_task_prefill,
+    render_writing_visual,
+    prepare_writing_widgets,
+    restore_draft_record,
+    save_draft_record,
+    select_writing_task,
+)
 
 
-def _apply_writing_task_prefill() -> bool:
-    """Load a trusted writing-plan prompt into stable form widget keys."""
-    prefill = st.session_state.pop("writing_task_prefill", None)
-    if not isinstance(prefill, dict):
-        return False
-    test_type = prefill.get("test_type")
-    task_type = prefill.get("task_type")
-    prompt = prefill.get("prompt")
-    if (
-        test_type not in {"Academic", "General"}
-        or task_type not in {"Task 1", "Task 2"}
-        or not isinstance(prompt, str)
-        or not prompt.strip()
-    ):
-        return False
-    st.session_state["writing_test_type"] = test_type
-    st.session_state["writing_task_type"] = task_type
-    st.session_state["writing_pending_prompt"] = prompt[:2000]
-    return True
-
-def render_writing_page(user: User) -> None:
+def render_writing_page(user: User, *, guest_mode: bool = False) -> None:
     """Render essay submission, structured feedback, and recent history."""
     provider = get_ai_provider()
-    remaining = get_writing_remaining(user.id)
-    was_prefilled = _apply_writing_task_prefill()
+    remaining = 0 if guest_mode else get_writing_remaining(user.id)
+    was_prefilled = apply_writing_task_prefill()
     st.title("写作练习")
     st.caption("选择原创题目、计时写作并保存历史；AI可用时才进行批改。")
     if was_prefilled:
         st.success("已从今日任务带入原创题目，请完成作文后提交批改。")
 
-    if provider.is_mock:
+    if guest_mode:
+        st.info("游客模式下，草稿和本次结果只保存在当前会话。")
+    elif provider.is_mock:
         st.info(
             "AI评分当前未启用。你仍可完成并保存作文，系统不会生成模拟分数。",
             icon="🧪",
@@ -88,29 +77,37 @@ def render_writing_page(user: User) -> None:
         ("Task 1", "Task 2"),
         key="writing_task_type",
     )
-    original_task = get_writing_task(test_type, task_type)
-    st.caption(
-        f"{original_task.title} · 建议 {original_task.suggested_minutes} 分钟 · "
-        f"至少 {original_task.minimum_words} 词"
+    original_task, task_state_key = select_writing_task(
+        user.id,
+        test_type,
+        task_type,
     )
     active_draft_key = draft_key(
         user.id,
         "writing",
-        f"{test_type}-{task_type}",
+        task_state_key,
     )
     prompt_key = f"{active_draft_key}_prompt"
     content_key = f"{active_draft_key}_content"
     prompt_value_key = f"{prompt_key}_value"
     content_value_key = f"{content_key}_value"
+    draft_registry, draft_record = restore_draft_record(
+        active_draft_key,
+        prompt_value_key=prompt_value_key,
+        content_value_key=content_value_key,
+    )
     revision_key = f"{content_key}_editor_revision"
     content_editor_key = f"{content_key}_editor_{st.session_state.get(revision_key, 0)}"
-    control_task_key = f"{test_type}-{task_type}"
+    control_task_key = task_state_key
     control_key = exam_control_key(
         user.id,
         "writing",
         control_task_key,
     )
     control_status_key = f"{control_key}_last_status"
+    selected_task_key = f"{active_draft_key}_selected_task"
+    task_changed = st.session_state.get(selected_task_key) != original_task.task_id
+    st.session_state[selected_task_key] = original_task.task_id
     control: ExamSession | None = None
     existing_content = (
         st.session_state.get(content_editor_key)
@@ -179,53 +176,20 @@ def render_writing_page(user: User) -> None:
     current_control_status = (
         control.status.value if control is not None else "not_started"
     )
-    if (
-        st.session_state.get(control_status_key) == ExamStatus.PAUSED.value
-        and current_control_status == ExamStatus.RUNNING.value
-    ):
-        st.session_state[revision_key] = int(st.session_state.get(revision_key, 0)) + 1
-    content_editor_key = f"{content_key}_editor_{st.session_state.get(revision_key, 0)}"
-    status_changed = (
-        st.session_state.get(control_status_key)
-        != current_control_status
+    content_editor_key, status_changed = prepare_writing_widgets(
+        prompt_key=prompt_key,
+        prompt_value_key=prompt_value_key,
+        content_key=content_key,
+        content_value_key=content_value_key,
+        revision_key=revision_key,
+        control_status_key=control_status_key,
+        current_control_status=current_control_status,
+        editable=editable,
+        task_changed=task_changed,
+        default_prompt=original_task.prompt,
     )
-    for widget_key, value_key in (
-        (prompt_key, prompt_value_key),
-        (content_editor_key, content_value_key),
-    ):
-        current_value = st.session_state.get(widget_key)
-        saved_value = st.session_state.get(value_key)
-        has_new_edit = editable and isinstance(current_value, str) and bool(
-            current_value.strip()
-        )
-        if (
-            editable
-            and isinstance(current_value, str)
-            and not current_value.strip()
-            and isinstance(saved_value, str)
-            and saved_value.strip()
-        ):
-            st.session_state[widget_key] = saved_value
-        elif (
-            status_changed
-            and value_key in st.session_state
-            and not has_new_edit
-        ):
-            st.session_state[widget_key] = st.session_state[value_key]
-        elif (
-            editable
-            and isinstance(current_value, str)
-            and (current_value or not st.session_state.get(value_key))
-        ):
-            st.session_state[value_key] = current_value
-        elif not editable and value_key in st.session_state:
-            st.session_state[widget_key] = st.session_state[value_key]
-    pending_prompt = st.session_state.pop("writing_pending_prompt", "")
-    if pending_prompt:
-        st.session_state[prompt_key] = pending_prompt
-        st.session_state[prompt_value_key] = pending_prompt
-    elif prompt_key not in st.session_state:
-        st.session_state[prompt_key] = original_task.prompt
+    render_writing_visual(original_task)
+    st.markdown("### 题目说明")
     prompt = st.text_area(
         "作文题目",
         max_chars=2000,
@@ -234,6 +198,7 @@ def render_writing_page(user: User) -> None:
         key=prompt_key,
         disabled=not editable,
     )
+    st.markdown("### 写作输入区")
     content = st.text_area(
         "作文正文",
         max_chars=12000,
@@ -249,6 +214,12 @@ def render_writing_page(user: User) -> None:
     else:
         prompt = str(st.session_state.get(prompt_value_key, prompt))
         content = str(st.session_state.get(content_value_key, content))
+    save_draft_record(
+        draft_registry,
+        draft_record,
+        prompt=prompt,
+        content=content,
+    )
     st.session_state[control_status_key] = current_control_status
     word_count = count_words(content)
     st.caption(f"当前字数：{word_count}词")
@@ -283,17 +254,28 @@ def render_writing_page(user: User) -> None:
         clear=f"{active_draft_key}_clear",
         submit=f"{active_draft_key}_submit",
         control_status=control_status_key,
+        registry=active_draft_key,
     )
-    render_writing_actions(
-        user=user,
-        provider=provider,
-        remaining=remaining,
-        test_type=test_type,
-        task_type=task_type,
-        prompt=prompt,
-        content=content,
-        control=control,
-        control_task_key=control_task_key,
-        keys=keys,
-    )
-    render_recent_history(user)
+    if guest_mode:
+        render_guest_writing_actions(
+            guest=user,  # type: ignore[arg-type]
+            content=content,
+            minimum_words=threshold,
+            control=control,
+            control_task_key=control_task_key,
+            keys=keys,
+        )
+    else:
+        render_writing_actions(
+            user=user,
+            provider=provider,
+            remaining=remaining,
+            test_type=test_type,
+            task_type=task_type,
+            prompt=prompt,
+            content=content,
+            control=control,
+            control_task_key=control_task_key,
+            keys=keys,
+        )
+        render_recent_history(user)

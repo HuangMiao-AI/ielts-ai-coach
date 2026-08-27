@@ -56,6 +56,7 @@ class WritingDraftKeys:
     clear: str
     submit: str
     control_status: str
+    registry: str
 
 
 def render_recent_history(user: User) -> None:
@@ -155,6 +156,10 @@ def render_writing_actions(
             key=f"{keys.clear}_confirmed",
         )
         if st.button("执行清空", disabled=not confirmed_clear):
+            registry = st.session_state.get("writing_draft_registry")
+            if isinstance(registry, dict):
+                registry.pop(keys.registry, None)
+                st.session_state["writing_draft_registry"] = registry
             for key in vars(keys).values():
                 st.session_state.pop(key, None)
             clear_exam_control(

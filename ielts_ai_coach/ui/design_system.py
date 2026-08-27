@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from textwrap import dedent
 
+from ielts_ai_coach.ui.guest_writing_styles import GUEST_WRITING_CSS
 from ielts_ai_coach.ui.responsive_css import DESKTOP_AND_COMPACT_CSS
 
 
@@ -21,7 +22,6 @@ DESIGN_TOKENS: dict[str, str | int] = {
     "content_max_px": 1240,
     "radius_card": 20,
 }
-
 
 def build_app_css() -> str:
     """Return the complete responsive application stylesheet."""
@@ -282,6 +282,7 @@ def build_app_css() -> str:
             [data-testid="stColumn"] {{ min-width: min(100%, 9rem) !important; }}
         }}
 
+        {GUEST_WRITING_CSS}
         {DESKTOP_AND_COMPACT_CSS}
 
         @media (prefers-reduced-motion: reduce) {{
@@ -293,7 +294,6 @@ def build_app_css() -> str:
                 animation-iteration-count: 1 !important;
             }}
         }}
-        footer {{ visibility: hidden; }}
-        </style>
+        footer {{ visibility: hidden; }}</style>
         """
     ).strip()

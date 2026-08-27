@@ -18,6 +18,15 @@ BANK_PATH = (
     / "question_banks"
     / "writing_v1.json"
 )
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+ACADEMIC_VISUAL_TYPES = {
+    "line_graph",
+    "bar_chart",
+    "pie_chart",
+    "table",
+    "process_diagram",
+    "map",
+}
 
 
 @dataclass(frozen=True)
@@ -31,6 +40,9 @@ class WritingTask:
     suggested_minutes: int
     minimum_words: int
     prompt: str
+    visual_type: str | None = None
+    visual_asset: str | None = None
+    visual_alt: str | None = None
 
 
 @dataclass(frozen=True)
@@ -96,6 +108,24 @@ def load_writing_tasks(path: Path | None = None) -> WritingTaskBank:
             or minimum != (150 if task_type == "Task 1" else 250)
         ):
             raise ValueError("invalid_task")
+        visual_type = item.get("visual_type")
+        visual_asset = item.get("visual_asset")
+        visual_alt = item.get("visual_alt")
+        is_academic_task_one = test_type == "Academic" and task_type == "Task 1"
+        if is_academic_task_one:
+            if (
+                visual_type not in ACADEMIC_VISUAL_TYPES
+                or not isinstance(visual_asset, str)
+                or not visual_asset.strip()
+                or not isinstance(visual_alt, str)
+                or not visual_alt.strip()
+            ):
+                raise ValueError("invalid_task_visual")
+            asset_path = PROJECT_ROOT / visual_asset
+            if asset_path.suffix.casefold() != ".svg" or not asset_path.is_file():
+                raise ValueError("invalid_task_visual")
+        elif any(value is not None for value in (visual_type, visual_asset, visual_alt)):
+            raise ValueError("unexpected_task_visual")
         tasks.append(
             WritingTask(
                 task_id=_text(item, "task_id"),
@@ -105,6 +135,9 @@ def load_writing_tasks(path: Path | None = None) -> WritingTaskBank:
                 suggested_minutes=minutes,
                 minimum_words=minimum,
                 prompt=_text(item, "prompt"),
+                visual_type=visual_type,
+                visual_asset=visual_asset.strip() if isinstance(visual_asset, str) else None,
+                visual_alt=visual_alt.strip() if isinstance(visual_alt, str) else None,
             )
         )
     if (
@@ -119,6 +152,16 @@ def load_writing_tasks(path: Path | None = None) -> WritingTaskBank:
         }
     ):
         raise ValueError("invalid_task_coverage")
+    academic_visuals = [
+        task
+        for task in tasks
+        if task.test_type == "Academic" and task.task_type == "Task 1"
+    ]
+    if (
+        len(academic_visuals) != 6
+        or {task.visual_type for task in academic_visuals} != ACADEMIC_VISUAL_TYPES
+    ):
+        raise ValueError("invalid_task_visual_coverage")
     return WritingTaskBank(
         bank_id=_text(payload, "bank_id"),
         version=_text(payload, "version"),
@@ -129,11 +172,28 @@ def load_writing_tasks(path: Path | None = None) -> WritingTaskBank:
     )
 
 
-def get_writing_task(test_type: str, task_type: str) -> WritingTask:
+def list_writing_tasks(test_type: str, task_type: str) -> tuple[WritingTask, ...]:
+    """Return every original task for one test/task combination."""
+
+    tasks = tuple(
+        task
+        for task in load_writing_tasks().tasks
+        if task.test_type == test_type and task.task_type == task_type
+    )
+    if not tasks:
+        raise KeyError("writing_task_not_found")
+    return tasks
+
+
+def get_writing_task(
+    test_type: str,
+    task_type: str,
+    task_id: str | None = None,
+) -> WritingTask:
     """Return the original prompt for one selected test/task combination."""
 
-    for task in load_writing_tasks().tasks:
-        if task.test_type == test_type and task.task_type == task_type:
+    for task in list_writing_tasks(test_type, task_type):
+        if task_id is None or task.task_id == task_id:
             return task
     raise KeyError("writing_task_not_found")
 

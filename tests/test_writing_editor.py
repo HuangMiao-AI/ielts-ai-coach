@@ -91,7 +91,7 @@ def test_writing_shared_controls_lock_editor_and_submit_after_timeout(
         area for area in app.text_area if area.label == "作文正文"
     )
     resume_value_key = (
-        f"{draft_key(app.session_state['user_id'], 'writing', 'Academic-Task 1')}"
+        f"{draft_key(app.session_state['user_id'], 'writing', 'WRITE-V1-A1-LINE')}"
         "_content_value"
     )
     resume_value = (
@@ -104,7 +104,7 @@ def test_writing_shared_controls_lock_editor_and_submit_after_timeout(
     key = exam_control_key(
         app.session_state["user_id"],
         "writing",
-        "Academic-Task 1",
+        "WRITE-V1-A1-LINE",
     )
     payload = dict(app.session_state[key])
     payload["deadline"] = (
@@ -116,7 +116,7 @@ def test_writing_shared_controls_lock_editor_and_submit_after_timeout(
     assert all(area.disabled for area in app.text_area)
     assert any("时间已到" in item.value for item in app.warning)
     content_value_key = (
-        f"{draft_key(app.session_state['user_id'], 'writing', 'Academic-Task 1')}"
+        f"{draft_key(app.session_state['user_id'], 'writing', 'WRITE-V1-A1-LINE')}"
         "_content_value"
     )
     assert "Public classes" in app.session_state[content_value_key]

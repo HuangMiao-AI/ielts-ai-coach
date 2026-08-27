@@ -60,6 +60,7 @@ class ArenaRound:
     correct_count: int = 0
     combo: int = 0
     completed: bool = False
+    score_recorded: bool = False
 
     @property
     def score(self) -> int:
@@ -92,6 +93,46 @@ def arena_round_key(user_id: int) -> str:
     if user_id <= 0:
         raise ValueError("invalid_user")
     return f"training_arena_round_{user_id}"
+
+
+def arena_session_score_key(user_id: int) -> str:
+    """Return the participant-scoped current-session score key."""
+
+    if user_id <= 0:
+        raise ValueError("invalid_user")
+    return f"training_arena_session_score_{user_id}"
+
+
+def arena_session_score(store: dict[str, object], user_id: int) -> int:
+    """Read the verified score accumulated in the current session."""
+
+    value = store.get(arena_session_score_key(user_id), 0)
+    return value if isinstance(value, int) and value >= 0 else 0
+
+
+def record_completed_round_score(
+    store: dict[str, object],
+    user_id: int,
+    round_state: ArenaRound,
+) -> ArenaRound:
+    """Add one completed round exactly once and mark it as recorded."""
+
+    if not round_state.completed:
+        raise ValueError("round_not_completed")
+    if round_state.score_recorded:
+        return round_state
+    store[arena_session_score_key(user_id)] = (
+        arena_session_score(store, user_id) + round_state.score
+    )
+    return ArenaRound(
+        question_ids=round_state.question_ids,
+        current_index=round_state.current_index,
+        answers=round_state.answers,
+        correct_count=round_state.correct_count,
+        combo=round_state.combo,
+        completed=True,
+        score_recorded=True,
+    )
 
 
 def _required_text(payload: dict[str, Any], field: str) -> str:
@@ -189,6 +230,7 @@ def answer_arena_question(
         answers=(*round_state.answers, selected_answer),
         correct_count=round_state.correct_count + int(correct),
         combo=round_state.combo + 1 if correct else 0,
+        score_recorded=round_state.score_recorded,
     )
 
 
@@ -205,6 +247,7 @@ def advance_arena_round(round_state: ArenaRound) -> ArenaRound:
         correct_count=round_state.correct_count,
         combo=round_state.combo,
         completed=is_last,
+        score_recorded=round_state.score_recorded,
     )
 
 

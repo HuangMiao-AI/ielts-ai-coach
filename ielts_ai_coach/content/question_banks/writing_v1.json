@@ -1,6 +1,6 @@
 {
   "bank_id": "ielts-ai-coach-writing-original",
-  "version": "1.0",
+  "version": "1.1",
   "source": {
     "source_type": "project_original",
     "source_name": "IELTS AI Coach Original Writing Team",
@@ -9,39 +9,45 @@
   },
   "tasks": [
     {
-      "task_id": "WRITE-V1-A1",
-      "title": "Academic Task 1 · Community Transport",
-      "test_type": "Academic",
-      "task_type": "Task 1",
-      "suggested_minutes": 20,
-      "minimum_words": 150,
-      "prompt": "The table below shows the percentage of commuters in a fictional city who travelled by bus, bicycle and private car in 2010, 2015 and 2025. Bus: 28%, 34%, 41%. Bicycle: 12%, 18%, 25%. Private car: 60%, 48%, 34%. Summarise the information by selecting and reporting the main features, and make comparisons where relevant."
+      "task_id": "WRITE-V1-A1-LINE", "title": "Academic Task 1 · Renewable Energy", "test_type": "Academic", "task_type": "Task 1", "suggested_minutes": 20, "minimum_words": 150,
+      "visual_type": "line_graph", "visual_asset": "ielts_ai_coach/static/writing/task1/renewable_energy_share.svg", "visual_alt": "Line graph showing renewable energy shares in Northport, Lakeview and Hillford from 2010 to 2025.",
+      "prompt": "The line graph shows the percentage of electricity generated from renewable sources in three fictional towns between 2010 and 2025. Summarise the information by selecting and reporting the main features, and make comparisons where relevant."
     },
     {
-      "task_id": "WRITE-V1-A2",
-      "title": "Academic Task 2 · Public Libraries",
-      "test_type": "Academic",
-      "task_type": "Task 2",
-      "suggested_minutes": 40,
-      "minimum_words": 250,
+      "task_id": "WRITE-V1-A1-BAR", "title": "Academic Task 1 · Library Visits", "test_type": "Academic", "task_type": "Task 1", "suggested_minutes": 20, "minimum_words": 150,
+      "visual_type": "bar_chart", "visual_asset": "ielts_ai_coach/static/writing/task1/library_visits.svg", "visual_alt": "Bar chart comparing annual library visits by four age groups in 2015 and 2025.",
+      "prompt": "The bar chart compares annual visits to public libraries by four age groups in a fictional region in 2015 and 2025, measured in thousands. Summarise the information by selecting and reporting the main features, and make comparisons where relevant."
+    },
+    {
+      "task_id": "WRITE-V1-A1-PIE", "title": "Academic Task 1 · Household Spending", "test_type": "Academic", "task_type": "Task 1", "suggested_minutes": 20, "minimum_words": 150,
+      "visual_type": "pie_chart", "visual_asset": "ielts_ai_coach/static/writing/task1/household_spending.svg", "visual_alt": "Two pie charts showing household spending in the fictional town of Elmbridge in 2005 and 2025.",
+      "prompt": "The pie charts show how an average household in the fictional town of Elmbridge distributed its spending across five categories in 2005 and 2025. Summarise the information by selecting and reporting the main features, and make comparisons where relevant."
+    },
+    {
+      "task_id": "WRITE-V1-A1-TABLE", "title": "Academic Task 1 · Community Transport", "test_type": "Academic", "task_type": "Task 1", "suggested_minutes": 20, "minimum_words": 150,
+      "visual_type": "table", "visual_asset": "ielts_ai_coach/static/writing/task1/community_transport.svg", "visual_alt": "Table showing commuter transport shares for bus, bicycle and private car in 2010, 2015 and 2025.",
+      "prompt": "The table shows the percentage of commuters in a fictional city who travelled by bus, bicycle and private car in 2010, 2015 and 2025. Summarise the information by selecting and reporting the main features, and make comparisons where relevant."
+    },
+    {
+      "task_id": "WRITE-V1-A1-PROCESS", "title": "Academic Task 1 · Rainwater Harvesting", "test_type": "Academic", "task_type": "Task 1", "suggested_minutes": 20, "minimum_words": 150,
+      "visual_type": "process_diagram", "visual_asset": "ielts_ai_coach/static/writing/task1/rainwater_harvesting.svg", "visual_alt": "Process diagram showing domestic rainwater collection, filtration, storage and reuse.",
+      "prompt": "The diagram shows how rainwater is collected and reused in a fictional residential building. Summarise the process by selecting and reporting the main stages."
+    },
+    {
+      "task_id": "WRITE-V1-A1-MAP", "title": "Academic Task 1 · Riverside Park", "test_type": "Academic", "task_type": "Task 1", "suggested_minutes": 20, "minimum_words": 150,
+      "visual_type": "map", "visual_asset": "ielts_ai_coach/static/writing/task1/riverside_park.svg", "visual_alt": "Before-and-after maps of Riverside Park in 2010 and 2025.",
+      "prompt": "The maps show Riverside Park in a fictional town in 2010 and after redevelopment in 2025. Summarise the information by selecting and reporting the main features, and make comparisons where relevant."
+    },
+    {
+      "task_id": "WRITE-V1-A2", "title": "Academic Task 2 · Public Libraries", "test_type": "Academic", "task_type": "Task 2", "suggested_minutes": 40, "minimum_words": 250,
       "prompt": "Some people believe public libraries should focus mainly on printed books, while others think they should provide more digital resources and community services. Discuss both views and give your own opinion."
     },
     {
-      "task_id": "WRITE-V1-G1",
-      "title": "General Task 1 · Evening Course",
-      "test_type": "General",
-      "task_type": "Task 1",
-      "suggested_minutes": 20,
-      "minimum_words": 150,
+      "task_id": "WRITE-V1-G1", "title": "General Task 1 · Evening Course", "test_type": "General", "task_type": "Task 1", "suggested_minutes": 20, "minimum_words": 150,
       "prompt": "You recently attended an evening course at a community centre. Write a letter to the course organiser. In your letter, describe what you enjoyed, explain one problem you experienced, and suggest an improvement for future courses."
     },
     {
-      "task_id": "WRITE-V1-G2",
-      "title": "General Task 2 · Remote Work",
-      "test_type": "General",
-      "task_type": "Task 2",
-      "suggested_minutes": 40,
-      "minimum_words": 250,
+      "task_id": "WRITE-V1-G2", "title": "General Task 2 · Remote Work", "test_type": "General", "task_type": "Task 2", "suggested_minutes": 40, "minimum_words": 250,
       "prompt": "Many employees now work from home for part of the week. Do the advantages of this arrangement outweigh the disadvantages?"
     }
   ]

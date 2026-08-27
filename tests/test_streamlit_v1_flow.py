@@ -56,7 +56,7 @@ def test_complete_student_flow_runs_in_mock_mode(
     app.text_input[2].input("FlowStudent")
     app.text_input[3].input("secure-pass-01")
     app.text_input[4].input("secure-pass-01")
-    app.button[1].click().run(timeout=10)
+    _button(app, "创建账号").click().run(timeout=10)
     user_id = app.session_state["user_id"]
     app = AppTest.from_file("app.py")
     app.session_state["authenticated"] = True

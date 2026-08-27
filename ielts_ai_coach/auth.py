@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import re
 from collections.abc import MutableMapping
+from dataclasses import dataclass
+import secrets
 from typing import Any
 
 import streamlit as st
@@ -24,6 +26,17 @@ from ielts_ai_coach.database.repositories import (
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{3,24}$")
 PASSWORD_HASHER = PasswordHasher(type=Type.ID)
 SESSION_KEYS = ("authenticated", "user_id", "username")
+GUEST_MODE_KEY = "guest_mode"
+GUEST_SESSION_ID_KEY = "guest_session_id"
+GUEST_SESSION_KEYS = (GUEST_MODE_KEY, GUEST_SESSION_ID_KEY)
+
+
+@dataclass(frozen=True)
+class GuestIdentity:
+    """Transient identity used only to scope one browser session."""
+
+    id: int
+    username: str = "游客"
 
 
 class AuthenticationError(Exception):
@@ -108,6 +121,8 @@ def _start_session(
     """Store only the minimum account identity in a session."""
 
     active_state = _session_state(state)
+    for key in GUEST_SESSION_KEYS:
+        active_state.pop(key, None)
     active_state["authenticated"] = True
     active_state["user_id"] = user.id
     active_state["username"] = user.username
@@ -212,9 +227,52 @@ def require_login(
     return user
 
 
+def start_guest_session(
+    state: MutableMapping[str, Any] | None = None,
+) -> GuestIdentity:
+    """Start an isolated guest session without creating a database user."""
+
+    active_state = _session_state(state)
+    for key in SESSION_KEYS:
+        active_state.pop(key, None)
+    session_id = 8_000_000_000_000_000 + secrets.randbelow(1_000_000_000_000_000)
+    active_state[GUEST_MODE_KEY] = True
+    active_state[GUEST_SESSION_ID_KEY] = session_id
+    return GuestIdentity(id=session_id)
+
+
+def get_guest_identity(
+    state: MutableMapping[str, Any] | None = None,
+) -> GuestIdentity | None:
+    """Resolve a valid guest identity from transient session state."""
+
+    active_state = _session_state(state)
+    session_id = active_state.get(GUEST_SESSION_ID_KEY)
+    if (
+        active_state.get(GUEST_MODE_KEY) is not True
+        or not isinstance(session_id, int)
+        or isinstance(session_id, bool)
+    ):
+        return None
+    if session_id <= 0:
+        end_guest_session(active_state)
+        return None
+    return GuestIdentity(id=session_id)
+
+
+def end_guest_session(
+    state: MutableMapping[str, Any] | None = None,
+) -> None:
+    """Clear only the transient guest identity."""
+
+    active_state = _session_state(state)
+    for key in GUEST_SESSION_KEYS:
+        active_state.pop(key, None)
+
+
 def logout(*, state: MutableMapping[str, Any] | None = None) -> None:
     """Clear authentication data from one Streamlit session."""
 
     active_state = _session_state(state)
-    for key in SESSION_KEYS:
+    for key in (*SESSION_KEYS, *GUEST_SESSION_KEYS):
         active_state.pop(key, None)

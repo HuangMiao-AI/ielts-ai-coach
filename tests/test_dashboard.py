@@ -39,7 +39,9 @@ def test_dashboard_guides_user_with_empty_data(
     app.text_input[2].input("EmptyDashboard")
     app.text_input[3].input("secure-pass-01")
     app.text_input[4].input("secure-pass-01")
-    app.button[1].click().run(timeout=10)
+    next(button for button in app.button if button.label == "创建账号").click().run(
+        timeout=10
+    )
     user_id = app.session_state["user_id"]
     app = AppTest.from_file("app.py")
     app.session_state["authenticated"] = True
@@ -94,7 +96,9 @@ def test_dashboard_renders_complete_student_metrics(
     app = AppTest.from_file("app.py").run(timeout=10)
     app.text_input[0].input("FullDashboard")
     app.text_input[1].input("secure-pass-01")
-    app.button[0].click().run(timeout=10)
+    next(button for button in app.button if button.label == "登录").click().run(
+        timeout=10
+    )
 
     metric_labels = [metric.label for metric in app.metric]
     assert not app.exception

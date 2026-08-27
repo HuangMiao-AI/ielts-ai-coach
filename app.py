@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import streamlit as st
 
-from ielts_ai_coach.auth import AuthenticationRequiredError, require_login
+from ielts_ai_coach.auth import (
+    AuthenticationRequiredError,
+    get_guest_identity,
+    require_login,
+)
 from ielts_ai_coach.config import (
     APP_SUBTITLE,
     APP_TITLE,
@@ -15,6 +19,7 @@ from ielts_ai_coach.database.connection import initialize_database
 from ielts_ai_coach.ui.styles import apply_styles
 from ielts_ai_coach.ui.pwa import install_pwa_metadata
 from ielts_ai_coach.views.login import render_auth_page
+from ielts_ai_coach.views.guest_navigation import render_guest_app
 from ielts_ai_coach.views.navigation import render_authenticated_app
 
 
@@ -40,13 +45,18 @@ def main() -> None:
     initialize_application()
     apply_styles()
     install_pwa_metadata()
+    st.session_state.setdefault("writing_draft_registry", {})
 
-    try:
-        current_user = require_login()
-    except AuthenticationRequiredError:
-        render_auth_page()
+    guest = get_guest_identity()
+    if guest is not None:
+        render_guest_app(guest)
     else:
-        render_authenticated_app(current_user)
+        try:
+            current_user = require_login()
+        except AuthenticationRequiredError:
+            render_auth_page()
+        else:
+            render_authenticated_app(current_user)
 
     st.caption(f"{APP_TITLE} · {APP_SUBTITLE}")
 

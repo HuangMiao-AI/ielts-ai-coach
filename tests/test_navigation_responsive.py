@@ -67,7 +67,7 @@ def _register_through_ui(app: AppTest, username: str) -> AppTest:
     app.text_input[2].input(username)
     app.text_input[3].input("secure-pass-01")
     app.text_input[4].input("secure-pass-01")
-    app.button[1].click()
+    app.button[2].click()
     registered_app = app.run(timeout=10)
     authenticated_app = AppTest.from_file("app.py")
     authenticated_app.session_state["authenticated"] = True

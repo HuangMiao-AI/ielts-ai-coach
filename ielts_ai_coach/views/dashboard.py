@@ -22,6 +22,7 @@ from ielts_ai_coach.services.tasks import get_tasks_for_day, get_week_progress
 from ielts_ai_coach.services.writing import get_writing_remaining
 from ielts_ai_coach.views.charts import render_score_trend
 from ielts_ai_coach.views.growth_dashboard import render_growth_dashboard
+from ielts_ai_coach.views.score_chip import render_score_chip
 
 
 def _section(title: str) -> None:
@@ -268,8 +269,12 @@ def render_dashboard(
     profile = get_learner_profile(user.id)
     snapshot = build_home_snapshot(user.id)
     display_name = profile.display_name if profile else user.username
-    st.title(f"你好，{display_name}")
-    st.caption("今天也向目标前进一步。")
+    greeting, score = st.columns((4, 1))
+    with greeting:
+        st.title(f"你好，{display_name}")
+        st.caption("今天也向目标前进一步。")
+    with score:
+        render_score_chip(user.id)
     if st.session_state.pop(f"onboarding_{user.id}_saved", False):
         st.success("资料已保存，欢迎开始学习。")
     _render_training_arena_entry(page_refs)

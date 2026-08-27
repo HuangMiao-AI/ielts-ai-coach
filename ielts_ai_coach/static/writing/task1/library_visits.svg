@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 760 470" role="img" aria-labelledby="title desc">
+  <title id="title">Annual public library visits</title><desc id="desc">Grouped bar chart, values in thousands.</desc><rect width="760" height="470" rx="18" fill="#fff"/>
+  <text x="380" y="38" text-anchor="middle" font-family="Arial" font-size="22" font-weight="700" fill="#102a2e">Annual public library visits (thousands)</text>
+  <g stroke="#d9e4e2"><path d="M80 390H710M80 310H710M80 230H710M80 150H710M80 70H710"/><path d="M80 60V390M80 390H710" stroke="#536f73"/></g>
+  <g font-family="Arial" font-size="14" fill="#48656a"><text x="54" y="395">0</text><text x="45" y="315">20</text><text x="45" y="235">40</text><text x="45" y="155">60</text><text x="45" y="75">80</text></g>
+  <g fill="#0f766e"><rect x="125" y="222" width="55" height="168"/><rect x="275" y="170" width="55" height="220"/><rect x="425" y="198" width="55" height="192"/><rect x="575" y="270" width="55" height="120"/></g><g fill="#e6a15a"><rect x="185" y="158" width="55" height="232"/><rect x="335" y="138" width="55" height="252"/><rect x="485" y="182" width="55" height="208"/><rect x="635" y="214" width="55" height="176"/></g>
+  <g font-family="Arial" font-size="13" text-anchor="middle" fill="#102a2e"><text x="152" y="214">42</text><text x="212" y="150">58</text><text x="302" y="162">55</text><text x="362" y="130">63</text><text x="452" y="190">48</text><text x="512" y="174">52</text><text x="602" y="262">30</text><text x="662" y="206">44</text><text x="182" y="420">16–24</text><text x="332" y="420">25–44</text><text x="482" y="420">45–64</text><text x="632" y="420">65+</text></g>
+  <g font-family="Arial" font-size="14"><rect x="280" y="442" width="16" height="16" fill="#0f766e"/><text x="302" y="455">2015</text><rect x="380" y="442" width="16" height="16" fill="#e6a15a"/><text x="402" y="455">2025</text></g>
+</svg>

@@ -20,12 +20,16 @@ def test_student_can_register_open_profile_and_logout(
 
     app = AppTest.from_file("app.py").run()
     assert not app.exception
-    assert [button.label for button in app.button] == ["登录", "创建账号"]
+    assert [button.label for button in app.button] == [
+        "立即体验 · 游客模式\nTry as Guest",
+        "登录",
+        "创建账号",
+    ]
 
     app.text_input[2].input("DemoStudent")
     app.text_input[3].input("secure-pass-01")
     app.text_input[4].input("secure-pass-01")
-    app.button[1].click().run()
+    app.button[2].click().run()
 
     assert not app.exception
     assert app.title[0].value == "开始设置学习档案"

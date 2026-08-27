@@ -38,7 +38,9 @@ def test_skill_cards_expose_actionable_honest_metadata() -> None:
     listening = _source("ielts_ai_coach/views/listening.py") + _source(
         "ielts_ai_coach/views/listening_sections.py"
     )
-    writing = _source("ielts_ai_coach/views/writing.py")
+    writing = _source("ielts_ai_coach/views/writing.py") + _source(
+        "ielts_ai_coach/views/writing_task_presentation.py"
+    )
     speaking = _source("ielts_ai_coach/views/speaking.py")
 
     assert "版本" in reading and "难度" in reading and "最近成绩" in reading

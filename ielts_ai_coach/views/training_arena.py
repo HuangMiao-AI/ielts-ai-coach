@@ -12,6 +12,7 @@ from ielts_ai_coach.services.training_arena import (
     arena_round_key,
     build_arena_summary,
     load_training_arena_bank,
+    record_completed_round_score,
     start_arena_round,
 )
 
@@ -31,6 +32,12 @@ def _render_summary(
 ) -> None:
     """Render the compact end-of-round report."""
 
+    round_state = record_completed_round_score(
+        st.session_state,
+        user.id,
+        round_state,
+    )
+    st.session_state[arena_round_key(user.id)] = round_state
     summary = build_arena_summary(round_state, load_training_arena_bank())
     st.subheader("本局战绩")
     columns = st.columns(3)

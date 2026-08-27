@@ -14,6 +14,7 @@ from ielts_ai_coach.auth import (
     UsernameAlreadyExistsError,
     login_user,
     register_user,
+    start_guest_session,
 )
 
 
@@ -113,11 +114,21 @@ def render_auth_page() -> None:
         <section class="auth-hero">
             <div class="auth-kicker">IELTS AI COACH</div>
             <h1>让每一次学习更有方向</h1>
-            <p>创建你的个人账号，安全保存学习进度。</p>
+            <p>无需注册也能先体验；登录后可安全保存长期学习进度。</p>
         </section>
         """,
         unsafe_allow_html=True,
     )
+
+    with st.container(key="guest_cta"):
+        if st.button(
+            "立即体验 · 游客模式\nTry as Guest",
+            type="primary",
+            use_container_width=True,
+        ):
+            start_guest_session()
+            st.rerun()
+        st.caption("无需注册 · 立即开始")
 
     with st.container(key="auth_form_shell"):
         login_tab, registration_tab = st.tabs(["登录", "注册"])
