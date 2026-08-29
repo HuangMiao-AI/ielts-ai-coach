@@ -36,7 +36,7 @@ def render_guest_dashboard(
     st.markdown('<div class="section-heading">快捷开始</div>', unsafe_allow_html=True)
     entries = (
         ("reading", "阅读", "8 篇项目原创文章与双语解析"),
-        ("listening", "听力", "本地音频与当前练习结果"),
+        ("listening", "听力", "核心词汇 · 听发音 · 练拼写"),
         ("writing", "写作", "Academic Task 1 视觉题与 Task 2"),
     )
     columns = st.columns(3)

@@ -101,7 +101,7 @@ def test_top_navigation_groups_and_every_page_opens(
         "scores": "成绩诊断",
         "today": "今日任务",
         "reading": "阅读练习",
-        "listening": "听力练习",
+        "listening": "Listening Vocabulary Lab",
         "plan": "七天计划",
         "coach": "AI学习教练",
         "writing": "写作练习",

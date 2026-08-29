@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; }
+      body { margin: 0; background: transparent; color: #102a2e; }
+      .speech { display: grid; grid-template-columns: minmax(9rem, auto) 1fr; gap: .65rem; align-items: center; max-width: 100%; }
+      button { min-height: 46px; border: 0; border-radius: 14px; padding: .7rem 1rem; color: #fff; background: #0f766e; font-weight: 750; cursor: pointer; }
+      button:hover { background: #0b5f59; }
+      button:focus-visible { outline: 3px solid #e6a15a; outline-offset: 2px; }
+      button:disabled { cursor: not-allowed; opacity: .62; }
+      #status { min-width: 0; color: #587176; font-size: .84rem; line-height: 1.4; overflow-wrap: anywhere; }
+      @media (max-width: 430px) { .speech { grid-template-columns: 1fr; } button { width: 100%; } }
+    </style>
+  </head>
+  <body>
+    <main class="speech" aria-label="英语单词发音">
+      <button id="speak" type="button" aria-label="播放当前英语单词发音">播放发音</button>
+      <span id="status" role="status">点击按钮听单词发音</span>
+    </main>
+    <script>
+      (() => {
+        const button = document.getElementById("speak");
+        const status = document.getElementById("status");
+        const supported = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+        let currentWord = "";
+        let voices = [];
+
+        const post = (type, payload = {}) => window.parent.postMessage(
+          { isStreamlitMessage: true, type, ...payload }, "*"
+        );
+        const refreshVoices = () => {
+          voices = supported ? window.speechSynthesis.getVoices() : [];
+        };
+        const chooseVoice = () => {
+          const english = voices.filter((voice) => voice.lang.toLowerCase().startsWith("en"));
+          return english.find((voice) => voice.lang.toLowerCase() === "en-gb") ||
+            english.find((voice) => voice.lang.toLowerCase() === "en-us") ||
+            english.find((voice) => voice.lang.toLowerCase().startsWith("en")) || null;
+        };
+        const cancelSpeech = () => {
+          if (supported) window.speechSynthesis.cancel();
+        };
+        const speak = () => {
+          if (!supported || !currentWord) return;
+          cancelSpeech();
+          refreshVoices();
+          const voice = chooseVoice();
+          if (voices.length > 0 && !voice) {
+            status.textContent = "当前浏览器暂不支持语音播放，请尝试最新版 Chrome、Edge 或 Safari。";
+            return;
+          }
+          const utterance = new window.SpeechSynthesisUtterance(currentWord);
+          if (voices.length === 0) {
+            utterance.lang = "en-GB";
+          } else {
+            utterance.voice = voice;
+            utterance.lang = voice.lang;
+          }
+          utterance.rate = 0.9;
+          utterance.onstart = () => { status.textContent = "正在播放"; };
+          utterance.onend = () => { status.textContent = "播放完成，可再次播放"; };
+          utterance.onerror = () => { status.textContent = "语音播放失败，请更换浏览器后重试。"; };
+          window.speechSynthesis.speak(utterance);
+          button.textContent = "再听一次";
+        };
+        const render = (args) => {
+          const nextWord = typeof args.word === "string" ? args.word : "";
+          if (nextWord !== currentWord) {
+            cancelSpeech();
+            currentWord = nextWord;
+            button.textContent = "播放发音";
+            status.textContent = "点击按钮听单词发音";
+          }
+          if (!supported) {
+            button.disabled = true;
+            status.textContent = "当前浏览器暂不支持语音播放，请尝试最新版 Chrome、Edge 或 Safari。";
+          }
+          post("streamlit:setFrameHeight", { height: window.innerWidth <= 430 ? 102 : 58 });
+        };
+        const teardown = () => {
+          cancelSpeech();
+          if (supported) window.speechSynthesis.removeEventListener("voiceschanged", refreshVoices);
+        };
+
+        button.addEventListener("click", speak);
+        if (supported) {
+          refreshVoices();
+          window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+        }
+        window.addEventListener("pagehide", teardown, { once: true });
+        window.addEventListener("beforeunload", teardown, { once: true });
+        window.addEventListener("message", (event) => {
+          if (event.data?.type === "streamlit:render") render(event.data.args || {});
+        });
+        post("streamlit:componentReady", { apiVersion: 1 });
+      })();
+    </script>
+  </body>
+</html>

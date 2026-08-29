@@ -11,7 +11,7 @@ from ielts_ai_coach.auth import GuestIdentity, end_guest_session
 from ielts_ai_coach.ui.navigation import run_hidden_navigation
 from ielts_ai_coach.views.guest_dashboard import render_guest_dashboard
 from ielts_ai_coach.views.guest_reading import render_guest_reading_page
-from ielts_ai_coach.views.listening import render_listening_page
+from ielts_ai_coach.views.listening_vocabulary import render_listening_vocabulary_page
 from ielts_ai_coach.views.training_arena import render_training_arena_page
 from ielts_ai_coach.views.writing import render_writing_page
 
@@ -57,7 +57,7 @@ def render_guest_app(guest: GuestIdentity) -> None:
     renderers: dict[str, Callable[[], None]] = {
         "home": partial(render_guest_dashboard, guest, refs),
         "reading": partial(render_guest_reading_page, guest),
-        "listening": partial(render_listening_page, guest),
+        "listening": partial(render_listening_vocabulary_page, guest),
         "writing": partial(render_writing_page, guest, guest_mode=True),
         "arena": partial(render_training_arena_page, guest, refs),
     }

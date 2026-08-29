@@ -112,7 +112,7 @@ def test_guest_can_open_every_approved_route_without_database_records(
         "home": "IELTS AI Coach",
         "arena": "IELTS 训练场",
         "reading": "阅读练习",
-        "listening": "听力练习",
+        "listening": "Listening Vocabulary Lab",
         "writing": "写作练习",
     }
     for route, title in expected_titles.items():

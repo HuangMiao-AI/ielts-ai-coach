@@ -40,7 +40,7 @@ def _render_core_entries(page_refs: Mapping[str, object] | None) -> None:
     _section("快捷开始")
     entries = (
         ("reading", "阅读", "📖", "8 篇原创文章 · 约 30 分钟"),
-        ("listening", "听力", "🎧", "2 套 Mini Practice · 本地音频 · 每套 6 题"),
+        ("listening", "听力", "🎧", "核心词汇 · 听发音 · 练拼写"),
         ("writing", "写作", "✍️", "Task 1 / Task 2 · 20–40 分钟"),
         ("speaking", "口语", "🎙️", "Part 1 / 2 / 3 · 准备与回答计时"),
     )

@@ -18,7 +18,7 @@ from ielts_ai_coach.ui.navigation import (
 from ielts_ai_coach.views.coach import render_coach_page
 from ielts_ai_coach.views.dashboard import render_dashboard
 from ielts_ai_coach.views.history import render_history_page
-from ielts_ai_coach.views.listening import render_listening_page
+from ielts_ai_coach.views.listening_vocabulary import render_listening_vocabulary_page
 from ielts_ai_coach.views.plan import render_plan_page
 from ielts_ai_coach.views.profile import render_profile_page
 from ielts_ai_coach.views.reading import render_reading_page
@@ -96,7 +96,7 @@ def build_navigation_pages(
     renderers: dict[str, Callable[[], None]] = {
         "home": partial(render_dashboard, user, refs),
         "reading": partial(render_reading_page, user, refs),
-        "listening": partial(render_listening_page, user),
+        "listening": partial(render_listening_vocabulary_page, user),
         "writing": partial(render_writing_page, user),
         "speaking": partial(render_speaking_page, user),
         "plan": partial(render_plan_page, user),

@@ -25,7 +25,7 @@ def test_home_has_one_independent_skill_group_with_honest_empty_plan() -> None:
     for route in ("reading", "listening", "writing", "speaking"):
         assert f'("{route}",' in source
     assert "8 篇原创文章" in source
-    assert "2 套 Mini Practice" in source
+    assert "核心词汇 · 听发音 · 练拼写" in source
     assert "Task 1 / Task 2" in source
     assert "Part 1 / 2 / 3" in source
     assert "目前没有学习计划。你可以生成计划，也可以直接开始四科练习。" in source
@@ -35,19 +35,28 @@ def test_skill_cards_expose_actionable_honest_metadata() -> None:
     """Each skill exposes its actual practice scope without fake claims."""
 
     reading = _source("ielts_ai_coach/views/reading.py")
-    listening = _source("ielts_ai_coach/views/listening.py") + _source(
-        "ielts_ai_coach/views/listening_sections.py"
-    )
+    listening = _source("ielts_ai_coach/views/listening_vocabulary.py")
     writing = _source("ielts_ai_coach/views/writing.py") + _source(
         "ielts_ai_coach/views/writing_task_presentation.py"
     )
     speaking = _source("ielts_ai_coach/views/speaking.py")
 
     assert "版本" in reading and "难度" in reading and "最近成绩" in reading
-    assert "2 个短场景" in listening and "本地 WAV 开发用合成音频" in listening
+    assert "雅思核心训练词汇" in listening and "听发音 · 记单词 · 练拼写" in listening
     assert "建议" in writing and "至少" in writing
     assert "准备时间" in speaking and "回答时间" in speaking
     assert "排行榜" not in "\n".join((reading, listening, writing, speaking))
+
+
+def test_legacy_listening_assets_remain_but_are_not_the_normal_route() -> None:
+    """Old Mini Practice code stays available for rollback without navigation use."""
+
+    legacy = _source("ielts_ai_coach/views/listening.py")
+    navigation = _source("ielts_ai_coach/views/navigation.py")
+
+    assert "Listening Mini Practice" in legacy
+    assert "render_listening_vocabulary_page" in navigation
+    assert "render_listening_page" not in navigation
 
 
 def test_css_covers_supported_mobile_and_desktop_widths_without_overflow() -> None:

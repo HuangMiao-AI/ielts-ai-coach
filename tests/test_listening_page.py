@@ -15,7 +15,7 @@ from ielts_ai_coach.services.exam_controls import (
 from ielts_ai_coach.services.listening_bank import load_listening_bank
 from ielts_ai_coach.services.listening_session import listening_session_key
 from ielts_ai_coach.services.skill_sessions import start_session
-from tests.ui_page_helpers import open_authenticated_page
+from streamlit.testing.v1 import AppTest
 
 
 def _button(app, label: str):
@@ -24,18 +24,19 @@ def _button(app, label: str):
     return next(button for button in app.button if button.label == label)
 
 
+def _open_legacy_page() -> AppTest:
+    """Open the retained Mini Practice renderer outside normal navigation."""
+
+    return AppTest.from_file("tests/legacy_listening_app.py").run(timeout=10)
+
+
 def test_listening_page_exposes_original_tests_and_audio(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Listening is a usable local test library rather than a Demo shell."""
 
-    app = open_authenticated_page(
-        tmp_path,
-        monkeypatch,
-        route="listening",
-        username="ListeningLibrary",
-    )
+    app = _open_legacy_page()
 
     assert not app.exception
     assert app.title[0].value == "听力练习"
@@ -54,12 +55,7 @@ def test_listening_submission_scores_and_reveals_review_only_after_confirm(
     """A complete answer set receives deterministic session-only review."""
 
     test = load_listening_bank().tests[0]
-    app = open_authenticated_page(
-        tmp_path,
-        monkeypatch,
-        route="listening",
-        username="ListeningSubmit",
-    )
+    app = _open_legacy_page()
     app = _button(app, "开始 Mini Practice 1").click().run(timeout=10)
     assert any("声音测试" in item.value for item in app.subheader)
     app = _button(app, "开始正式练习").click().run(timeout=10)
@@ -93,12 +89,7 @@ def test_listening_shared_controls_pause_resume_and_submit_after_timeout(
     """Listening locks answer widgets and permits timeout hand-in once."""
 
     test = load_listening_bank().tests[0]
-    app = open_authenticated_page(
-        tmp_path,
-        monkeypatch,
-        route="listening",
-        username="ListeningControls",
-    )
+    app = _open_legacy_page()
     app = _button(app, "开始 Mini Practice 1").click().run(timeout=10)
     app = _button(app, "开始正式练习").click().run(timeout=10)
 
@@ -140,9 +131,7 @@ def test_listening_discards_session_from_the_old_sixteen_question_shape(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     test = load_listening_bank().tests[0]
-    app = open_authenticated_page(
-        tmp_path, monkeypatch, route="listening", username="ListeningLegacy"
-    )
+    app = _open_legacy_page()
     app = _button(app, "开始 Mini Practice 1").click().run(timeout=10)
     user_id = app.session_state["user_id"]
     key = listening_session_key(user_id, test.test_id)
