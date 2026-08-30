@@ -14,6 +14,7 @@ from ielts_ai_coach.services.writing_tasks import (
     get_writing_task,
     list_writing_tasks,
 )
+from ielts_ai_coach.services.skill_sessions import draft_key
 
 
 def apply_writing_task_prefill() -> bool:
@@ -38,15 +39,42 @@ def apply_writing_task_prefill() -> bool:
     return True
 
 
-def _remember_visual_choice(widget_key: str, registry_key: str) -> None:
-    """Keep a visual choice outside Streamlit's page-widget cleanup."""
+def _remember_visual_choice(
+    user_id: int,
+    widget_key: str,
+    registry_key: str,
+) -> None:
+    """Save the outgoing draft before changing the active visual task."""
 
     selected = st.session_state.get(widget_key)
     registry = st.session_state.get("writing_draft_registry")
     if isinstance(selected, str) and isinstance(registry, dict):
-        record = registry.setdefault(registry_key, {})
-        if isinstance(record, dict):
-            record["visual_task_id"] = selected
+        visual_record = registry.setdefault(registry_key, {})
+        previous = (
+            visual_record.get("visual_task_id")
+            if isinstance(visual_record, dict)
+            else None
+        )
+        if isinstance(previous, str) and previous != selected:
+            active_key = draft_key(user_id, "writing", previous)
+            prompt_key = f"{active_key}_prompt"
+            content_key = f"{active_key}_content"
+            revision = st.session_state.get(
+                f"{content_key}_editor_revision",
+                0,
+            )
+            editor_key = f"{content_key}_editor_{revision}"
+            draft_record = registry.setdefault(active_key, {})
+            if isinstance(draft_record, dict):
+                for field, state_key in (
+                    ("prompt", prompt_key),
+                    ("content", editor_key),
+                ):
+                    value = st.session_state.get(state_key)
+                    if isinstance(value, str):
+                        draft_record[field] = value
+        if isinstance(visual_record, dict):
+            visual_record["visual_task_id"] = selected
             st.session_state["writing_draft_registry"] = registry
 
 
@@ -93,7 +121,7 @@ def _select_academic_visual(
         ),
         key=widget_key,
         on_change=_remember_visual_choice,
-        args=(widget_key, registry_key),
+        args=(user_id, widget_key, registry_key),
     )
     if isinstance(registry, dict):
         current = registry.setdefault(registry_key, {})

@@ -255,6 +255,33 @@ def test_academic_task_one_visuals_keep_drafts_and_results_isolated(
     assert not any("本次写作已完成" in item.value for item in app.success)
 
 
+def test_switching_visual_preserves_edit_made_before_the_same_rerun(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A selector click must not discard the draft currently in the browser."""
+
+    _configure_app(tmp_path, monkeypatch)
+    app = AppTest.from_file("app.py").run(timeout=10)
+    next(
+        button for button in app.button
+        if button.label == "立即体验 · 游客模式\nTry as Guest"
+    ).click().run(timeout=10)
+    app._page_hash = calc_hash("writing")
+    app.run(timeout=10)
+
+    content = next(item for item in app.text_area if item.label == "作文正文")
+    visual = next(item for item in app.selectbox if item.label == "视觉题目")
+    content.input("This draft has not caused its own rerun yet.")
+    visual.select("WRITE-V1-A1-MAP").run(timeout=10)
+    next(item for item in app.selectbox if item.label == "视觉题目").select(
+        "WRITE-V1-A1-LINE"
+    ).run(timeout=10)
+
+    restored = next(item for item in app.text_area if item.label == "作文正文")
+    assert restored.value == "This draft has not caused its own rerun yet."
+
+
 def test_completed_arena_round_is_added_to_session_score_once() -> None:
     store: dict[str, object] = {}
     round_state = ArenaRound(

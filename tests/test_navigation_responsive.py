@@ -114,7 +114,7 @@ def test_top_navigation_groups_and_every_page_opens(
     assert NAVIGATION_STRUCTURE == {
         "练习": ("首页", "阅读", "听力", "写作", "口语"),
         "学习": ("学习计划", "历史记录"),
-        "账户": ("个人资料",),
+        "账户": ("个人资料", "设置"),
     }
     for path, title in expected_titles.items():
         _open_page(app, path)

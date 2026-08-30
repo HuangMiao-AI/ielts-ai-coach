@@ -57,7 +57,7 @@ def render_primary_navigation(
         for section, keys in (
             ("练习", PRIMARY_NAVIGATION_KEYS[:5]),
             ("学习", PRIMARY_NAVIGATION_KEYS[5:7]),
-            ("账户", PRIMARY_NAVIGATION_KEYS[7:]),
+            ("账户", ("profile", "settings")),
         ):
             st.caption(section)
             for key in keys:
@@ -76,7 +76,7 @@ def render_primary_navigation(
                 _render_link(refs[key], label=label)
         with columns[4]:
             with st.popover("更多", use_container_width=True):
-                for key in ("listening", "speaking", "history", "profile"):
+                for key in ("listening", "speaking", "history", "profile", "settings"):
                     _render_link(refs[key])
 
     st.session_state["active_primary_route"] = selected_key

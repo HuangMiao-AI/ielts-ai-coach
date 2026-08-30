@@ -33,7 +33,7 @@ from ielts_ai_coach.views.writing import render_writing_page
 NAVIGATION_STRUCTURE = {
     "练习": ("首页", "阅读", "听力", "写作", "口语"),
     "学习": ("学习计划", "历史记录"),
-    "账户": ("个人资料",),
+    "账户": ("个人资料", "设置"),
 }
 
 _ROUTE_META = {

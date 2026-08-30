@@ -42,7 +42,7 @@ def test_primary_navigation_matches_the_student_information_architecture() -> No
     assert NAVIGATION_STRUCTURE == {
         "练习": ("首页", "阅读", "听力", "写作", "口语"),
         "学习": ("学习计划", "历史记录"),
-        "账户": ("个人资料",),
+        "账户": ("个人资料", "设置"),
     }
     assert CONTEXTUAL_ROUTE_KEYS == (
         "arena",
@@ -65,3 +65,14 @@ def test_streamlit_router_is_hidden_behind_one_custom_navigation() -> None:
     assert "mobile_bottom_navigation" in source
     assert 'position="top"' not in source
     assert "mobile_quick_navigation" not in source
+
+
+def test_account_navigation_exposes_settings_and_logout_route() -> None:
+    """Users must be able to reach the existing logout control normally."""
+
+    source = (
+        PROJECT_ROOT / "ielts_ai_coach" / "ui" / "navigation.py"
+    ).read_text(encoding="utf-8")
+
+    assert '("profile", "settings")' in source
+    assert '("listening", "speaking", "history", "profile", "settings")' in source
