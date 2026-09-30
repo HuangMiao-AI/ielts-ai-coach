@@ -6,6 +6,8 @@ A game-based bilingual IELTS learning prototype designed for Chinese learners.
 
 Independent student project. Not affiliated with or endorsed by IELTS, Cambridge University Press & Assessment, British Council, or IDP.
 
+![IELTS AI Coach landing page with guest access and account login](docs/assets/screenshots/landing.png)
+
 ## Overview
 
 IELTS AI Coach combines short vocabulary challenges, exam-style practice, bilingual review, and account-based learning history in a publicly deployed web application. The interface is primarily Simplified Chinese, with English practice content and English–Chinese explanations where provided.
@@ -30,6 +32,8 @@ The Training Arena keeps interactions short and easy to start, while Reading and
 
 Five-question rounds mix synonym and word-form challenges. Each answer receives immediate bilingual feedback, followed by points, accuracy, and vocabulary review. Answer locking and exact-once round recording prevent repeated clicks from adding extra points. Battle-style results are lightweight motivation, not IELTS Band scores; accumulated points are session-only.
 
+![IELTS Training Arena word-form challenge](docs/assets/screenshots/training-arena.png)
+
 ### Reading
 
 Eight project-original Academic Reading passages support a split passage/question workspace, question navigation, a live countdown, pause/resume, and submission confirmation. Answers are preserved through supported practice navigation; signed-in practice state and submitted results use database-backed storage. Review provides deterministic answer checking and bilingual explanations with passage evidence.
@@ -42,11 +46,15 @@ A project-curated bank of 300 words supplies ten-word learning rounds and spelli
 
 This is vocabulary listening/spelling training, **not a full IELTS Listening simulation**. The dataset is not an official IELTS word list, and synthesized pronunciation is not official exam audio. Progress is session-only for both guests and registered users.
 
+![Listening Vocabulary Lab learning view with pronunciation and bilingual vocabulary support](docs/assets/screenshots/listening-vocabulary-lab.png)
+
 ### Academic Writing
 
 Task 1 includes six project-original SVG prompts: line graph, bar chart, pie charts, table, process, and map. Task 2 provides essay prompts. The workspace includes word counts, local structural checks, exam controls, and separate session drafts for different prompts.
 
 In the deployed no-key mode, signed-in users save essays without a score or fabricated feedback. Guest completion reports basic counts and whether the recommended length was reached, without writing an essay to the database. Draft preservation across page or prompt changes does not guarantee recovery after closing the browser or losing the session.
+
+![Academic Writing Task 1 practice with an original renewable-energy line graph](docs/assets/screenshots/writing-task1.png)
 
 ### Accounts, history, and analytics
 
